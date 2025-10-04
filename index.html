@@ -274,6 +274,8 @@
                 <option value="endometrium">Carcinoma endometriale (dMMR)</option>
                 <option value="hcc">Epatocarcinoma (HCC)</option>
                 <option value="mesothelioma">Mesotelioma pleurico</option>
+                <option value="cscc">Carcinoma cutaneo squamoso (cSCC)</option>
+                <option value="bcc">Carcinoma basocellulare (BCC)</option>
             </select>
         </div>
         
@@ -319,7 +321,7 @@
             </div>
         </div>
         
-        <button onclick="evaluate()" class="btn">🧪 VALUTA INDICAZIONE</button>
+        <button onclick="evaluatePDL1()" class="btn">🧪 VALUTA INDICAZIONE</button>
         <button onclick="generateReport()" class="btn btn-success">📄 GENERA REFERTO</button>
         
         <div id="debug" class="debug">Sistema pronto. Compila i campi e premi VALUTA...</div>
@@ -412,6 +414,19 @@
                                 method: 'TPS',
                                 cutoff: 1,
                                 notes: 'Stadio III non resecabile, TPS ≥1%, post radio-chemio',
+                                combo: false
+                            }
+                        }
+                    },
+                    cemiplimab: {
+                        name: 'Cemiplimab',
+                        clone: '22C3 (Dako) equivalente',
+                        indications: {
+                            'first-mono': {
+                                name: 'Prima linea monoterapia',
+                                method: 'TPS',
+                                cutoff: 50,
+                                notes: 'TPS ≥50%, senza mutazioni EGFR/ALK, alternativa a pembrolizumab',
                                 combo: false
                             }
                         }
@@ -771,6 +786,26 @@
                                 combo: false
                             }
                         }
+                    },
+                    dostarlimab: {
+                        name: 'Dostarlimab',
+                        clone: '22C3 (Dako) equivalente',
+                        indications: {
+                            'advanced-dmmr': {
+                                name: 'Avanzato/ricorrente dMMR',
+                                method: 'Non richiesto',
+                                cutoff: 0,
+                                notes: 'dMMR/MSI-H confermato (IHC o PCR), PDL-1 non richiesto',
+                                combo: false
+                            },
+                            'first-combo': {
+                                name: 'Prima linea + chemio',
+                                method: 'Non richiesto',
+                                cutoff: 0,
+                                notes: 'PDL-1 agnostico, avanzato/ricorrente',
+                                combo: true
+                            }
+                        }
                     }
                 }
             },
@@ -817,6 +852,55 @@
                                 method: 'Non richiesto',
                                 cutoff: 0,
                                 notes: 'PDL-1 agnostico (all-comers)',
+                                combo: false
+                            }
+                        }
+                    }
+                }
+            },
+            cscc: {
+                name: 'Carcinoma cutaneo squamoso (cSCC)',
+                drugs: {
+                    cemiplimab: {
+                        name: 'Cemiplimab',
+                        clone: 'Non richiesto',
+                        indications: {
+                            'advanced': {
+                                name: 'Localmente avanzato o metastatico',
+                                method: 'Non richiesto',
+                                cutoff: 0,
+                                notes: 'PDL-1 agnostico, non candidato a chirurgia o radioterapia curativa',
+                                combo: false
+                            }
+                        }
+                    },
+                    pembrolizumab: {
+                        name: 'Pembrolizumab',
+                        clone: 'Non richiesto',
+                        indications: {
+                            'recurrent-metastatic': {
+                                name: 'Ricorrente o metastatico',
+                                method: 'Non richiesto',
+                                cutoff: 0,
+                                notes: 'PDL-1 agnostico, non candidato a chirurgia o radioterapia curativa',
+                                combo: false
+                            }
+                        }
+                    }
+                }
+            },
+            bcc: {
+                name: 'Carcinoma basocellulare (BCC)',
+                drugs: {
+                    cemiplimab: {
+                        name: 'Cemiplimab',
+                        clone: 'Non richiesto',
+                        indications: {
+                            'advanced': {
+                                name: 'Localmente avanzato o metastatico',
+                                method: 'Non richiesto',
+                                cutoff: 0,
+                                notes: 'PDL-1 agnostico, dopo progressione o intolleranza a inibitori hedgehog',
                                 combo: false
                             }
                         }
@@ -941,7 +1025,7 @@
             }
         }
 
-        function evaluate() {
+        function evaluatePDL1() {
             const debugDiv = document.getElementById('debug');
             debugDiv.innerHTML = '';
             log('═══ AVVIO VALUTAZIONE ═══', 'info');
