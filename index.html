@@ -193,8 +193,27 @@
             border-radius: 8px;
             font-family: 'Courier New', monospace;
             font-size: 12px;
-            max-height: 300px;
+            max-height: 200px;
             overflow-y: auto;
+            display: none;
+        }
+        .debug.visible {
+            display: block;
+        }
+        .debug-toggle {
+            background: #4a5568;
+            color: #e2e8f0;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            display: inline-block;
+            margin-bottom: 10px;
+            border: 1px solid #718096;
+            transition: background 0.2s;
+        }
+        .debug-toggle:hover {
+            background: #718096;
         }
         .debug-success { color: #68d391; }
         .debug-error { color: #fc8181; }
@@ -233,9 +252,114 @@
             margin-right: 8px;
             cursor: pointer;
         }
+        .referto-header {
+            text-align: center;
+            border-bottom: 3px solid #2d3748;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        .referto-header h2 {
+            margin: 0;
+            font-size: 24px;
+            color: #2d3748;
+        }
+        .referto-header p {
+            margin: 10px 0 0 0;
+            font-size: 14px;
+            color: #718096;
+        }
+        .referto-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 14px;
+        }
+        .referto-table tr {
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .referto-table td {
+            padding: 12px;
+        }
+        .referto-table td:first-child {
+            font-weight: 600;
+            width: 35%;
+            color: #2d3748;
+        }
+        .referto-result {
+            border: 3px solid #2d3748;
+            padding: 30px;
+            text-align: center;
+            margin: 30px 0;
+            border-radius: 10px;
+        }
+        .referto-result h3 {
+            margin: 0 0 15px 0;
+            font-size: 20px;
+            color: #2d3748;
+        }
+        .referto-result-score {
+            font-size: 48px;
+            font-weight: bold;
+            margin: 20px 0;
+            color: #2d3748;
+        }
+        .referto-result-status {
+            font-size: 18px;
+            font-weight: bold;
+            margin: 10px 0;
+            color: #2d3748;
+        }
+        .referto-notes {
+            margin: 25px 0;
+            padding: 20px;
+            background: #f7fafc;
+            border-left: 4px solid #667eea;
+            border-radius: 8px;
+        }
+        .referto-notes p {
+            margin: 10px 0;
+            font-size: 14px;
+        }
+        .referto-warnings {
+            margin-top: 15px;
+            padding: 15px;
+            background: #fff3cd;
+            border-left: 3px solid #ffc107;
+            border-radius: 8px;
+        }
+        .referto-warnings p {
+            margin: 5px 0;
+            font-size: 13px;
+        }
+        .referto-footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 2px solid #e2e8f0;
+            font-size: 11px;
+            color: #718096;
+        }
+        .referto-footer p {
+            margin: 5px 0;
+        }
+        .print-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: transform 0.2s;
+        }
+        .print-btn:hover {
+            transform: translateY(-2px);
+        }
         @media print {
             body { background: white; }
-            .btn, .debug, .form-group, .warning, .reference { display: none; }
+            .btn, .debug, .debug-toggle, .form-group, .warning, .reference { display: none; }
+            .container { box-shadow: none; }
         }
     </style>
 </head>
@@ -324,7 +448,11 @@
         <button onclick="evaluatePDL1()" class="btn">🧪 VALUTA INDICAZIONE</button>
         <button onclick="generateReport()" class="btn btn-success">📄 GENERA REFERTO</button>
         
-        <div id="debug" class="debug">Sistema pronto. Compila i campi e premi VALUTA...</div>
+        <div>
+            <div class="debug-toggle" onclick="toggleDebug()">🐛 Mostra debug (0 messaggi)</div>
+            <div id="debug" class="debug"></div>
+        </div>
+        
         <div id="result"></div>
         <div id="report"></div>
         <div id="references"></div>
@@ -909,6 +1037,8 @@
             }
         };
 
+        let debugCount = 0;
+
         function log(message, type = 'info') {
             const debug = document.getElementById('debug');
             const colors = {
@@ -920,6 +1050,20 @@
             const timestamp = new Date().toLocaleTimeString('it-IT');
             debug.innerHTML += `<div class="${colors[type]}">[${timestamp}] ${message}</div>`;
             debug.scrollTop = debug.scrollHeight;
+            debugCount++;
+            updateDebugToggle();
+        }
+
+        function toggleDebug() {
+            const debug = document.getElementById('debug');
+            debug.classList.toggle('visible');
+        }
+
+        function updateDebugToggle() {
+            const toggle = document.querySelector('.debug-toggle');
+            if (toggle) {
+                toggle.textContent = `🐛 Mostra debug (${debugCount} messaggi)`;
+            }
         }
 
         function updateDrugs() {
@@ -941,7 +1085,6 @@
             
             log(`Tumore selezionato: ${clinicalDatabase[tumor].name}`);
             
-            // Mostra campi molecolari per tumori specifici
             if (tumor === 'nsclc') {
                 molecularGroup.style.display = 'block';
             }
@@ -1012,7 +1155,6 @@
             cloneInfo.innerHTML = infoHTML;
             cloneInfo.className = 'auto-info active';
             
-            // Help per score
             if (indication.cutoff === 0) {
                 scoreHelp.innerHTML = '✓ PDL-1 agnostico per questa indicazione';
                 scoreHelp.className = 'auto-info active';
@@ -1026,8 +1168,8 @@
         }
 
         function evaluatePDL1() {
-            const debugDiv = document.getElementById('debug');
-            debugDiv.innerHTML = '';
+            debugCount = 0;
+            document.getElementById('debug').innerHTML = '';
             log('═══ AVVIO VALUTAZIONE ═══', 'info');
             
             const tumor = document.getElementById('tumor').value;
@@ -1055,7 +1197,6 @@
             log(`Metodo: ${indication.method}`);
             log(`Score inserito: ${score}%`);
             
-            // Check alterazioni molecolari NSCLC
             const warnings = [];
             if (tumor === 'nsclc') {
                 const egfr = document.getElementById('egfr').checked;
@@ -1080,13 +1221,11 @@
                 }
             }
             
-            // Check MSI
             if (document.getElementById('msi') && document.getElementById('msi').checked) {
                 log('🧬 MSI-High/dMMR presente', 'success');
                 warnings.push('MSI-High/dMMR: possibile risposta all\'immunoterapia anche con PDL-1 basso. Considerare pembrolizumab se approvato per MSI-H.');
             }
             
-            // Valutazione
             let isEligible = false;
             let cutoffText = '';
             
@@ -1097,7 +1236,7 @@
             } else if (indication.tcic) {
                 cutoffText = indication.cutoff;
                 log(`Cutoff TC/IC: ${cutoffText}`, 'info');
-                isEligible = null; // Richiede interpretazione
+                isEligible = null;
             } else {
                 cutoffText = `${indication.method} ≥${indication.cutoff}%`;
                 isEligible = score >= indication.cutoff;
@@ -1105,12 +1244,10 @@
                 log(`Risultato: ${isEligible ? 'POSITIVO ✓' : 'NEGATIVO ✗'}`, isEligible ? 'success' : 'error');
             }
             
-            // Display risultato
             const resultDiv = document.getElementById('result');
             let resultHTML = '';
             
             if (isEligible === null) {
-                // Caso TC/IC
                 resultHTML = `
                     <div class="result result-info">
                         <h3>ℹ️ Valutazione TC/IC richiesta</h3>
@@ -1198,7 +1335,6 @@
             
             resultDiv.innerHTML = resultHTML;
             
-            // Salva dati per referto
             window.evaluationData = {
                 tumor: clinicalDatabase[tumor].name,
                 drug: drugData.name,
@@ -1214,8 +1350,7 @@
             };
             
             log('═══ VALUTAZIONE COMPLETATA ═══', 'success');
-            
-            // Mostra riferimenti
+            updateDebugToggle();
             showReferences(tumor, drug);
         }
 
@@ -1240,7 +1375,7 @@
 
         function generateReport() {
             if (!window.evaluationData) {
-                log('❌ Esegui prima la valutazione!', 'error');
+                alert('❌ Esegui prima la valutazione!');
                 return;
             }
             
@@ -1259,71 +1394,74 @@
             
             reportDiv.innerHTML = `
                 <div style="background: white; border: 3px solid #2d3748; padding: 40px; margin: 30px 0; font-family: 'Times New Roman', serif; page-break-inside: avoid;">
-                    <div style="text-align: center; border-bottom: 3px solid #2d3748; padding-bottom: 20px; margin-bottom: 30px;">
-                        <h2 style="margin: 0; font-size: 24px; color: #2d3748;">REFERTO IMMUNOISTOCHIMICA</h2>
-                        <p style="margin: 10px 0 0 0; font-size: 14px; color: #718096;">PDL-1 Expression Analysis</p>
+                    <div class="referto-header">
+                        <h2>REFERTO IMMUNOISTOCHIMICA</h2>
+                        <p>PDL-1 Expression Analysis</p>
                     </div>
                     
-                    <table style="width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 14px;">
+                    <table class="referto-table">
                         <tr>
-                            <td style="padding: 10px; border-bottom: 1px solid #e2e8f0;"><strong>Data referto:</strong></td>
-                            <td style="padding: 10px; border-bottom: 1px solid #e2e8f0;">${new Date().toLocaleDateString('it-IT', {day: '2-digit', month: '2-digit', year: 'numeric'})}</td>
+                            <td>Data referto</td>
+                            <td>${new Date().toLocaleDateString('it-IT', {day: '2-digit', month: '2-digit', year: 'numeric'})}</td>
                         </tr>
                         <tr>
-                            <td style="padding: 10px; border-bottom: 1px solid #e2e8f0;"><strong>Tumore:</strong></td>
-                            <td style="padding: 10px; border-bottom: 1px solid #e2e8f0;">${d.tumor}</td>
+                            <td>Tumore</td>
+                            <td>${d.tumor}</td>
                         </tr>
                         <tr>
-                            <td style="padding: 10px; border-bottom: 1px solid #e2e8f0;"><strong>Farmaco target:</strong></td>
-                            <td style="padding: 10px; border-bottom: 1px solid #e2e8f0;">${d.drug}</td>
+                            <td>Farmaco target</td>
+                            <td>${d.drug}</td>
                         </tr>
                         <tr>
-                            <td style="padding: 10px; border-bottom: 1px solid #e2e8f0;"><strong>Indicazione:</strong></td>
-                            <td style="padding: 10px; border-bottom: 1px solid #e2e8f0;">${d.line}</td>
+                            <td>Indicazione</td>
+                            <td>${d.line}</td>
                         </tr>
                         <tr>
-                            <td style="padding: 10px; border-bottom: 1px solid #e2e8f0;"><strong>Clone anticorpale:</strong></td>
-                            <td style="padding: 10px; border-bottom: 1px solid #e2e8f0;">${d.clone}</td>
+                            <td>Clone anticorpale</td>
+                            <td>${d.clone}</td>
                         </tr>
                         <tr>
-                            <td style="padding: 10px; border-bottom: 1px solid #e2e8f0;"><strong>Metodo scoring:</strong></td>
-                            <td style="padding: 10px; border-bottom: 1px solid #e2e8f0;">${d.method}</td>
+                            <td>Metodo scoring</td>
+                            <td>${d.method}</td>
                         </tr>
                     </table>
                     
-                    <div style="background: ${statusColor}; border: 3px solid #2d3748; padding: 30px; text-align: center; margin: 30px 0;">
-                        <h3 style="margin: 0 0 15px 0; font-size: 20px; color: #2d3748;">RISULTATO PDL-1</h3>
-                        <p style="font-size: 48px; font-weight: bold; margin: 20px 0; color: #2d3748;">${d.score}%</p>
-                        <p style="font-size: 18px; font-weight: bold; margin: 10px 0; color: #2d3748;">${statusText}</p>
+                    <div class="referto-result" style="background: ${statusColor};">
+                        <h3>RISULTATO PDL-1</h3>
+                        <div class="referto-result-score">${d.score}%</div>
+                        <div class="referto-result-status">${statusText}</div>
                     </div>
                     
-                    <div style="margin: 25px 0; padding: 20px; background: #f7fafc; border-left: 4px solid #667eea;">
-                        <p style="margin: 0 0 10px 0;"><strong>Cutoff di riferimento:</strong> ${d.cutoff}</p>
-                        <p style="margin: 0 0 10px 0;"><strong>Note cliniche:</strong> ${d.notes}</p>
-                        ${d.combo ? '<p style="margin: 0;"><strong>Regime:</strong> In combinazione</p>' : ''}
-                        ${d.warnings.length > 0 ? `
-                            <div style="margin-top: 15px; padding: 15px; background: #fff3cd; border-left: 3px solid #ffc107;">
-                                <p style="margin: 0 0 10px 0; font-weight: bold;">⚠️ Considerazioni cliniche:</p>
-                                ${d.warnings.map(w => `<p style="margin: 5px 0; font-size: 13px;">• ${w}</p>`).join('')}
-                            </div>
-                        ` : ''}
+                    <div class="referto-notes">
+                        <p><strong>Cutoff di riferimento:</strong> ${d.cutoff}</p>
+                        <p><strong>Interpretazione:</strong> ${d.notes}</p>
+                        ${d.combo ? '<p><strong>Regime terapeutico:</strong> In combinazione con altri agenti</p>' : '<p><strong>Regime terapeutico:</strong> Monoterapia</p>'}
                     </div>
                     
-                    <div style="margin-top: 40px; padding-top: 20px; border-top: 2px solid #e2e8f0; font-size: 11px; color: #718096;">
-                        <p style="margin: 5px 0;"><strong>Disclaimer:</strong> Questo referto è generato a scopo educativo. 
-                        La decisione terapeutica finale deve considerare le linee guida ufficiali (NCCN, ESMO, AIOM), 
-                        le approvazioni regolatorie locali (AIFA), e il quadro clinico completo del paziente.</p>
+                    ${d.warnings.length > 0 ? `
+                        <div class="referto-warnings">
+                            <p style="margin-top: 0; font-weight: bold;">⚠️ Considerazioni cliniche importanti:</p>
+                            ${d.warnings.map(w => `<p>• ${w}</p>`).join('')}
+                        </div>
+                    ` : ''}
+                    
+                    <div class="referto-footer">
+                        <p><strong>DISCLAIMER IMPORTANTE:</strong></p>
+                        <p>Questo referto è generato a scopo educativo e rappresentativo. La decisione terapeutica finale deve considerare:</p>
+                        <ul style="margin: 5px 0; padding-left: 15px;">
+                            <li>Le linee guida ufficiali (NCCN, ESMO, AIOM)</li>
+                            <li>Le approvazioni regolatorie locali (AIFA per l'Italia)</li>
+                            <li>Il quadro clinico completo del paziente</li>
+                            <li>I fattori prognostici e predittivi aggiuntivi</li>
+                        </ul>
                     </div>
                     
-                    <button onclick="window.print()" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
-                        color: white; padding: 12px 30px; border: none; border-radius: 8px; 
-                        font-size: 14px; font-weight: 600; cursor: pointer; margin-top: 20px;">
-                        🖨️ Stampa referto
-                    </button>
+                    <button onclick="window.print()" class="print-btn">🖨️ Stampa referto</button>
                 </div>
             `;
             
             log('📄 Referto generato', 'success');
+            updateDebugToggle();
         }
     </script>
 </body>
