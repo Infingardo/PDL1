@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PDL-1 Clinical Evaluator v2.0</title>
+    <title>PDL-1 Clinical Evaluator v2.1</title>
     <style>
         * { box-sizing: border-box; }
         body { 
@@ -83,6 +83,11 @@
             background: #fed7d7;
             color: #742a2a;
             border-color: #fc8181;
+        }
+        .auto-info.regulatory-warning {
+            background: #fef3c7;
+            color: #92400e;
+            border-color: #f59e0b;
         }
         .btn { 
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -252,6 +257,17 @@
             margin-right: 8px;
             cursor: pointer;
         }
+        .regulatory-badge {
+            display: inline-block;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: bold;
+            margin-left: 5px;
+        }
+        .badge-fda { background: #dbeafe; color: #1e40af; }
+        .badge-ema { background: #fef3c7; color: #92400e; }
+        .badge-withdrawn { background: #fee2e2; color: #991b1b; }
         .referto-header {
             text-align: center;
             border-bottom: 3px solid #2d3748;
@@ -356,9 +372,29 @@
         .print-btn:hover {
             transform: translateY(-2px);
         }
+        .changelog {
+            background: #f0fdf4;
+            border-left: 4px solid #22c55e;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            font-size: 12px;
+        }
+        .changelog h4 {
+            margin: 0 0 10px 0;
+            color: #166534;
+        }
+        .changelog ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+        .changelog li {
+            margin-bottom: 4px;
+            color: #15803d;
+        }
         @media print {
             body { background: white; }
-            .btn, .debug, .debug-toggle, .form-group, .warning, .reference { display: none; }
+            .btn, .debug, .debug-toggle, .form-group, .warning, .reference, .changelog { display: none; }
             .container { box-shadow: none; }
         }
     </style>
@@ -366,17 +402,30 @@
 <body>
     <div class="container">
         <h1>🔬 PDL-1 Clinical Evaluator</h1>
-        <div class="version">v2.0 - Database clinico aggiornato 2025</div>
+        <div class="version">v2.1 - Database clinico aggiornato Novembre 2025</div>
+        
+        <div class="changelog">
+            <h4>🆕 Novità v2.1</h4>
+            <ul>
+                <li>Aggiunto: Carcinoma vie biliari (BTC) - Pembrolizumab/Durvalumab</li>
+                <li>Aggiunto: NSCLC perioperatorio (KEYNOTE-671)</li>
+                <li>Aggiunto: HNSCC perioperatorio (KEYNOTE-689)</li>
+                <li>Aggiunto: Gastrico HER2+ (KEYNOTE-811)</li>
+                <li>Aggiunto: MIBC perioperatorio (KEYNOTE-905)</li>
+                <li>Warning: Atezolizumab TNBC ritirato FDA (attivo EMA)</li>
+                <li>Fix: Gestione cutoff TC/IC per atezolizumab</li>
+            </ul>
+        </div>
         
         <div class="warning">
-            <strong>⚠️ DISCLAIMER:</strong> Questo tool è esclusivamente educativo e NON sostituisce le linee guida ufficiali (NCCN, ESMO, AIOM) né il giudizio clinico. Le indicazioni variano per paese e aggiornamenti regolatori. Verificare sempre le indicazioni approvate localmente.
+            <strong>⚠️ DISCLAIMER:</strong> Questo tool è esclusivamente educativo e NON sostituisce le linee guida ufficiali (NCCN, ESMO, AIOM) né il giudizio clinico. Le indicazioni variano per paese e aggiornamenti regolatori. <strong>Le approvazioni FDA/EMA/AIFA possono differire significativamente.</strong> Verificare sempre le indicazioni approvate localmente.
         </div>
         
         <div class="reference" style="margin-bottom: 20px;">
             <h4>🔬 Info cloni anticorpali e concordanza</h4>
             <div style="font-size: 12px; line-height: 1.6;">
                 <p style="margin: 5px 0;"><strong>22C3 (Dako), 28-8 (Dako), SP263 (Ventana):</strong> Concordanza elevata >90% per cellule tumorali. Potenzialmente intercambiabili per NSCLC, HNSCC, uroteliale.</p>
-                <p style="margin: 5px 0;"><strong>SP142 (Ventana):</strong> Sensibilità ridotta per cellule tumorali (-16% vs altri cloni), maggiore sensibilità per cellule immunitarie (+24%). Concordanza solo 76% con altri cloni. <strong>NON intercambiabile.</strong></p>
+                <p style="margin: 5px 0;"><strong>SP142 (Ventana):</strong> Sensibilità ridotta per cellule tumorali (-16% vs altri cloni), maggiore sensibilità per cellule immunitarie (+24%). Concordanza 73-76% con altri cloni (kappa 0.39-0.55). <strong>NON intercambiabile.</strong></p>
                 <p style="margin: 5px 0;"><strong>Companion vs LDT:</strong> I companion diagnostics sono validati FDA/EMA per farmaci specifici. I Laboratory Developed Tests (LDT) richiedono validazione locale con concordanza ≥90%.</p>
                 <p style="margin: 5px 0; background: #fff3cd; padding: 8px; border-radius: 4px;"><strong>⚠️ Fattori pre-analitici:</strong> Fissazione FFPE ≤48h, sezioni conservate ≤4 settimane a 4°C. Blocchi >3 anni possono sottostimare PDL-1.</p>
             </div>
@@ -400,6 +449,8 @@
                 <option value="mesothelioma">Mesotelioma pleurico</option>
                 <option value="cscc">Carcinoma cutaneo squamoso (cSCC)</option>
                 <option value="bcc">Carcinoma basocellulare (BCC)</option>
+                <option value="btc">Carcinoma vie biliari (BTC) 🆕</option>
+                <option value="mibc">MIBC (Muscle-Invasive Bladder Cancer) 🆕</option>
             </select>
         </div>
         
@@ -438,6 +489,13 @@
             </div>
         </div>
         
+        <div class="form-group" id="her2-group" style="display:none;">
+            <label>🧬 Status HER2 (Gastrico/GEJ):</label>
+            <div class="checkbox-group">
+                <label><input type="checkbox" id="her2"> HER2-positivo (IHC 3+ o IHC 2+/FISH+)</label>
+            </div>
+        </div>
+        
         <div class="form-group" id="msi-group" style="display:none;">
             <label>🧬 Status MSI/dMMR:</label>
             <div class="checkbox-group">
@@ -459,7 +517,7 @@
     </div>
 
     <script>
-        // Database completo indicazioni approvate
+        // Database completo indicazioni approvate - AGGIORNATO NOVEMBRE 2025
         const clinicalDatabase = {
             nsclc: {
                 name: 'NSCLC (Non-Small Cell Lung Cancer)',
@@ -473,21 +531,49 @@
                                 method: 'TPS',
                                 cutoff: 50,
                                 notes: 'TPS ≥50%, senza mutazioni EGFR/ALK',
-                                combo: false
+                                combo: false,
+                                trial: 'KEYNOTE-024'
                             },
-                            'first-combo-chemo': {
-                                name: 'Prima linea + chemio',
+                            'first-mono-low': {
+                                name: 'Prima linea monoterapia (TPS ≥1%)',
                                 method: 'TPS',
                                 cutoff: 1,
-                                notes: 'TPS ≥1%, anche con EGFR/ALK se progressione post-TKI',
-                                combo: true
+                                notes: 'TPS ≥1%, senza mutazioni EGFR/ALK, stadio III non candidato a chemio-RT o stadio IV',
+                                combo: false,
+                                trial: 'KEYNOTE-042'
                             },
-                            'first-combo-chemo-any': {
+                            'first-combo-chemo': {
+                                name: 'Prima linea + chemio (non-squamoso)',
+                                method: 'TPS',
+                                cutoff: 0,
+                                notes: 'PDL-1 agnostico, anche con EGFR/ALK se progressione post-TKI',
+                                combo: true,
+                                trial: 'KEYNOTE-189'
+                            },
+                            'first-combo-chemo-sq': {
                                 name: 'Prima linea + chemio (squamoso)',
                                 method: 'TPS',
                                 cutoff: 0,
                                 notes: 'Istologia squamosa, PDL-1 agnostico',
-                                combo: true
+                                combo: true,
+                                trial: 'KEYNOTE-407'
+                            },
+                            'perioperative': {
+                                name: 'Perioperatorio (neo/adiuvante) 🆕',
+                                method: 'TPS',
+                                cutoff: 0,
+                                notes: 'PDL-1 agnostico, stadio II-IIIB resecabile, neo + chemio poi adiuvante mono',
+                                combo: true,
+                                trial: 'KEYNOTE-671',
+                                fdaDate: 'Oct 2023'
+                            },
+                            'adjuvant': {
+                                name: 'Adiuvante post-resezione',
+                                method: 'TPS',
+                                cutoff: 0,
+                                notes: 'PDL-1 agnostico, stadio IB-IIIA post-resezione e chemio adiuvante',
+                                combo: false,
+                                trial: 'KEYNOTE-091'
                             }
                         }
                     },
@@ -500,14 +586,24 @@
                                 method: 'TPS',
                                 cutoff: 0,
                                 notes: 'PDL-1 agnostico, dopo platino',
-                                combo: false
+                                combo: false,
+                                trial: 'CheckMate-057/017'
                             },
                             'first-combo-ipi': {
                                 name: 'Prima linea + ipilimumab',
                                 method: 'TPS',
                                 cutoff: 1,
                                 notes: 'TPS ≥1%, senza EGFR/ALK',
-                                combo: true
+                                combo: true,
+                                trial: 'CheckMate-227'
+                            },
+                            'neoadjuvant': {
+                                name: 'Neoadiuvante + chemio',
+                                method: 'TPS',
+                                cutoff: 0,
+                                notes: 'PDL-1 agnostico, stadio IB-IIIA resecabile',
+                                combo: true,
+                                trial: 'CheckMate-816'
                             }
                         }
                     },
@@ -519,17 +615,32 @@
                                 name: 'Prima linea + chemio + bevacizumab',
                                 method: 'TC/IC',
                                 cutoff: 0,
+                                cutoffType: 'agnostic',
                                 notes: 'PDL-1 agnostico, non-squamoso',
                                 combo: true,
-                                tcic: true
+                                tcic: true,
+                                trial: 'IMpower150'
                             },
                             'second': {
                                 name: 'Seconda linea',
                                 method: 'TC/IC',
-                                cutoff: 'TC≥50% o IC≥10%',
-                                notes: 'TC3 o IC3, dopo platino',
+                                cutoff: 50,
+                                cutoffIC: 10,
+                                cutoffType: 'tc50_or_ic10',
+                                notes: 'TC ≥50% o IC ≥10% (TC3/IC3), dopo platino',
                                 combo: false,
-                                tcic: true
+                                tcic: true,
+                                trial: 'OAK'
+                            },
+                            'adjuvant': {
+                                name: 'Adiuvante post-resezione',
+                                method: 'TC/IC',
+                                cutoff: 1,
+                                cutoffType: 'tc1_or_ic1',
+                                notes: 'TC ≥1% o IC ≥1%, stadio II-IIIA post-chemio adiuvante',
+                                combo: false,
+                                tcic: true,
+                                trial: 'IMpower010'
                             }
                         }
                     },
@@ -542,7 +653,16 @@
                                 method: 'TPS',
                                 cutoff: 1,
                                 notes: 'Stadio III non resecabile, TPS ≥1%, post radio-chemio',
-                                combo: false
+                                combo: false,
+                                trial: 'PACIFIC'
+                            },
+                            'perioperative': {
+                                name: 'Perioperatorio (AEGEAN)',
+                                method: 'TPS',
+                                cutoff: 0,
+                                notes: 'PDL-1 agnostico, stadio II-IIIB resecabile',
+                                combo: true,
+                                trial: 'AEGEAN'
                             }
                         }
                     },
@@ -555,7 +675,8 @@
                                 method: 'TPS',
                                 cutoff: 50,
                                 notes: 'TPS ≥50%, senza mutazioni EGFR/ALK, alternativa a pembrolizumab',
-                                combo: false
+                                combo: false,
+                                trial: 'EMPOWER-Lung 1'
                             }
                         }
                     }
@@ -573,7 +694,16 @@
                                 method: 'Non richiesto',
                                 cutoff: 0,
                                 notes: 'PDL-1 agnostico',
-                                combo: false
+                                combo: false,
+                                trial: 'KEYNOTE-006'
+                            },
+                            'adjuvant': {
+                                name: 'Adiuvante',
+                                method: 'Non richiesto',
+                                cutoff: 0,
+                                notes: 'Stadio IIB-IV resecato, PDL-1 agnostico',
+                                combo: false,
+                                trial: 'KEYNOTE-716'
                             }
                         }
                     },
@@ -586,14 +716,16 @@
                                 method: 'Non richiesto',
                                 cutoff: 0,
                                 notes: 'PDL-1 agnostico',
-                                combo: false
+                                combo: false,
+                                trial: 'CheckMate-066/067'
                             },
                             'adjuvant': {
                                 name: 'Adiuvante',
                                 method: 'Non richiesto',
                                 cutoff: 0,
                                 notes: 'Stadio III/IV resecato, PDL-1 agnostico',
-                                combo: false
+                                combo: false,
+                                trial: 'CheckMate-238'
                             }
                         }
                     }
@@ -607,25 +739,37 @@
                         clone: '22C3 (Dako)',
                         indications: {
                             'first-line-high': {
-                                name: 'Prima linea (CPS ≥20)',
+                                name: 'Prima linea mono (CPS ≥20)',
                                 method: 'CPS',
                                 cutoff: 20,
-                                notes: 'CPS ≥20 per monoterapia 1ª linea',
-                                combo: false
+                                notes: 'CPS ≥20 per monoterapia 1ª linea R/M',
+                                combo: false,
+                                trial: 'KEYNOTE-048'
                             },
                             'first-combo': {
                                 name: 'Prima linea + chemio',
                                 method: 'CPS',
                                 cutoff: 1,
-                                notes: 'CPS ≥1 in combinazione con chemio',
-                                combo: true
+                                notes: 'CPS ≥1 in combinazione con platino/5-FU',
+                                combo: true,
+                                trial: 'KEYNOTE-048'
                             },
                             'recurrent-metastatic': {
-                                name: 'Ricorrente/metastatico (R/M)',
+                                name: 'Ricorrente/metastatico (R/M) 2ª linea',
                                 method: 'CPS',
                                 cutoff: 1,
                                 notes: 'CPS ≥1, malattia R/M dopo platino',
-                                combo: false
+                                combo: false,
+                                trial: 'KEYNOTE-040'
+                            },
+                            'perioperative': {
+                                name: 'Perioperatorio (neo/adiuvante + RT) 🆕',
+                                method: 'CPS',
+                                cutoff: 1,
+                                notes: 'CPS ≥1, stadio III-IVA resecabile, neo poi adiuv + RT ± cis',
+                                combo: true,
+                                trial: 'KEYNOTE-689',
+                                fdaDate: 'Jun 2025'
                             }
                         }
                     },
@@ -635,10 +779,11 @@
                         indications: {
                             'second': {
                                 name: 'Seconda linea',
-                                method: 'TC',
-                                cutoff: 1,
-                                notes: 'TC ≥1%, progressione a platino',
-                                combo: false
+                                method: 'TPS',
+                                cutoff: 0,
+                                notes: 'PDL-1 agnostico, progressione a platino',
+                                combo: false,
+                                trial: 'CheckMate-141'
                             }
                         }
                     }
@@ -656,14 +801,24 @@
                                 method: 'CPS',
                                 cutoff: 10,
                                 notes: 'CPS ≥10, non eleggibile a platino',
-                                combo: false
+                                combo: false,
+                                trial: 'KEYNOTE-052'
                             },
                             'second': {
                                 name: 'Seconda linea',
                                 method: 'CPS',
                                 cutoff: 10,
                                 notes: 'CPS ≥10, dopo platino',
-                                combo: false
+                                combo: false,
+                                trial: 'KEYNOTE-045'
+                            },
+                            'first-combo-ev': {
+                                name: 'Prima linea + enfortumab vedotin 🆕',
+                                method: 'CPS',
+                                cutoff: 0,
+                                notes: 'PDL-1 agnostico, localmente avanzato o metastatico',
+                                combo: true,
+                                trial: 'KEYNOTE-A39/EV-302'
                             }
                         }
                     },
@@ -673,10 +828,19 @@
                         indications: {
                             'second': {
                                 name: 'Seconda linea',
-                                method: 'TC',
-                                cutoff: 1,
-                                notes: 'TC ≥1%, dopo platino',
-                                combo: false
+                                method: 'TPS',
+                                cutoff: 0,
+                                notes: 'PDL-1 agnostico, dopo platino',
+                                combo: false,
+                                trial: 'CheckMate-275'
+                            },
+                            'adjuvant': {
+                                name: 'Adiuvante post-cistectomia',
+                                method: 'TPS',
+                                cutoff: 0,
+                                notes: 'PDL-1 agnostico, alto rischio recidiva',
+                                combo: false,
+                                trial: 'CheckMate-274'
                             }
                         }
                     },
@@ -684,32 +848,29 @@
                         name: 'Atezolizumab',
                         clone: 'SP142 (Ventana)',
                         indications: {
-                            'first-combo': {
-                                name: 'Prima linea + chemio',
-                                method: 'IC',
-                                cutoff: 0,
-                                notes: 'PDL-1 agnostico',
-                                combo: true
-                            },
                             'second': {
                                 name: 'Seconda linea',
                                 method: 'IC',
                                 cutoff: 5,
+                                cutoffType: 'ic5',
                                 notes: 'IC ≥5% (IC2/3), dopo platino',
-                                combo: false
+                                combo: false,
+                                tcic: true,
+                                trial: 'IMvigor211'
                             }
                         }
                     },
                     avelumab: {
                         name: 'Avelumab',
-                        clone: '28-8/SP263 (Dako/Ventana)',
+                        clone: '73-10 (Dako)',
                         indications: {
                             'maintenance': {
                                 name: 'Mantenimento post-chemio',
-                                method: 'TC',
-                                cutoff: 1,
-                                notes: 'TC ≥1%, mantenimento dopo risposta a platino',
-                                combo: false
+                                method: 'TPS',
+                                cutoff: 0,
+                                notes: 'PDL-1 agnostico, mantenimento dopo risposta/stabilità a platino',
+                                combo: false,
+                                trial: 'JAVELIN Bladder 100'
                             }
                         }
                     }
@@ -723,18 +884,29 @@
                         clone: '22C3 (Dako)',
                         indications: {
                             'first-combo': {
-                                name: 'Prima linea + chemio',
+                                name: 'Prima linea + chemio (HER2-neg)',
                                 method: 'CPS',
                                 cutoff: 10,
                                 notes: 'CPS ≥10, HER2-negativo, prima linea',
-                                combo: true
+                                combo: true,
+                                trial: 'KEYNOTE-859'
+                            },
+                            'first-combo-her2': {
+                                name: 'Prima linea + trastuzumab + chemio (HER2+) 🆕',
+                                method: 'CPS',
+                                cutoff: 1,
+                                notes: 'CPS ≥1, HER2-positivo',
+                                combo: true,
+                                trial: 'KEYNOTE-811',
+                                fdaDate: 'Mar 2025'
                             },
                             'second': {
                                 name: 'Seconda linea',
                                 method: 'CPS',
                                 cutoff: 1,
                                 notes: 'CPS ≥1, HER2-negativo, seconda linea',
-                                combo: false
+                                combo: false,
+                                trial: 'KEYNOTE-061'
                             }
                         }
                     },
@@ -747,14 +919,16 @@
                                 method: 'CPS',
                                 cutoff: 5,
                                 notes: 'CPS ≥5, HER2-negativo',
-                                combo: true
+                                combo: true,
+                                trial: 'CheckMate-649'
                             },
                             'third': {
                                 name: 'Terza linea o successiva',
                                 method: 'TPS',
                                 cutoff: 0,
                                 notes: 'PDL-1 agnostico, dopo 2 linee',
-                                combo: false
+                                combo: false,
+                                trial: 'ATTRACTION-2'
                             }
                         }
                     }
@@ -772,14 +946,16 @@
                                 method: 'CPS',
                                 cutoff: 10,
                                 notes: 'CPS ≥10',
-                                combo: true
+                                combo: true,
+                                trial: 'KEYNOTE-590'
                             },
                             'second': {
                                 name: 'Seconda linea',
                                 method: 'CPS',
                                 cutoff: 10,
                                 notes: 'CPS ≥10',
-                                combo: false
+                                combo: false,
+                                trial: 'KEYNOTE-181'
                             }
                         }
                     },
@@ -788,18 +964,20 @@
                         clone: '28-8 (Dako)',
                         indications: {
                             'first-combo': {
-                                name: 'Prima linea + chemio + ipilimumab',
-                                method: 'CPS',
-                                cutoff: 1,
-                                notes: 'CPS ≥1 o ≥5 (variabile per regione)',
-                                combo: true
+                                name: 'Prima linea + chemio ± ipilimumab',
+                                method: 'TPS',
+                                cutoff: 0,
+                                notes: 'PDL-1 agnostico (TPS ≥1% per combo con IPI)',
+                                combo: true,
+                                trial: 'CheckMate-648'
                             },
-                            'second': {
-                                name: 'Seconda linea',
-                                method: 'CPS',
-                                cutoff: 5,
-                                notes: 'CPS ≥5 dopo platino',
-                                combo: false
+                            'adjuvant': {
+                                name: 'Adiuvante post-chemio-RT',
+                                method: 'TPS',
+                                cutoff: 0,
+                                notes: 'PDL-1 agnostico, post neoadiuv chemio-RT e resezione',
+                                combo: false,
+                                trial: 'CheckMate-577'
                             }
                         }
                     }
@@ -813,31 +991,37 @@
                         clone: '22C3 (Dako)',
                         indications: {
                             'first-combo': {
-                                name: 'Prima linea + chemio (localmente avanzato/metastatico)',
+                                name: 'Prima linea + chemio (metastatico)',
                                 method: 'CPS',
                                 cutoff: 10,
-                                notes: 'CPS ≥10',
-                                combo: true
+                                notes: 'CPS ≥10, localmente avanzato o metastatico',
+                                combo: true,
+                                trial: 'KEYNOTE-355'
                             },
                             'neoadjuvant': {
-                                name: 'Neoadiuvante + chemio',
+                                name: 'Neoadiuvante + chemio poi adiuvante',
                                 method: 'CPS',
-                                cutoff: 10,
-                                notes: 'CPS ≥10, alto rischio',
-                                combo: true
+                                cutoff: 0,
+                                notes: 'PDL-1 agnostico per setting neoadiuvante, alto rischio',
+                                combo: true,
+                                trial: 'KEYNOTE-522'
                             }
                         }
                     },
                     atezolizumab: {
-                        name: 'Atezolizumab',
+                        name: 'Atezolizumab ⚠️',
                         clone: 'SP142 (Ventana)',
                         indications: {
                             'first-combo': {
                                 name: 'Prima linea + nab-paclitaxel',
                                 method: 'IC',
                                 cutoff: 1,
-                                notes: 'IC ≥1% su cellule immunitarie',
-                                combo: true
+                                cutoffType: 'ic1',
+                                notes: 'IC ≥1%. ⚠️ RITIRATO FDA (Aug 2021) - Attivo EMA/AIFA',
+                                combo: true,
+                                tcic: true,
+                                trial: 'IMpassion130',
+                                regulatoryWarning: 'FDA withdrawn, EMA active'
                             }
                         }
                     }
@@ -850,12 +1034,29 @@
                         name: 'Pembrolizumab',
                         clone: '22C3 (Dako)',
                         indications: {
-                            'first-combo': {
+                            'first-combo-axi': {
                                 name: 'Prima linea + axitinib',
                                 method: 'TPS',
                                 cutoff: 0,
                                 notes: 'PDL-1 agnostico, a cellule chiare avanzato',
-                                combo: true
+                                combo: true,
+                                trial: 'KEYNOTE-426'
+                            },
+                            'first-combo-lenva': {
+                                name: 'Prima linea + lenvatinib',
+                                method: 'TPS',
+                                cutoff: 0,
+                                notes: 'PDL-1 agnostico, a cellule chiare avanzato',
+                                combo: true,
+                                trial: 'KEYNOTE-581/CLEAR'
+                            },
+                            'adjuvant': {
+                                name: 'Adiuvante post-nefrectomia',
+                                method: 'TPS',
+                                cutoff: 0,
+                                notes: 'PDL-1 agnostico, alto rischio recidiva',
+                                combo: false,
+                                trial: 'KEYNOTE-564'
                             }
                         }
                     },
@@ -868,7 +1069,16 @@
                                 method: 'TPS',
                                 cutoff: 0,
                                 notes: 'PDL-1 agnostico, intermedio/alto rischio',
-                                combo: true
+                                combo: true,
+                                trial: 'CheckMate-214'
+                            },
+                            'first-combo-cabo': {
+                                name: 'Prima linea + cabozantinib',
+                                method: 'TPS',
+                                cutoff: 0,
+                                notes: 'PDL-1 agnostico, a cellule chiare avanzato',
+                                combo: true,
+                                trial: 'CheckMate-9ER'
                             }
                         }
                     }
@@ -886,52 +1096,65 @@
                                 method: 'CPS',
                                 cutoff: 1,
                                 notes: 'CPS ≥1, persistente/ricorrente/metastatico',
-                                combo: true
+                                combo: true,
+                                trial: 'KEYNOTE-826'
                             },
                             'second': {
                                 name: 'Seconda linea',
                                 method: 'CPS',
                                 cutoff: 1,
                                 notes: 'CPS ≥1, progressione post-chemio',
-                                combo: false
+                                combo: false,
+                                trial: 'KEYNOTE-158'
                             }
                         }
                     }
                 }
             },
             endometrium: {
-                name: 'Carcinoma endometriale (dMMR/MSI-H)',
+                name: 'Carcinoma endometriale',
                 drugs: {
                     pembrolizumab: {
                         name: 'Pembrolizumab',
                         clone: '22C3 (Dako)',
                         indications: {
+                            'first-combo-all': {
+                                name: 'Prima linea + chemio (tutti)',
+                                method: 'TPS',
+                                cutoff: 0,
+                                notes: 'PDL-1 agnostico, avanzato/ricorrente, pMMR e dMMR',
+                                combo: true,
+                                trial: 'NRG-GY018'
+                            },
                             'advanced-dmmr': {
-                                name: 'Avanzato/ricorrente dMMR',
-                                method: 'CPS',
-                                cutoff: 1,
-                                notes: 'CPS ≥1 E dMMR/MSI-H confermato (IHC o PCR)',
-                                combo: false
+                                name: 'Avanzato/ricorrente dMMR + lenvatinib',
+                                method: 'TPS',
+                                cutoff: 0,
+                                notes: 'PDL-1 agnostico, richiede dMMR/MSI-H confermato',
+                                combo: true,
+                                trial: 'KEYNOTE-775'
                             }
                         }
                     },
                     dostarlimab: {
                         name: 'Dostarlimab',
-                        clone: '22C3 (Dako) equivalente',
+                        clone: 'Non richiesto',
                         indications: {
                             'advanced-dmmr': {
                                 name: 'Avanzato/ricorrente dMMR',
                                 method: 'Non richiesto',
                                 cutoff: 0,
                                 notes: 'dMMR/MSI-H confermato (IHC o PCR), PDL-1 non richiesto',
-                                combo: false
+                                combo: false,
+                                trial: 'GARNET'
                             },
                             'first-combo': {
                                 name: 'Prima linea + chemio',
                                 method: 'Non richiesto',
                                 cutoff: 0,
                                 notes: 'PDL-1 agnostico, avanzato/ricorrente',
-                                combo: true
+                                combo: true,
+                                trial: 'RUBY'
                             }
                         }
                     }
@@ -948,8 +1171,37 @@
                                 name: 'Prima linea + bevacizumab',
                                 method: 'Non richiesto',
                                 cutoff: 0,
-                                notes: 'PDL-1 agnostico (all-comers), non resecabile/metastatico',
-                                combo: true
+                                notes: 'PDL-1 agnostico, non resecabile/metastatico',
+                                combo: true,
+                                trial: 'IMbrave150'
+                            }
+                        }
+                    },
+                    pembrolizumab: {
+                        name: 'Pembrolizumab',
+                        clone: '22C3 (Dako)',
+                        indications: {
+                            'second': {
+                                name: 'Seconda linea (post-sorafenib)',
+                                method: 'TPS',
+                                cutoff: 0,
+                                notes: 'PDL-1 agnostico, dopo sorafenib',
+                                combo: false,
+                                trial: 'KEYNOTE-240'
+                            }
+                        }
+                    },
+                    nivolumab: {
+                        name: 'Nivolumab',
+                        clone: '28-8 (Dako)',
+                        indications: {
+                            'second': {
+                                name: 'Seconda linea (post-sorafenib)',
+                                method: 'TPS',
+                                cutoff: 0,
+                                notes: 'PDL-1 agnostico, dopo sorafenib',
+                                combo: false,
+                                trial: 'CheckMate-040'
                             }
                         }
                     }
@@ -959,15 +1211,16 @@
                 name: 'Mesotelioma pleurico',
                 drugs: {
                     nivolumab: {
-                        name: 'Nivolumab ± Ipilimumab',
+                        name: 'Nivolumab + Ipilimumab',
                         clone: 'Non richiesto',
                         indications: {
                             'first-line': {
                                 name: 'Prima linea',
                                 method: 'Non richiesto',
                                 cutoff: 0,
-                                notes: 'PDL-1 agnostico (all-comers), non resecabile',
-                                combo: true
+                                notes: 'PDL-1 agnostico, non resecabile',
+                                combo: true,
+                                trial: 'CheckMate-743'
                             }
                         }
                     },
@@ -979,8 +1232,9 @@
                                 name: 'Seconda linea o successiva',
                                 method: 'Non richiesto',
                                 cutoff: 0,
-                                notes: 'PDL-1 agnostico (all-comers)',
-                                combo: false
+                                notes: 'PDL-1 agnostico',
+                                combo: false,
+                                trial: 'KEYNOTE-158'
                             }
                         }
                     }
@@ -997,8 +1251,9 @@
                                 name: 'Localmente avanzato o metastatico',
                                 method: 'Non richiesto',
                                 cutoff: 0,
-                                notes: 'PDL-1 agnostico, non candidato a chirurgia o radioterapia curativa',
-                                combo: false
+                                notes: 'PDL-1 agnostico, non candidato a chirurgia o RT curativa',
+                                combo: false,
+                                trial: 'EMPOWER-CSCC 1'
                             }
                         }
                     },
@@ -1010,8 +1265,9 @@
                                 name: 'Ricorrente o metastatico',
                                 method: 'Non richiesto',
                                 cutoff: 0,
-                                notes: 'PDL-1 agnostico, non candidato a chirurgia o radioterapia curativa',
-                                combo: false
+                                notes: 'PDL-1 agnostico, non candidato a chirurgia o RT curativa',
+                                combo: false,
+                                trial: 'KEYNOTE-629'
                             }
                         }
                     }
@@ -1029,7 +1285,78 @@
                                 method: 'Non richiesto',
                                 cutoff: 0,
                                 notes: 'PDL-1 agnostico, dopo progressione o intolleranza a inibitori hedgehog',
-                                combo: false
+                                combo: false,
+                                trial: 'Study 1620'
+                            }
+                        }
+                    }
+                }
+            },
+            // NUOVE ENTITÀ v2.1
+            btc: {
+                name: 'Carcinoma vie biliari (BTC)',
+                drugs: {
+                    pembrolizumab: {
+                        name: 'Pembrolizumab',
+                        clone: '22C3 (Dako)',
+                        indications: {
+                            'first-combo': {
+                                name: 'Prima linea + gemcitabina/cisplatino',
+                                method: 'Non richiesto',
+                                cutoff: 0,
+                                notes: 'PDL-1 agnostico, localmente avanzato non resecabile o metastatico',
+                                combo: true,
+                                trial: 'KEYNOTE-966',
+                                fdaDate: 'Oct 2023'
+                            }
+                        }
+                    },
+                    durvalumab: {
+                        name: 'Durvalumab',
+                        clone: 'Non richiesto',
+                        indications: {
+                            'first-combo': {
+                                name: 'Prima linea + gemcitabina/cisplatino',
+                                method: 'Non richiesto',
+                                cutoff: 0,
+                                notes: 'PDL-1 agnostico, non resecabile o metastatico',
+                                combo: true,
+                                trial: 'TOPAZ-1',
+                                fdaDate: 'Sep 2022'
+                            }
+                        }
+                    }
+                }
+            },
+            mibc: {
+                name: 'MIBC (Muscle-Invasive Bladder Cancer)',
+                drugs: {
+                    pembrolizumab: {
+                        name: 'Pembrolizumab',
+                        clone: '22C3 (Dako)',
+                        indications: {
+                            'perioperative-ev': {
+                                name: 'Perioperatorio + enfortumab vedotin (cisplatin-unfit)',
+                                method: 'Non richiesto',
+                                cutoff: 0,
+                                notes: 'PDL-1 agnostico, non eleggibile a cisplatino, neo + adiuv post-cistectomia',
+                                combo: true,
+                                trial: 'KEYNOTE-905/EV-303',
+                                fdaDate: 'Nov 2025'
+                            }
+                        }
+                    },
+                    nivolumab: {
+                        name: 'Nivolumab',
+                        clone: '28-8 (Dako)',
+                        indications: {
+                            'adjuvant': {
+                                name: 'Adiuvante post-cistectomia',
+                                method: 'TPS',
+                                cutoff: 0,
+                                notes: 'PDL-1 agnostico, alto rischio recidiva',
+                                combo: false,
+                                trial: 'CheckMate-274'
                             }
                         }
                     }
@@ -1071,6 +1398,7 @@
             const drugSelect = document.getElementById('drug');
             const lineSelect = document.getElementById('line');
             const molecularGroup = document.getElementById('molecular-group');
+            const her2Group = document.getElementById('her2-group');
             const msiGroup = document.getElementById('msi-group');
             
             drugSelect.innerHTML = '<option value="">Seleziona farmaco</option>';
@@ -1079,16 +1407,21 @@
             document.getElementById('clone-info').innerHTML = 'Compila i campi sopra';
             
             molecularGroup.style.display = 'none';
+            her2Group.style.display = 'none';
             msiGroup.style.display = 'none';
             
             if (!tumor) return;
             
             log(`Tumore selezionato: ${clinicalDatabase[tumor].name}`);
             
+            // Mostra checkbox specifici per tumore
             if (tumor === 'nsclc') {
                 molecularGroup.style.display = 'block';
             }
-            if (['gastric', 'uc'].includes(tumor)) {
+            if (tumor === 'gastric') {
+                her2Group.style.display = 'block';
+            }
+            if (['gastric', 'uc', 'endometrium'].includes(tumor)) {
                 msiGroup.style.display = 'block';
             }
             
@@ -1152,14 +1485,40 @@
                 infoHTML += ' (Tumor Proportion Score)';
             }
             
+            if (indication.trial) {
+                infoHTML += `<br><strong>Trial:</strong> ${indication.trial}`;
+            }
+            if (indication.fdaDate) {
+                infoHTML += ` <span class="regulatory-badge badge-fda">FDA ${indication.fdaDate}</span>`;
+            }
+            
             cloneInfo.innerHTML = infoHTML;
             cloneInfo.className = 'auto-info active';
             
-            if (indication.cutoff === 0) {
+            // Warning regolatorio per TNBC atezolizumab
+            if (indication.regulatoryWarning) {
+                cloneInfo.className = 'auto-info regulatory-warning';
+                cloneInfo.innerHTML += `<br><strong>⚠️ ATTENZIONE:</strong> ${indication.regulatoryWarning}`;
+            }
+            
+            // Gestione score help
+            if (indication.cutoff === 0 || indication.method === 'Non richiesto') {
                 scoreHelp.innerHTML = '✓ PDL-1 agnostico per questa indicazione';
                 scoreHelp.className = 'auto-info active';
             } else if (indication.tcic) {
-                scoreHelp.innerHTML = `Cutoff: ${indication.cutoff} (inserisci score TC% o IC%)`;
+                let cutoffText = '';
+                if (indication.cutoffType === 'tc50_or_ic10') {
+                    cutoffText = 'Cutoff: TC ≥50% o IC ≥10%';
+                } else if (indication.cutoffType === 'tc1_or_ic1') {
+                    cutoffText = 'Cutoff: TC ≥1% o IC ≥1%';
+                } else if (indication.cutoffType === 'ic5') {
+                    cutoffText = 'Cutoff: IC ≥5%';
+                } else if (indication.cutoffType === 'ic1') {
+                    cutoffText = 'Cutoff: IC ≥1%';
+                } else {
+                    cutoffText = `Cutoff: ${indication.cutoff}%`;
+                }
+                scoreHelp.innerHTML = `${cutoffText} (inserisci score TC% o IC%)`;
                 scoreHelp.className = 'auto-info';
             } else {
                 scoreHelp.innerHTML = `Cutoff per positività: ${indication.method} ≥${indication.cutoff}%`;
@@ -1179,11 +1538,13 @@
             
             if (!tumor || !drug || !line) {
                 log('❌ ERRORE: Compila tutti i campi obbligatori', 'error');
+                alert('❌ Compila tutti i campi obbligatori');
                 return;
             }
             
             if (isNaN(score) || score < 0 || score > 100) {
                 log('❌ ERRORE: Score PDL-1 deve essere tra 0 e 100', 'error');
+                alert('❌ Score PDL-1 deve essere tra 0 e 100');
                 return;
             }
             
@@ -1198,6 +1559,8 @@
             log(`Score inserito: ${score}%`);
             
             const warnings = [];
+            
+            // Check alterazioni molecolari NSCLC
             if (tumor === 'nsclc') {
                 const egfr = document.getElementById('egfr').checked;
                 const alk = document.getElementById('alk').checked;
@@ -1213,30 +1576,67 @@
                     
                     log(`⚠️  Mutazioni driver presenti: ${mutations.join(', ')}`, 'warning');
                     
-                    if (line === 'first-mono' || line === 'first-combo-ipi') {
-                        warnings.push(`Presenza di ${mutations.join('/')}: considerare terapia target in prima linea prima dell'immunoterapia`);
+                    if (line.includes('first-mono') || line === 'first-combo-ipi') {
+                        warnings.push(`⚠️ Mutazioni ${mutations.join('/')}: considerare terapia target in prima linea prima dell'immunoterapia`);
                     } else {
                         warnings.push(`Mutazioni ${mutations.join('/')} presenti: immunoterapia possibile dopo fallimento TKI`);
                     }
                 }
             }
             
+            // Check HER2 per gastrico
+            if (tumor === 'gastric' && document.getElementById('her2')) {
+                const her2 = document.getElementById('her2').checked;
+                if (her2 && !line.includes('her2')) {
+                    warnings.push('⚠️ HER2-positivo selezionato ma indicazione HER2-negativa scelta. Considerare KEYNOTE-811.');
+                }
+                if (!her2 && line.includes('her2')) {
+                    warnings.push('⚠️ Indicazione HER2+ selezionata ma HER2 non confermato. Verificare status HER2.');
+                }
+            }
+            
+            // Check MSI
             if (document.getElementById('msi') && document.getElementById('msi').checked) {
                 log('🧬 MSI-High/dMMR presente', 'success');
-                warnings.push('MSI-High/dMMR: possibile risposta all\'immunoterapia anche con PDL-1 basso. Considerare pembrolizumab se approvato per MSI-H.');
+                warnings.push('MSI-High/dMMR: eccellente risposta all\'immunoterapia attesa. Considerare dostarlimab se endometriale.');
+            }
+            
+            // Warning regolatorio
+            if (indication.regulatoryWarning) {
+                warnings.push(`🚨 NOTA REGOLATORIA: ${indication.regulatoryWarning}`);
             }
             
             let isEligible = false;
             let cutoffText = '';
             
-            if (indication.cutoff === 0) {
+            // Logica di valutazione
+            if (indication.cutoff === 0 || indication.method === 'Non richiesto') {
                 isEligible = true;
                 cutoffText = 'PDL-1 agnostico';
                 log(`✓ Indicazione PDL-1 agnostica`, 'success');
             } else if (indication.tcic) {
-                cutoffText = indication.cutoff;
-                log(`Cutoff TC/IC: ${cutoffText}`, 'info');
-                isEligible = null;
+                // Gestione TC/IC
+                if (indication.cutoffType === 'tc50_or_ic10') {
+                    cutoffText = 'TC ≥50% o IC ≥10%';
+                    isEligible = score >= 50 || score >= 10; // Approssimazione - utente dovrebbe specificare TC o IC
+                    log(`Cutoff TC/IC: ${cutoffText} - Valutazione manuale consigliata`, 'warning');
+                    isEligible = null; // Richiede valutazione manuale
+                } else if (indication.cutoffType === 'tc1_or_ic1') {
+                    cutoffText = 'TC ≥1% o IC ≥1%';
+                    isEligible = score >= 1;
+                } else if (indication.cutoffType === 'ic5') {
+                    cutoffText = 'IC ≥5%';
+                    isEligible = score >= 5;
+                } else if (indication.cutoffType === 'ic1') {
+                    cutoffText = 'IC ≥1%';
+                    isEligible = score >= 1;
+                } else if (indication.cutoffType === 'agnostic') {
+                    cutoffText = 'PDL-1 agnostico';
+                    isEligible = true;
+                } else {
+                    cutoffText = `TC/IC ≥${indication.cutoff}%`;
+                    isEligible = score >= indication.cutoff;
+                }
             } else {
                 cutoffText = `${indication.method} ≥${indication.cutoff}%`;
                 isEligible = score >= indication.cutoff;
@@ -1270,12 +1670,13 @@
                             </div>
                         </div>
                         <div class="considerations">
-                            <h4>💡 Interpretazione per Atezolizumab SP142:</h4>
+                            <h4>💡 Interpretazione per SP142:</h4>
                             <ul>
-                                <li><strong>TC (Tumor Cell):</strong> Percentuale cellule tumorali positive</li>
-                                <li><strong>IC (Immune Cell):</strong> Percentuale area tumorale occupata da IC positive</li>
-                                <li><strong>TC3:</strong> TC ≥50% o IC3: IC ≥10% = HIGH (indicazione in molti setting)</li>
-                                <li><strong>TC2/3:</strong> TC ≥5% o IC2/3: IC ≥5% = possibile indicazione secondo linea uroteliale</li>
+                                <li><strong>TC (Tumor Cell):</strong> % cellule tumorali PDL-1+ su membrana</li>
+                                <li><strong>IC (Immune Cell):</strong> % area tumorale occupata da cellule immunitarie PDL-1+</li>
+                                <li><strong>TC3/IC3:</strong> TC ≥50% o IC ≥10% = HIGH</li>
+                                <li><strong>TC2/IC2:</strong> TC ≥5% o IC ≥5%</li>
+                                <li><strong>TC1/IC1:</strong> TC ≥1% o IC ≥1%</li>
                             </ul>
                             <p style="margin-top: 10px; font-size: 12px; color: #553c9a;">
                                 Per ${indication.name}: ${indication.notes}
@@ -1320,13 +1721,19 @@
                                 <strong>Combinazione</strong>
                                 <span>${indication.combo ? 'Sì' : 'Monoterapia'}</span>
                             </div>
+                            ${indication.trial ? `
+                            <div class="info-item">
+                                <strong>Trial pivotale</strong>
+                                <span>${indication.trial}</span>
+                            </div>
+                            ` : ''}
                         </div>
                         <div class="considerations">
                             <h4>💡 Note cliniche:</h4>
                             <ul>
                                 <li>${indication.notes}</li>
-                                ${warnings.map(w => `<li>⚠️ ${w}</li>`).join('')}
-                                ${!isEligible ? '<li>⚠️ Considerare altre opzioni terapeutiche o verificare se ci sono indicazioni PDL-1 agnostiche per questo farmaco</li>' : ''}
+                                ${warnings.map(w => `<li>${w}</li>`).join('')}
+                                ${!isEligible ? '<li>⚠️ Considerare altre opzioni terapeutiche o verificare indicazioni PDL-1 agnostiche</li>' : ''}
                             </ul>
                         </div>
                     </div>
@@ -1346,7 +1753,9 @@
                 isEligible: isEligible,
                 notes: indication.notes,
                 warnings: warnings,
-                combo: indication.combo
+                combo: indication.combo,
+                trial: indication.trial || 'N/A',
+                regulatoryWarning: indication.regulatoryWarning || null
             };
             
             log('═══ VALUTAZIONE COMPLETATA ═══', 'success');
@@ -1363,11 +1772,15 @@
                         <li><a href="https://www.nccn.org/guidelines" target="_blank">NCCN Guidelines</a> - Linee guida americane aggiornate</li>
                         <li><a href="https://www.esmo.org/guidelines" target="_blank">ESMO Clinical Practice Guidelines</a> - Linee guida europee</li>
                         <li><a href="https://www.aiom.it/linee-guida-aiom/" target="_blank">AIOM Linee Guida</a> - Linee guida italiane</li>
-                        <li>Package insert del farmaco per indicazioni approvate localmente</li>
+                        <li><a href="https://www.aifa.gov.it/" target="_blank">AIFA</a> - Determine rimborsabilità Italia</li>
                     </ul>
                     <p style="margin: 5px 0; font-size: 11px; color: #2c5282;">
                         <strong>Nota:</strong> Verificare sempre le indicazioni approvate da AIFA per l'Italia. 
-                        I cutoff e le combinazioni possono variare tra diverse agenzie regolatorie.
+                        I cutoff e le combinazioni possono variare significativamente tra FDA/EMA/AIFA.
+                    </p>
+                    <p style="margin: 5px 0; font-size: 11px; color: #92400e; background: #fef3c7; padding: 5px; border-radius: 4px;">
+                        <strong>⚠️ Trial recenti integrati:</strong> KEYNOTE-966 (BTC), KEYNOTE-671 (NSCLC periop), 
+                        KEYNOTE-689 (HNSCC periop), KEYNOTE-811 (Gastrico HER2+), KEYNOTE-905/EV-303 (MIBC), TOPAZ-1 (BTC)
                     </p>
                 </div>
             `;
@@ -1396,7 +1809,7 @@
                 <div style="background: white; border: 3px solid #2d3748; padding: 40px; margin: 30px 0; font-family: 'Times New Roman', serif; page-break-inside: avoid;">
                     <div class="referto-header">
                         <h2>REFERTO IMMUNOISTOCHIMICA</h2>
-                        <p>PDL-1 Expression Analysis</p>
+                        <p>PDL-1 Expression Analysis - v2.1</p>
                     </div>
                     
                     <table class="referto-table">
@@ -1424,6 +1837,10 @@
                             <td>Metodo scoring</td>
                             <td>${d.method}</td>
                         </tr>
+                        <tr>
+                            <td>Trial di riferimento</td>
+                            <td>${d.trial}</td>
+                        </tr>
                     </table>
                     
                     <div class="referto-result" style="background: ${statusColor};">
@@ -1438,9 +1855,16 @@
                         ${d.combo ? '<p><strong>Regime terapeutico:</strong> In combinazione con altri agenti</p>' : '<p><strong>Regime terapeutico:</strong> Monoterapia</p>'}
                     </div>
                     
+                    ${d.regulatoryWarning ? `
+                        <div style="background: #fef3c7; border-left: 4px solid #f59e0b; padding: 15px; margin: 15px 0; border-radius: 8px;">
+                            <p style="margin: 0; font-weight: bold; color: #92400e;">⚠️ NOTA REGOLATORIA</p>
+                            <p style="margin: 5px 0 0 0; font-size: 13px; color: #92400e;">${d.regulatoryWarning}</p>
+                        </div>
+                    ` : ''}
+                    
                     ${d.warnings.length > 0 ? `
                         <div class="referto-warnings">
-                            <p style="margin-top: 0; font-weight: bold;">⚠️ Considerazioni cliniche importanti:</p>
+                            <p style="margin-top: 0; font-weight: bold;">⚠️ Considerazioni cliniche:</p>
                             ${d.warnings.map(w => `<p>• ${w}</p>`).join('')}
                         </div>
                     ` : ''}
@@ -1450,10 +1874,11 @@
                         <p>Questo referto è generato a scopo educativo e rappresentativo. La decisione terapeutica finale deve considerare:</p>
                         <ul style="margin: 5px 0; padding-left: 15px;">
                             <li>Le linee guida ufficiali (NCCN, ESMO, AIOM)</li>
-                            <li>Le approvazioni regolatorie locali (AIFA per l'Italia)</li>
+                            <li>Le approvazioni regolatorie locali (AIFA per l'Italia, EMA per Europa)</li>
                             <li>Il quadro clinico completo del paziente</li>
-                            <li>I fattori prognostici e predittivi aggiuntivi</li>
+                            <li>I fattori prognostici e predittivi aggiuntivi (TMB, MSI, TILs)</li>
                         </ul>
+                        <p style="margin-top: 10px;"><strong>Tool:</strong> PDL-1 Clinical Evaluator v2.1 - Novembre 2025</p>
                     </div>
                     
                     <button onclick="window.print()" class="print-btn">🖨️ Stampa referto</button>
