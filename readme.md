@@ -126,6 +126,18 @@ L'oncologo compila:
 - 📊 **Linea di trattamento** (filtrata per farmaco)
 - 🧬 **Alterazioni molecolari** (se applicabile: EGFR, ALK, ROS1, BRAF, HER2, MSI)
 
+**Dati paziente:**
+- Cognome e Nome
+- Data di nascita
+- Nosologico / ID
+- N. preparato istologico
+- Sede prelievo
+
+**Dati richiedente:**
+- Medico richiedente
+- U.O.
+- Telefono / Email
+
 ### Step 2: Generazione Email per AP
 
 Cliccando **"📧 GENERA RICHIESTA EMAIL PER AP"**, il sistema genera una email precompilata con:
@@ -140,17 +152,18 @@ Cliccando **"📧 GENERA RICHIESTA EMAIL PER AP"**, il sistema genera una email 
 
 **Bottoni disponibili:**
 - 🌐 **Apri Webmail ASST** - Apre la webmail aziendale (https://posta.asst-fbf-sacco.it)
-- 📋 **Copia tutto** - Copia il corpo dell'email negli appunti
+- 📋 **Copia corpo** - Copia il corpo dell'email negli appunti
 - 📝 **Copia oggetto** - Copia solo l'oggetto negli appunti
+- 📋 **Copia** (accanto al destinatario) - Copia l'indirizzo email AP
 
 **Istruzioni per l'oncologo:**
-1. Clicca "Apri Webmail ASST"
-2. Effettua login
-3. Crea nuovo messaggio
-4. Destinatario: `anatomia.patologica.fbf@asst-fbf-sacco.it`
-5. Incolla oggetto (già copiato)
-6. Incolla corpo (già copiato)
-7. Completa i campi paziente e invia
+1. Compila tutti i campi (tumore, farmaco, linea, dati paziente, dati richiedente)
+2. Clicca "📧 GENERA RICHIESTA EMAIL PER AP"
+3. Clicca "Apri Webmail ASST" (si apre in nuova tab)
+4. Effettua login alla webmail
+5. Crea nuovo messaggio
+6. Copia e incolla: destinatario, oggetto e corpo (usando i bottoni)
+7. Verifica i dati e invia
 
 ### Step 3: Verifica Clone (automatica)
 

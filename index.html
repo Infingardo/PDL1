@@ -685,6 +685,50 @@
             <div id="dmmr-warning" style="display:none;"></div>
         </div>
         
+        <div class="form-group oncologist-section">
+            <span class="section-label">👨‍⚕️ DATI PAZIENTE</span>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div>
+                    <label>Cognome e Nome:</label>
+                    <input type="text" id="pt-name" placeholder="Es. Rossi Mario">
+                </div>
+                <div>
+                    <label>Data di nascita:</label>
+                    <input type="date" id="pt-dob">
+                </div>
+                <div>
+                    <label>Nosologico / ID:</label>
+                    <input type="text" id="pt-id" placeholder="Es. 123456">
+                </div>
+                <div>
+                    <label>N. preparato istologico:</label>
+                    <input type="text" id="pt-histology" placeholder="Es. H25-12345">
+                </div>
+                <div style="grid-column: span 2;">
+                    <label>Sede prelievo:</label>
+                    <input type="text" id="pt-site" placeholder="Es. Polmone lobo superiore dx">
+                </div>
+            </div>
+        </div>
+        
+        <div class="form-group oncologist-section">
+            <span class="section-label">👨‍⚕️ DATI RICHIEDENTE</span>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div>
+                    <label>Medico richiedente:</label>
+                    <input type="text" id="doc-name" placeholder="Es. Dr. Bianchi">
+                </div>
+                <div>
+                    <label>U.O.:</label>
+                    <input type="text" id="doc-unit" placeholder="Es. Oncologia Medica">
+                </div>
+                <div style="grid-column: span 2;">
+                    <label>Telefono / Email:</label>
+                    <input type="text" id="doc-contact" placeholder="Es. 02-1234567 / email@asst-fbf-sacco.it">
+                </div>
+            </div>
+        </div>
+        
         <button onclick="generateEmailRequest()" class="btn btn-email">📧 GENERA RICHIESTA EMAIL PER AP</button>
         
         <div id="email-output"></div>
@@ -2467,8 +2511,21 @@
             
             const today = new Date().toLocaleDateString('it-IT', {day: '2-digit', month: '2-digit', year: 'numeric'});
             
+            // Dati paziente
+            const ptName = document.getElementById('pt-name')?.value || '____________________';
+            const ptDobRaw = document.getElementById('pt-dob')?.value;
+            const ptDob = ptDobRaw ? new Date(ptDobRaw).toLocaleDateString('it-IT') : '____________________';
+            const ptId = document.getElementById('pt-id')?.value || '____________________';
+            const ptHistology = document.getElementById('pt-histology')?.value || '____________________';
+            const ptSite = document.getElementById('pt-site')?.value || '____________________';
+            
+            // Dati richiedente
+            const docName = document.getElementById('doc-name')?.value || '____________________';
+            const docUnit = document.getElementById('doc-unit')?.value || '____________________';
+            const docContact = document.getElementById('doc-contact')?.value || '____________________';
+            
             const emailTo = 'anatomia.patologica.fbf@asst-fbf-sacco.it';
-            const emailSubject = `Richiesta PDL-1 - ${drugName} - ${tumorName}`;
+            const emailSubject = `Richiesta PDL-1 - ${ptName !== '____________________' ? ptName + ' - ' : ''}${drugName} - ${tumorName}`;
             
             const emailBody = `Gentili Colleghi,
 
@@ -2478,6 +2535,13 @@ si richiede determinazione immunoistochimica di PDL-1 per il seguente caso:
 RICHIESTA DETERMINAZIONE PDL-1
 Data: ${today}
 ═══════════════════════════════════════════════════
+
+DATI PAZIENTE:
+• Cognome e Nome: ${ptName}
+• Data di nascita: ${ptDob}
+• Nosologico/ID: ${ptId}
+• N. preparato istologico: ${ptHistology}
+• Sede prelievo: ${ptSite}
 
 DATI CLINICI:
 • Tumore: ${tumorName}
@@ -2495,19 +2559,10 @@ STATUS CLONE:
 ${cloneStatus}
 ${interchangeInfo}
 
-═══════════════════════════════════════════════════
-
-DATI PAZIENTE (da compilare):
-• Cognome e Nome: ____________________
-• Data di nascita: ____________________
-• Nosologico/ID: ____________________
-• N. preparato istologico: ____________________
-• Sede prelievo: ____________________
-
 DATI RICHIEDENTE:
-• Medico richiedente: ____________________
-• U.O.: ____________________
-• Telefono/Email: ____________________
+• Medico richiedente: ${docName}
+• U.O.: ${docUnit}
+• Telefono/Email: ${docContact}
 
 ═══════════════════════════════════════════════════
 
@@ -2515,6 +2570,7 @@ Note aggiuntive:
 ____________________
 
 Cordiali saluti,
+${docName !== '____________________' ? docName : ''}
 
 ---
 Richiesta generata da PDL-1 Clinical Evaluator v2.2
@@ -2525,7 +2581,7 @@ Tool educativo - Verificare sempre le indicazioni ufficiali`;
             emailOutput.innerHTML = `
                 <div class="email-preview">
                     <div class="email-header">
-                        <p><strong>A:</strong> ${emailTo}</p>
+                        <p><strong>A:</strong> ${emailTo} <button onclick="copyToClipboard('${emailTo}', this)" style="margin-left: 10px; padding: 4px 8px; font-size: 11px; cursor: pointer; border-radius: 4px; border: 1px solid #ccc; background: #f7f7f7;">📋 Copia</button></p>
                         <p><strong>Oggetto:</strong> ${emailSubject}</p>
                     </div>
                     <div class="email-body">${emailBody}</div>
@@ -2534,14 +2590,14 @@ Tool educativo - Verificare sempre le indicazioni ufficiali`;
                             🌐 Apri Webmail ASST
                         </button>
                         <button class="btn-copy" onclick="copyEmailToClipboard()">
-                            📋 Copia tutto
+                            📋 Copia corpo
                         </button>
                         <button class="btn-copy" onclick="copySubjectToClipboard()">
                             📝 Copia oggetto
                         </button>
                     </div>
                     <p style="font-size: 12px; color: #718096; margin-top: 15px; text-align: center;">
-                        💡 <strong>Istruzioni:</strong> 1) Clicca "Apri Webmail" → 2) Accedi → 3) Nuovo messaggio → 4) Incolla oggetto e corpo
+                        💡 <strong>Istruzioni:</strong> 1) Apri Webmail → 2) Nuovo messaggio → 3) Incolla destinatario, oggetto e corpo
                     </p>
                 </div>
             `;
@@ -2565,6 +2621,21 @@ Tool educativo - Verificare sempre le indicazioni ufficiali`;
             log('🌐 Apertura webmail ASST', 'success');
         }
 
+        function copyToClipboard(text, btn) {
+            navigator.clipboard.writeText(text).then(() => {
+                const originalText = btn.innerHTML;
+                btn.innerHTML = '✓';
+                btn.style.background = '#c6f6d5';
+                setTimeout(() => {
+                    btn.innerHTML = originalText;
+                    btn.style.background = '#f7f7f7';
+                }, 1500);
+                log('📋 Copiato: ' + text, 'success');
+            }).catch(err => {
+                log('❌ Errore copia: ' + err, 'error');
+            });
+        }
+
         function copyEmailToClipboard() {
             if (!window.emailData) return;
             
@@ -2572,11 +2643,11 @@ Tool educativo - Verificare sempre le indicazioni ufficiali`;
             
             navigator.clipboard.writeText(textToCopy).then(() => {
                 const btn = document.querySelectorAll('.btn-copy')[0];
-                btn.textContent = '✓ Corpo copiato!';
+                btn.textContent = '✓ Copiato!';
                 btn.classList.add('copy-success');
                 
                 setTimeout(() => {
-                    btn.textContent = '📋 Copia tutto';
+                    btn.textContent = '📋 Copia corpo';
                     btn.classList.remove('copy-success');
                 }, 2000);
                 
