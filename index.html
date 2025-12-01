@@ -505,9 +505,71 @@
             border-color: #ef4444;
             color: #991b1b;
         }
+        .btn-email {
+            background: linear-gradient(135deg, #3182ce 0%, #2c5282 100%);
+        }
+        .btn-email:hover {
+            box-shadow: 0 5px 15px rgba(49, 130, 206, 0.4);
+        }
+        .email-preview {
+            background: #f7fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 25px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+        }
+        .email-preview .email-header {
+            background: #edf2f7;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+        }
+        .email-preview .email-header p {
+            margin: 5px 0;
+        }
+        .email-preview .email-body {
+            padding: 15px;
+            line-height: 1.6;
+            white-space: pre-wrap;
+        }
+        .email-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+        .email-actions button {
+            flex: 1;
+            min-width: 120px;
+            padding: 12px 8px;
+            border: none;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .email-actions button:hover {
+            transform: translateY(-2px);
+        }
+        .btn-mailto {
+            background: linear-gradient(135deg, #3182ce 0%, #2c5282 100%);
+            color: white;
+        }
+        .btn-copy {
+            background: #edf2f7;
+            color: #2d3748;
+            border: 2px solid #e2e8f0 !important;
+        }
+        .copy-success {
+            background: #c6f6d5 !important;
+            color: #22543d !important;
+        }
         @media print {
             body { background: white; }
-            .btn, .debug, .debug-toggle, .form-group, .warning, .reference, .changelog, .lab-config { display: none; }
+            .btn, .debug, .debug-toggle, .form-group, .warning, .reference, .changelog, .lab-config, .email-preview, .email-actions { display: none; }
             .container { box-shadow: none; }
         }
     </style>
@@ -622,6 +684,10 @@
             </div>
             <div id="dmmr-warning" style="display:none;"></div>
         </div>
+        
+        <button onclick="generateEmailRequest()" class="btn btn-email">📧 GENERA RICHIESTA EMAIL PER AP</button>
+        
+        <div id="email-output"></div>
         
         <!-- SEZIONE ANATOMIA PATOLOGICA -->
         <div class="form-group pathology-section">
@@ -2302,6 +2368,243 @@
             
             log('📄 Referto generato', 'success');
             updateDebugToggle();
+        }
+
+        function generateEmailRequest() {
+            const tumor = document.getElementById('tumor').value;
+            const drug = document.getElementById('drug').value;
+            const line = document.getElementById('line').value;
+            
+            if (!tumor) {
+                alert('❌ Seleziona almeno il tipo di tumore');
+                return;
+            }
+            
+            const tumorData = clinicalDatabase[tumor];
+            const tumorName = tumorData.name;
+            
+            let drugName = 'Da definire';
+            let lineName = 'Da definire';
+            let cloneName = 'Da definire';
+            let methodName = 'Da definire';
+            let cutoffInfo = 'Da definire';
+            let trialName = '';
+            let cloneStatus = '';
+            let interchangeInfo = '';
+            
+            if (drug && tumorData.drugs[drug]) {
+                const drugData = tumorData.drugs[drug];
+                drugName = drugData.name;
+                cloneName = drugData.clone;
+                
+                if (line && drugData.indications[line]) {
+                    const indication = drugData.indications[line];
+                    lineName = indication.name;
+                    methodName = indication.method;
+                    trialName = indication.trial || '';
+                    
+                    if (indication.cutoff === 0 || indication.method === 'Non richiesto') {
+                        cutoffInfo = 'PDL-1 agnostico (non richiesto per eleggibilità)';
+                    } else if (indication.tcic) {
+                        if (indication.cutoffType === 'tc50_or_ic10') {
+                            cutoffInfo = 'TC ≥50% OPPURE IC ≥10%';
+                        } else if (indication.cutoffType === 'tc1_or_ic1') {
+                            cutoffInfo = 'TC ≥1% OPPURE IC ≥1%';
+                        } else if (indication.cutoffType === 'ic5') {
+                            cutoffInfo = 'IC ≥5%';
+                        } else if (indication.cutoffType === 'ic1') {
+                            cutoffInfo = 'IC ≥1%';
+                        }
+                    } else {
+                        cutoffInfo = `${indication.method} ≥${indication.cutoff}%`;
+                    }
+                }
+                
+                // Verifica clone status
+                const cloneType = getCloneType(cloneName);
+                const interchange = checkInterchangeability(cloneName, tumor);
+                
+                if (cloneName === 'Non richiesto') {
+                    cloneStatus = '✓ PDL-1 NON RICHIESTO per questa indicazione';
+                } else if (cloneType === 'ventana') {
+                    cloneStatus = `✓ CLONE IN-HOUSE: ${cloneName} disponibile`;
+                } else if (cloneType === 'dako' && interchange) {
+                    cloneStatus = `⚠️ CLONE INTERCAMBIABILE: ${cloneName} non disponibile, utilizzare ${interchange.alternativeClone} (Ventana) - Concordanza ${interchange.concordance}`;
+                    interchangeInfo = `\nNOTA: Il clone ${cloneName} (Dako) non è disponibile in-house. È possibile utilizzare ${interchange.alternativeClone} (Ventana) con concordanza ${interchange.concordance} per ${tumorName}. Riferimento: ${interchange.references}`;
+                } else if (cloneType === 'dako') {
+                    cloneStatus = `⚡ SERVICE ESTERNO RICHIESTO: ${cloneName} (Dako) non disponibile in-house, nessuna alternativa intercambiabile`;
+                }
+            }
+            
+            // Alterazioni molecolari
+            let molecularInfo = '';
+            if (tumor === 'nsclc') {
+                const mutations = [];
+                if (document.getElementById('egfr')?.checked) mutations.push('EGFR mutato');
+                if (document.getElementById('alk')?.checked) mutations.push('ALK riarrangiato');
+                if (document.getElementById('ros1')?.checked) mutations.push('ROS1 riarrangiato');
+                if (document.getElementById('braf')?.checked) mutations.push('BRAF V600E');
+                if (mutations.length > 0) {
+                    molecularInfo = `\nALTERAZIONI MOLECOLARI: ${mutations.join(', ')}`;
+                } else {
+                    molecularInfo = '\nALTERAZIONI MOLECOLARI: Non rilevate / In attesa di refertazione';
+                }
+            }
+            
+            // HER2
+            let her2Info = '';
+            if (tumor === 'gastric') {
+                const her2 = document.getElementById('her2')?.checked;
+                her2Info = `\nSTATUS HER2: ${her2 ? 'Positivo (IHC 3+ o IHC 2+/FISH+)' : 'Negativo / Non valutato'}`;
+            }
+            
+            // MSI
+            let msiInfo = '';
+            if (['gastric', 'uc', 'endometrium'].includes(tumor)) {
+                const msi = document.getElementById('msi')?.checked;
+                msiInfo = `\nSTATUS MSI/dMMR: ${msi ? 'MSI-High / dMMR confermato' : 'MSS / pMMR / Non valutato'}`;
+            }
+            
+            const today = new Date().toLocaleDateString('it-IT', {day: '2-digit', month: '2-digit', year: 'numeric'});
+            
+            const emailTo = 'anatomia.patologica.fbf@asst-fbf-sacco.it';
+            const emailSubject = `Richiesta PDL-1 - ${drugName} - ${tumorName}`;
+            
+            const emailBody = `Gentili Colleghi,
+
+si richiede determinazione immunoistochimica di PDL-1 per il seguente caso:
+
+═══════════════════════════════════════════════════
+RICHIESTA DETERMINAZIONE PDL-1
+Data: ${today}
+═══════════════════════════════════════════════════
+
+DATI CLINICI:
+• Tumore: ${tumorName}
+• Farmaco previsto: ${drugName}
+• Linea terapeutica: ${lineName}
+${trialName ? `• Trial di riferimento: ${trialName}` : ''}
+${molecularInfo}${her2Info}${msiInfo}
+
+REQUISITI TECNICI:
+• Clone richiesto: ${cloneName}
+• Metodo di scoring: ${methodName}
+• Cutoff per eleggibilità: ${cutoffInfo}
+
+STATUS CLONE:
+${cloneStatus}
+${interchangeInfo}
+
+═══════════════════════════════════════════════════
+
+DATI PAZIENTE (da compilare):
+• Cognome e Nome: ____________________
+• Data di nascita: ____________________
+• Nosologico/ID: ____________________
+• N. preparato istologico: ____________________
+• Sede prelievo: ____________________
+
+DATI RICHIEDENTE:
+• Medico richiedente: ____________________
+• U.O.: ____________________
+• Telefono/Email: ____________________
+
+═══════════════════════════════════════════════════
+
+Note aggiuntive:
+____________________
+
+Cordiali saluti,
+
+---
+Richiesta generata da PDL-1 Clinical Evaluator v2.2
+Tool educativo - Verificare sempre le indicazioni ufficiali`;
+
+            // Mostra preview email
+            const emailOutput = document.getElementById('email-output');
+            emailOutput.innerHTML = `
+                <div class="email-preview">
+                    <div class="email-header">
+                        <p><strong>A:</strong> ${emailTo}</p>
+                        <p><strong>Oggetto:</strong> ${emailSubject}</p>
+                    </div>
+                    <div class="email-body">${emailBody}</div>
+                    <div class="email-actions">
+                        <button class="btn-mailto" onclick="openWebmail()">
+                            🌐 Apri Webmail ASST
+                        </button>
+                        <button class="btn-copy" onclick="copyEmailToClipboard()">
+                            📋 Copia tutto
+                        </button>
+                        <button class="btn-copy" onclick="copySubjectToClipboard()">
+                            📝 Copia oggetto
+                        </button>
+                    </div>
+                    <p style="font-size: 12px; color: #718096; margin-top: 15px; text-align: center;">
+                        💡 <strong>Istruzioni:</strong> 1) Clicca "Apri Webmail" → 2) Accedi → 3) Nuovo messaggio → 4) Incolla oggetto e corpo
+                    </p>
+                </div>
+            `;
+            
+            // Salva dati per le azioni
+            window.emailData = {
+                to: emailTo,
+                subject: emailSubject,
+                body: emailBody
+            };
+            
+            log('📧 Email di richiesta generata', 'success');
+            updateDebugToggle();
+            
+            // Scroll alla preview
+            emailOutput.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function openWebmail() {
+            window.open('https://posta.asst-fbf-sacco.it/static/login/', '_blank');
+            log('🌐 Apertura webmail ASST', 'success');
+        }
+
+        function copyEmailToClipboard() {
+            if (!window.emailData) return;
+            
+            const textToCopy = window.emailData.body;
+            
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                const btn = document.querySelectorAll('.btn-copy')[0];
+                btn.textContent = '✓ Corpo copiato!';
+                btn.classList.add('copy-success');
+                
+                setTimeout(() => {
+                    btn.textContent = '📋 Copia tutto';
+                    btn.classList.remove('copy-success');
+                }, 2000);
+                
+                log('📋 Corpo email copiato negli appunti', 'success');
+            }).catch(err => {
+                log('❌ Errore copia: ' + err, 'error');
+                alert('Errore nella copia. Seleziona manualmente il testo.');
+            });
+        }
+
+        function copySubjectToClipboard() {
+            if (!window.emailData) return;
+            
+            navigator.clipboard.writeText(window.emailData.subject).then(() => {
+                const btn = document.querySelectorAll('.btn-copy')[1];
+                btn.textContent = '✓ Oggetto copiato!';
+                btn.classList.add('copy-success');
+                
+                setTimeout(() => {
+                    btn.textContent = '📝 Copia oggetto';
+                    btn.classList.remove('copy-success');
+                }, 2000);
+                
+                log('📝 Oggetto email copiato negli appunti', 'success');
+            }).catch(err => {
+                log('❌ Errore copia: ' + err, 'error');
+                alert('Errore nella copia. Seleziona manualmente il testo.');
+            });
         }
     </script>
 </body>
