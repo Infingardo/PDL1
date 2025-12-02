@@ -1,4 +1,4 @@
-# PDL-1 Clinical Evaluator v2.2
+# PDL-1 Clinical Evaluator v2.3
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![HTML5](https://img.shields.io/badge/HTML-5-orange.svg)](https://developer.mozilla.org/en-US/docs/Web/HTML)
@@ -26,12 +26,18 @@ Tool interattivo per la valutazione dell'espressione PDL-1 e la selezione delle 
 
 ---
 
-## 🆕 Changelog v2.2 (Novembre 2025)
+## 🆕 Changelog v2.3 (Novembre 2025)
 
 ### Nuove funzionalità
 
 | Feature | Descrizione |
 |---------|-------------|
+| **Salvataggio automatico** | I dati vengono salvati ogni 30 secondi in localStorage |
+| **Recupero sessione** | Banner per ripristinare i dati dopo refresh accidentale |
+| **Casi demo per formazione** | 6 esempi precompilati per training (NSCLC, HNSCC, gastrico, TNBC, endometrio) |
+| **Validazione input** | Controllo automatico che i valori percentuali siano tra 0 e 100 |
+| **Gestione errori** | Try-catch su tutte le funzioni principali - il tool non si blocca |
+| **Localizzazione italiana** | Tutte le stringhe tradotte in italiano |
 | **Generazione email richiesta** | Bottone per generare email precompilata da inviare ad AP |
 | **Gestione cloni in-house/service** | Warning automatico per cloni Dako non disponibili in laboratorio |
 | **Intercambiabilità cloni** | Suggerimento automatico di clone alternativo Ventana quando concordanza >90% |
@@ -188,7 +194,42 @@ Se il clone è disponibile (in-house o intercambiabile), l'AP compila:
 
 ---
 
-## 📊 Database Clinico v2.2
+## 📚 Casi Demo per Formazione
+
+Il tool include 6 casi precompilati per la formazione del personale:
+
+| Caso | Tumore | Farmaco | Caratteristiche |
+|------|--------|---------|-----------------|
+| **NSCLC TPS≥50%** | NSCLC | Pembrolizumab mono | Score TPS 65%, clone 22C3 |
+| **NSCLC TC/IC** | NSCLC | Atezolizumab 2ª linea | Score TC/IC separati, clone SP142 |
+| **HNSCC CPS** | HNSCC | Pembrolizumab 1ª linea | Score CPS 35%, cutoff ≥20 |
+| **Gastrico HER2+** | Gastrico | Pembrolizumab + trastuzumab | KEYNOTE-811, checkbox HER2 |
+| **TNBC warning FDA** | TNBC | Atezolizumab | Warning ritiro FDA, attivo EMA |
+| **Endometrio dMMR** | Endometrio | Dostarlimab | Checkbox dMMR obbligatorio |
+
+**Come usare:**
+1. Clicca sul caso demo desiderato
+2. I campi vengono precompilati automaticamente
+3. Prova a generare email e referto
+4. Usa "🗑️ Pulisci tutto" per ricominciare
+
+---
+
+## 💾 Salvataggio Automatico e Recovery
+
+### Funzionamento
+- I dati vengono salvati automaticamente ogni **30 secondi**
+- In caso di refresh accidentale, appare un banner per ripristinare la sessione
+- I dati vengono conservati per **24 ore**
+
+### Privacy
+- Tutti i dati sono salvati **localmente nel browser** (localStorage)
+- Nessun dato viene inviato a server esterni
+- Per cancellare i dati salvati, clicca "🗑️ Pulisci tutto"
+
+---
+
+## 📊 Database Clinico v2.3
 
 ### Tumori supportati (16)
 
@@ -350,7 +391,17 @@ MIT License - Uso educativo
 
 ## 🎯 Storico Versioni
 
+### v2.3 (Novembre 2025)
+- ✨ Salvataggio automatico ogni 30 secondi
+- ✨ Recovery sessione dopo refresh
+- ✨ 6 casi demo per formazione
+- ✨ Validazione input 0-100%
+- ✨ Try-catch per gestione errori
+- ✨ Localizzazione italiana completa
+
 ### v2.2 (Novembre 2025)
+- ✨ Generazione email per webmail ASST
+- ✨ Campi anagrafici paziente e richiedente
 - ✨ Gestione cloni in-house vs service
 - ✨ Intercambiabilità automatica con concordanza
 - ✨ Workflow separato Oncologia/AP

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PDL-1 Clinical Evaluator v2.2</title>
+    <title>PDL-1 Clinical Evaluator v2.3</title>
     <style>
         * { box-sizing: border-box; }
         body { 
@@ -511,6 +511,103 @@
         .btn-email:hover {
             box-shadow: 0 5px 15px rgba(49, 130, 206, 0.4);
         }
+        .btn-demo {
+            background: linear-gradient(135deg, #ed8936 0%, #dd6b20 100%);
+            font-size: 14px;
+            padding: 12px;
+        }
+        .btn-demo:hover {
+            box-shadow: 0 5px 15px rgba(237, 137, 54, 0.4);
+        }
+        .demo-section {
+            background: #fffaf0;
+            border: 2px solid #ed8936;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .demo-section h4 {
+            margin: 0 0 15px 0;
+            color: #c05621;
+            font-size: 14px;
+        }
+        .demo-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .demo-buttons button {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 6px;
+            background: #feebc8;
+            color: #c05621;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .demo-buttons button:hover {
+            background: #ed8936;
+            color: white;
+        }
+        .recovery-banner {
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            animation: slideIn 0.3s ease-out;
+        }
+        .recovery-banner p {
+            margin: 0;
+            font-weight: 600;
+        }
+        .recovery-banner button {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+        .recovery-banner .btn-restore {
+            background: white;
+            color: #38a169;
+        }
+        .recovery-banner .btn-dismiss {
+            background: rgba(255,255,255,0.2);
+            color: white;
+        }
+        .autosave-indicator {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #48bb78;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: 1000;
+        }
+        .autosave-indicator.visible {
+            opacity: 1;
+        }
+        .input-error {
+            border-color: #fc8181 !important;
+            background: #fff5f5 !important;
+        }
+        .error-message {
+            color: #c53030;
+            font-size: 12px;
+            margin-top: 5px;
+        }
         .email-preview {
             background: #f7fafc;
             border: 2px solid #e2e8f0;
@@ -577,7 +674,7 @@
 <body>
     <div class="container">
         <h1>🔬 PDL-1 Clinical Evaluator</h1>
-        <div class="version">v2.2 - Database clinico aggiornato Novembre 2025</div>
+        <div class="version">v2.3 - Database clinico aggiornato Novembre 2025</div>
         
         <div class="lab-config">
             <h4>🏥 Configurazione Laboratorio AP</h4>
@@ -591,14 +688,29 @@
         </div>
         
         <div class="changelog">
-            <h4>🆕 Novità v2.2</h4>
+            <h4>🆕 Novità v2.3</h4>
             <ul>
-                <li><strong>Gestione cloni in-house vs service:</strong> Warning automatico per cloni Dako (service esterno)</li>
-                <li>Fix: Input separati per TC% e IC% quando richiesto SP142</li>
-                <li>Fix: Dostarlimab richiede conferma dMMR/MSI-H obbligatoria</li>
-                <li>Fix: Cemiplimab non ha companion diagnostic obbligatorio</li>
-                <li>Fix: HER2 gastrico con validazione più stringente</li>
+                <li><strong>Salvataggio automatico:</strong> I dati vengono salvati ogni 30 secondi</li>
+                <li><strong>Recupero sessione:</strong> Se refreshi per sbaglio, puoi ripristinare i dati</li>
+                <li><strong>Esempi precompilati:</strong> Casi demo per formazione</li>
+                <li><strong>Validazione input:</strong> Controllo valori percentuali 0-100</li>
+                <li><strong>Gestione errori:</strong> Il tool non si blocca in caso di errori</li>
             </ul>
+        </div>
+        
+        <div id="recovery-banner"></div>
+        
+        <div class="demo-section">
+            <h4>📚 CASI DEMO PER FORMAZIONE</h4>
+            <div class="demo-buttons">
+                <button onclick="loadDemo('nsclc-pembro-tps50')">NSCLC - Pembrolizumab TPS≥50%</button>
+                <button onclick="loadDemo('nsclc-atezo')">NSCLC - Atezolizumab TC/IC</button>
+                <button onclick="loadDemo('hnscc-pembro')">HNSCC - Pembrolizumab CPS</button>
+                <button onclick="loadDemo('gastric-her2')">Gastrico HER2+ - KEYNOTE-811</button>
+                <button onclick="loadDemo('tnbc-atezo')">TNBC - Atezolizumab (warning FDA)</button>
+                <button onclick="loadDemo('endometrium-dmmr')">Endometrio dMMR - Dostarlimab</button>
+                <button onclick="clearAllFields()">🗑️ Pulisci tutto</button>
+            </div>
         </div>
         
         <div class="warning">
@@ -762,6 +874,8 @@
         <div id="report"></div>
         <div id="references"></div>
     </div>
+    
+    <div id="autosave-indicator" class="autosave-indicator">💾 Salvato</div>
 
     <script>
         // CONFIGURAZIONE LABORATORIO - Cloni disponibili in-house
@@ -771,22 +885,415 @@
             labName: 'ASST Fatebenefratelli-Sacco'
         };
 
+        // ═══════════════════════════════════════════════════
+        // SISTEMA SALVATAGGIO AUTOMATICO E RECOVERY
+        // ═══════════════════════════════════════════════════
+        
+        const STORAGE_KEY = 'pdl1_evaluator_session';
+        const AUTOSAVE_INTERVAL = 30000; // 30 secondi
+        
+        // Salva stato corrente
+        function saveSession() {
+            try {
+                const sessionData = {
+                    timestamp: new Date().toISOString(),
+                    tumor: document.getElementById('tumor')?.value || '',
+                    drug: document.getElementById('drug')?.value || '',
+                    line: document.getElementById('line')?.value || '',
+                    score: document.getElementById('score')?.value || '',
+                    scoreTC: document.getElementById('score-tc')?.value || '',
+                    scoreIC: document.getElementById('score-ic')?.value || '',
+                    egfr: document.getElementById('egfr')?.checked || false,
+                    alk: document.getElementById('alk')?.checked || false,
+                    ros1: document.getElementById('ros1')?.checked || false,
+                    braf: document.getElementById('braf')?.checked || false,
+                    her2: document.getElementById('her2')?.checked || false,
+                    msi: document.getElementById('msi')?.checked || false,
+                    ptName: document.getElementById('pt-name')?.value || '',
+                    ptDob: document.getElementById('pt-dob')?.value || '',
+                    ptId: document.getElementById('pt-id')?.value || '',
+                    ptHistology: document.getElementById('pt-histology')?.value || '',
+                    ptSite: document.getElementById('pt-site')?.value || '',
+                    docName: document.getElementById('doc-name')?.value || '',
+                    docUnit: document.getElementById('doc-unit')?.value || '',
+                    docContact: document.getElementById('doc-contact')?.value || ''
+                };
+                
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(sessionData));
+                showAutosaveIndicator();
+                log('💾 Sessione salvata automaticamente', 'success');
+            } catch (e) {
+                log('⚠️ Errore salvataggio sessione: ' + e.message, 'warning');
+            }
+        }
+        
+        // Mostra indicatore salvataggio
+        function showAutosaveIndicator() {
+            const indicator = document.getElementById('autosave-indicator');
+            if (indicator) {
+                indicator.classList.add('visible');
+                setTimeout(() => indicator.classList.remove('visible'), 2000);
+            }
+        }
+        
+        // Carica sessione salvata
+        function loadSession(sessionData) {
+            try {
+                // Carica tumore prima (per popolare i dropdown)
+                if (sessionData.tumor) {
+                    document.getElementById('tumor').value = sessionData.tumor;
+                    updateDrugs();
+                }
+                
+                // Attendi un attimo per permettere ai dropdown di aggiornarsi
+                setTimeout(() => {
+                    if (sessionData.drug) {
+                        document.getElementById('drug').value = sessionData.drug;
+                        updateLines();
+                    }
+                    
+                    setTimeout(() => {
+                        if (sessionData.line) {
+                            document.getElementById('line').value = sessionData.line;
+                            updateScoringInfo();
+                        }
+                        
+                        // Carica gli altri campi
+                        setTimeout(() => {
+                            if (sessionData.score) {
+                                const scoreInput = document.getElementById('score');
+                                if (scoreInput) scoreInput.value = sessionData.score;
+                            }
+                            if (sessionData.scoreTC) {
+                                const scoreTCInput = document.getElementById('score-tc');
+                                if (scoreTCInput) scoreTCInput.value = sessionData.scoreTC;
+                            }
+                            if (sessionData.scoreIC) {
+                                const scoreICInput = document.getElementById('score-ic');
+                                if (scoreICInput) scoreICInput.value = sessionData.scoreIC;
+                            }
+                            
+                            // Checkbox
+                            if (document.getElementById('egfr')) document.getElementById('egfr').checked = sessionData.egfr;
+                            if (document.getElementById('alk')) document.getElementById('alk').checked = sessionData.alk;
+                            if (document.getElementById('ros1')) document.getElementById('ros1').checked = sessionData.ros1;
+                            if (document.getElementById('braf')) document.getElementById('braf').checked = sessionData.braf;
+                            if (document.getElementById('her2')) document.getElementById('her2').checked = sessionData.her2;
+                            if (document.getElementById('msi')) document.getElementById('msi').checked = sessionData.msi;
+                            
+                            // Dati paziente
+                            if (document.getElementById('pt-name')) document.getElementById('pt-name').value = sessionData.ptName || '';
+                            if (document.getElementById('pt-dob')) document.getElementById('pt-dob').value = sessionData.ptDob || '';
+                            if (document.getElementById('pt-id')) document.getElementById('pt-id').value = sessionData.ptId || '';
+                            if (document.getElementById('pt-histology')) document.getElementById('pt-histology').value = sessionData.ptHistology || '';
+                            if (document.getElementById('pt-site')) document.getElementById('pt-site').value = sessionData.ptSite || '';
+                            
+                            // Dati richiedente
+                            if (document.getElementById('doc-name')) document.getElementById('doc-name').value = sessionData.docName || '';
+                            if (document.getElementById('doc-unit')) document.getElementById('doc-unit').value = sessionData.docUnit || '';
+                            if (document.getElementById('doc-contact')) document.getElementById('doc-contact').value = sessionData.docContact || '';
+                            
+                            log('✓ Sessione ripristinata', 'success');
+                        }, 100);
+                    }, 100);
+                }, 100);
+                
+            } catch (e) {
+                log('⚠️ Errore caricamento sessione: ' + e.message, 'warning');
+            }
+        }
+        
+        // Controlla se c'è una sessione salvata da recuperare
+        function checkForSavedSession() {
+            try {
+                const saved = localStorage.getItem(STORAGE_KEY);
+                if (saved) {
+                    const sessionData = JSON.parse(saved);
+                    const savedTime = new Date(sessionData.timestamp);
+                    const now = new Date();
+                    const hoursDiff = (now - savedTime) / (1000 * 60 * 60);
+                    
+                    // Mostra recovery solo se salvato nelle ultime 24 ore e ha dati significativi
+                    if (hoursDiff < 24 && (sessionData.tumor || sessionData.ptName)) {
+                        showRecoveryBanner(sessionData, savedTime);
+                    }
+                }
+            } catch (e) {
+                log('⚠️ Errore controllo sessione: ' + e.message, 'warning');
+            }
+        }
+        
+        // Mostra banner di recovery
+        function showRecoveryBanner(sessionData, savedTime) {
+            const timeStr = savedTime.toLocaleString('it-IT');
+            const banner = document.getElementById('recovery-banner');
+            
+            let preview = '';
+            if (sessionData.tumor) preview += clinicalDatabase[sessionData.tumor]?.name || sessionData.tumor;
+            if (sessionData.ptName) preview += ' - ' + sessionData.ptName;
+            
+            banner.innerHTML = `
+                <div class="recovery-banner">
+                    <p>💾 Sessione salvata il ${timeStr}${preview ? ': ' + preview : ''}</p>
+                    <div>
+                        <button class="btn-restore" onclick="restoreSession()">Ripristina</button>
+                        <button class="btn-dismiss" onclick="dismissRecovery()">Ignora</button>
+                    </div>
+                </div>
+            `;
+        }
+        
+        // Ripristina sessione
+        function restoreSession() {
+            try {
+                const saved = localStorage.getItem(STORAGE_KEY);
+                if (saved) {
+                    const sessionData = JSON.parse(saved);
+                    loadSession(sessionData);
+                }
+                dismissRecovery();
+            } catch (e) {
+                log('⚠️ Errore ripristino: ' + e.message, 'error');
+            }
+        }
+        
+        // Chiudi banner recovery
+        function dismissRecovery() {
+            document.getElementById('recovery-banner').innerHTML = '';
+        }
+        
+        // Pulisci sessione salvata
+        function clearSavedSession() {
+            try {
+                localStorage.removeItem(STORAGE_KEY);
+            } catch (e) {
+                // Ignora errori
+            }
+        }
+        
+        // ═══════════════════════════════════════════════════
+        // CASI DEMO PER FORMAZIONE
+        // ═══════════════════════════════════════════════════
+        
+        const demoCases = {
+            'nsclc-pembro-tps50': {
+                name: 'NSCLC - Pembrolizumab monoterapia TPS≥50%',
+                tumor: 'nsclc',
+                drug: 'pembrolizumab',
+                line: 'first-mono',
+                score: '65',
+                ptName: 'Demo Paziente',
+                ptSite: 'Polmone lobo superiore destro',
+                docName: 'Dr. Demo',
+                docUnit: 'Oncologia Medica'
+            },
+            'nsclc-atezo': {
+                name: 'NSCLC - Atezolizumab seconda linea TC/IC',
+                tumor: 'nsclc',
+                drug: 'atezolizumab',
+                line: 'second',
+                scoreTC: '55',
+                scoreIC: '8',
+                ptName: 'Demo Paziente 2',
+                ptSite: 'Polmone lobo inferiore sinistro',
+                docName: 'Dr. Demo',
+                docUnit: 'Oncologia Medica'
+            },
+            'hnscc-pembro': {
+                name: 'HNSCC - Pembrolizumab prima linea CPS≥20',
+                tumor: 'hnscc',
+                drug: 'pembrolizumab',
+                line: 'first-line-high',
+                score: '35',
+                ptName: 'Demo Paziente 3',
+                ptSite: 'Orofaringe',
+                docName: 'Dr. Demo',
+                docUnit: 'Oncologia Medica'
+            },
+            'gastric-her2': {
+                name: 'Gastrico HER2+ - KEYNOTE-811',
+                tumor: 'gastric',
+                drug: 'pembrolizumab',
+                line: 'first-combo-her2',
+                score: '5',
+                her2: true,
+                ptName: 'Demo Paziente 4',
+                ptSite: 'Stomaco antro',
+                docName: 'Dr. Demo',
+                docUnit: 'Oncologia Medica'
+            },
+            'tnbc-atezo': {
+                name: 'TNBC - Atezolizumab (warning FDA)',
+                tumor: 'tnbc',
+                drug: 'atezolizumab',
+                line: 'first-combo',
+                scoreIC: '3',
+                ptName: 'Demo Paziente 5',
+                ptSite: 'Mammella sinistra QSE',
+                docName: 'Dr. Demo',
+                docUnit: 'Oncologia Medica'
+            },
+            'endometrium-dmmr': {
+                name: 'Endometrio dMMR - Dostarlimab',
+                tumor: 'endometrium',
+                drug: 'dostarlimab',
+                line: 'advanced-dmmr',
+                msi: true,
+                ptName: 'Demo Paziente 6',
+                ptSite: 'Endometrio',
+                docName: 'Dr. Demo',
+                docUnit: 'Ginecologia Oncologica'
+            }
+        };
+        
+        function loadDemo(demoId) {
+            try {
+                const demo = demoCases[demoId];
+                if (!demo) {
+                    alert('Caso demo non trovato');
+                    return;
+                }
+                
+                clearAllFields();
+                
+                // Carica come sessione
+                setTimeout(() => {
+                    loadSession({
+                        tumor: demo.tumor,
+                        drug: demo.drug,
+                        line: demo.line,
+                        score: demo.score || '',
+                        scoreTC: demo.scoreTC || '',
+                        scoreIC: demo.scoreIC || '',
+                        her2: demo.her2 || false,
+                        msi: demo.msi || false,
+                        ptName: demo.ptName || '',
+                        ptSite: demo.ptSite || '',
+                        docName: demo.docName || '',
+                        docUnit: demo.docUnit || ''
+                    });
+                    
+                    log(`📚 Caricato caso demo: ${demo.name}`, 'success');
+                }, 100);
+                
+            } catch (e) {
+                log('⚠️ Errore caricamento demo: ' + e.message, 'error');
+            }
+        }
+        
+        function clearAllFields() {
+            try {
+                document.getElementById('tumor').value = '';
+                document.getElementById('drug').innerHTML = '<option value="">Seleziona prima il tumore</option>';
+                document.getElementById('line').innerHTML = '<option value="">Seleziona prima farmaco</option>';
+                document.getElementById('score-inputs').innerHTML = '<input type="number" id="score" placeholder="Inserisci valore 0-100" min="0" max="100" step="0.1">';
+                document.getElementById('clone-info').className = 'auto-info';
+                document.getElementById('clone-info').innerHTML = 'Compila i campi sopra';
+                document.getElementById('clone-status').innerHTML = '';
+                document.getElementById('score-help').innerHTML = 'Inserisci lo score appropriato';
+                document.getElementById('result').innerHTML = '';
+                document.getElementById('report').innerHTML = '';
+                document.getElementById('email-output').innerHTML = '';
+                document.getElementById('references').innerHTML = '';
+                
+                // Nascondi sezioni condizionali
+                document.getElementById('molecular-group').style.display = 'none';
+                document.getElementById('her2-group').style.display = 'none';
+                document.getElementById('msi-group').style.display = 'none';
+                
+                // Reset checkbox
+                ['egfr', 'alk', 'ros1', 'braf', 'her2', 'msi'].forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) el.checked = false;
+                });
+                
+                // Reset campi paziente
+                ['pt-name', 'pt-dob', 'pt-id', 'pt-histology', 'pt-site', 'doc-name', 'doc-unit', 'doc-contact'].forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) el.value = '';
+                });
+                
+                clearSavedSession();
+                log('🗑️ Tutti i campi puliti', 'info');
+            } catch (e) {
+                log('⚠️ Errore pulizia campi: ' + e.message, 'warning');
+            }
+        }
+        
+        // ═══════════════════════════════════════════════════
+        // VALIDAZIONE INPUT
+        // ═══════════════════════════════════════════════════
+        
+        function validateScoreInput(input) {
+            const value = parseFloat(input.value);
+            const errorId = input.id + '-error';
+            let errorEl = document.getElementById(errorId);
+            
+            // Rimuovi errore precedente
+            input.classList.remove('input-error');
+            if (errorEl) errorEl.remove();
+            
+            if (input.value === '') return true; // Campo vuoto OK
+            
+            if (isNaN(value) || value < 0 || value > 100) {
+                input.classList.add('input-error');
+                errorEl = document.createElement('div');
+                errorEl.id = errorId;
+                errorEl.className = 'error-message';
+                errorEl.textContent = 'Il valore deve essere compreso tra 0 e 100';
+                input.parentNode.appendChild(errorEl);
+                return false;
+            }
+            
+            return true;
+        }
+        
+        // Aggiungi validazione agli input numerici
+        function setupInputValidation() {
+            document.addEventListener('change', function(e) {
+                if (e.target.type === 'number' && (e.target.id === 'score' || e.target.id === 'score-tc' || e.target.id === 'score-ic')) {
+                    validateScoreInput(e.target);
+                }
+            });
+        }
+        
+        // ═══════════════════════════════════════════════════
+        // INIZIALIZZAZIONE
+        // ═══════════════════════════════════════════════════
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            try {
+                // Controlla sessione salvata
+                checkForSavedSession();
+                
+                // Avvia autosave
+                setInterval(saveSession, AUTOSAVE_INTERVAL);
+                
+                // Setup validazione
+                setupInputValidation();
+                
+                log('✓ PDL-1 Clinical Evaluator v2.3 inizializzato', 'success');
+            } catch (e) {
+                console.error('Errore inizializzazione:', e);
+            }
+        });
+
         // Mappa intercambiabilità cloni con concordanza
-        // Basata su Blueprint studies (Hirsch 2017, Tsao 2018)
+        // Basata su studi Blueprint (Hirsch 2017, Tsao 2018)
         const cloneInterchangeability = {
             '22C3': {
                 alternative: 'SP263',
                 concordance: '>90%',
                 tumors: ['nsclc', 'hnscc', 'uc', 'gastric', 'escc', 'cervical'],
-                note: 'Concordanza >90% per TC. Validare localmente come LDT.',
-                references: 'Blueprint PD-L1 IHC Comparison Project'
+                note: 'Concordanza >90% per cellule tumorali. Validare localmente come LDT.',
+                references: 'Progetto Blueprint per confronto IHC PD-L1'
             },
             '28-8': {
                 alternative: 'SP263',
                 concordance: '>90%',
                 tumors: ['nsclc', 'hnscc', 'uc', 'melanoma'],
-                note: 'Concordanza >90% per TC. Validare localmente come LDT.',
-                references: 'Blueprint PD-L1 IHC Comparison Project'
+                note: 'Concordanza >90% per cellule tumorali. Validare localmente come LDT.',
+                references: 'Progetto Blueprint per confronto IHC PD-L1'
             },
             '73-10': {
                 alternative: null, // Nessuna alternativa validata
@@ -798,7 +1305,7 @@
                 alternative: null, // NON intercambiabile
                 concordance: '73-76%',
                 tumors: [],
-                note: 'NON intercambiabile. Sensibilità TC -16% vs altri cloni. Kappa 0.39-0.55.',
+                note: 'NON intercambiabile. Sensibilità per cellule tumorali -16% rispetto agli altri cloni. Kappa 0.39-0.55.',
                 notInterchangeable: true
             }
         };
@@ -2012,9 +2519,10 @@
         }
 
         function evaluatePDL1() {
-            debugCount = 0;
-            document.getElementById('debug').innerHTML = '';
-            log('═══ AVVIO VALUTAZIONE ═══', 'info');
+            try {
+                debugCount = 0;
+                document.getElementById('debug').innerHTML = '';
+                log('═══ AVVIO VALUTAZIONE ═══', 'info');
             
             const tumor = document.getElementById('tumor').value;
             const drug = document.getElementById('drug').value;
@@ -2274,6 +2782,12 @@
             log('═══ VALUTAZIONE COMPLETATA ═══', 'success');
             updateDebugToggle();
             showReferences(tumor, drug);
+            
+            } catch (e) {
+                log('❌ Errore durante la valutazione: ' + e.message, 'error');
+                alert('Si è verificato un errore. Controlla i dati inseriti e riprova.');
+                console.error('Errore evaluatePDL1:', e);
+            }
         }
 
         function showReferences(tumor, drug) {
@@ -2296,10 +2810,11 @@
         }
 
         function generateReport() {
-            if (!window.evaluationData) {
-                alert('❌ Esegui prima la valutazione!');
-                return;
-            }
+            try {
+                if (!window.evaluationData) {
+                    alert('❌ Esegui prima la valutazione!');
+                    return;
+                }
             
             const d = window.evaluationData;
             const reportDiv = document.getElementById('report');
@@ -2332,7 +2847,7 @@
                 <div style="background: white; border: 3px solid #2d3748; padding: 40px; margin: 30px 0; font-family: 'Times New Roman', serif; page-break-inside: avoid;">
                     <div class="referto-header">
                         <h2>REFERTO IMMUNOISTOCHIMICA</h2>
-                        <p>PDL-1 Expression Analysis - v2.2</p>
+                        <p>PDL-1 Expression Analysis - v2.3</p>
                     </div>
                     
                     <table class="referto-table">
@@ -2402,7 +2917,7 @@
                             <li>Il quadro clinico completo del paziente</li>
                             <li>I fattori prognostici e predittivi aggiuntivi (TMB, MSI, TILs)</li>
                         </ul>
-                        <p style="margin-top: 10px;"><strong>Tool:</strong> PDL-1 Clinical Evaluator v2.2 - Novembre 2025</p>
+                        <p style="margin-top: 10px;"><strong>Tool:</strong> PDL-1 Clinical Evaluator v2.3 - Novembre 2025</p>
                         <p><strong>Laboratorio:</strong> ${labConfig.labName}</p>
                     </div>
                     
@@ -2412,10 +2927,17 @@
             
             log('📄 Referto generato', 'success');
             updateDebugToggle();
+            
+            } catch (e) {
+                log('❌ Errore generazione referto: ' + e.message, 'error');
+                alert('Si è verificato un errore nella generazione del referto.');
+                console.error('Errore generateReport:', e);
+            }
         }
 
         function generateEmailRequest() {
-            const tumor = document.getElementById('tumor').value;
+            try {
+                const tumor = document.getElementById('tumor').value;
             const drug = document.getElementById('drug').value;
             const line = document.getElementById('line').value;
             
@@ -2573,8 +3095,8 @@ Cordiali saluti,
 ${docName !== '____________________' ? docName : ''}
 
 ---
-Richiesta generata da PDL-1 Clinical Evaluator v2.2
-Tool educativo - Verificare sempre le indicazioni ufficiali`;
+Richiesta generata da PDL-1 Clinical Evaluator v2.3
+Strumento educativo - Verificare sempre le indicazioni ufficiali`;
 
             // Mostra preview email
             const emailOutput = document.getElementById('email-output');
@@ -2614,6 +3136,12 @@ Tool educativo - Verificare sempre le indicazioni ufficiali`;
             
             // Scroll alla preview
             emailOutput.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            
+            } catch (e) {
+                log('❌ Errore generazione email: ' + e.message, 'error');
+                alert('Si è verificato un errore nella generazione della richiesta email.');
+                console.error('Errore generateEmailRequest:', e);
+            }
         }
 
         function openWebmail() {
