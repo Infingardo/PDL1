@@ -727,6 +727,31 @@
             </div>
         </div>
         
+        <!-- DATI PAZIENTE - all'inizio -->
+        <div class="form-group oncologist-section">
+            <span class="section-label">👨‍⚕️ DATI PAZIENTE</span>
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px;">
+                <div>
+                    <label>Cognome:</label>
+                    <input type="text" id="pt-surname" placeholder="Es. Rossi">
+                </div>
+                <div>
+                    <label>Nome:</label>
+                    <input type="text" id="pt-firstname" placeholder="Es. Mario">
+                </div>
+                <div>
+                    <label>Data di nascita:</label>
+                    <input type="date" id="pt-dob">
+                </div>
+            </div>
+        </div>
+        
+        <div class="form-group oncologist-section">
+            <span class="section-label">👨‍⚕️ ANAMNESI PATOLOGICA</span>
+            <label>📋 Dati clinici rilevanti:</label>
+            <textarea id="pt-history" rows="3" placeholder="Es. Adenocarcinoma polmonare stadio IV, metastasi ossee e epatiche. Precedente chemioterapia con carboplatino/pemetrexed (PD). EGFR/ALK/ROS1 wild-type." style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-family: inherit; resize: vertical;"></textarea>
+        </div>
+        
         <!-- SEZIONE ONCOLOGI -->
         <div class="form-group oncologist-section">
             <span class="section-label">👨‍⚕️ COMPILAZIONE ONCOLOGIA</span>
@@ -782,45 +807,41 @@
         <div class="form-group oncologist-section" id="her2-group" style="display:none;">
             <span class="section-label">👨‍⚕️ COMPILAZIONE ONCOLOGIA</span>
             <label>🧬 Status HER2 (Gastrico/GEJ):</label>
-            <div class="checkbox-group">
-                <label><input type="checkbox" id="her2" onchange="validateHER2()"> HER2-positivo (IHC 3+ o IHC 2+/FISH+)</label>
-            </div>
+            <select id="her2-status" onchange="updateHER2Status()">
+                <option value="">Seleziona status HER2</option>
+                <optgroup label="HER2 Negativo">
+                    <option value="0">IHC 0 (negativo)</option>
+                    <option value="1+">IHC 1+ (negativo)</option>
+                    <option value="2+fish-">IHC 2+ / FISH negativo</option>
+                </optgroup>
+                <optgroup label="HER2 Positivo">
+                    <option value="2+fish+">IHC 2+ / FISH positivo</option>
+                    <option value="3+">IHC 3+ (positivo)</option>
+                </optgroup>
+            </select>
+            <div id="her2-result" class="auto-info" style="margin-top: 10px;"></div>
             <div id="her2-warning" style="display:none;"></div>
         </div>
         
         <div class="form-group oncologist-section" id="msi-group" style="display:none;">
             <span class="section-label">👨‍⚕️ COMPILAZIONE ONCOLOGIA</span>
-            <label>🧬 Status MSI/dMMR:</label>
-            <div class="checkbox-group">
-                <label><input type="checkbox" id="msi" onchange="validateDMMR()"> MSI-High / dMMR confermato (IHC o PCR)</label>
-            </div>
+            <label>🧬 Status MSI/MMR:</label>
+            <select id="msi-status" onchange="updateMSIStatus()">
+                <option value="">Seleziona status MSI/MMR</option>
+                <optgroup label="Microsatellite Stabile">
+                    <option value="mss-ihc">pMMR (IHC: MLH1, MSH2, MSH6, PMS2 conservati)</option>
+                    <option value="mss-pcr">MSS (PCR/NGS: microsatelliti stabili)</option>
+                </optgroup>
+                <optgroup label="Instabilità dei Microsatelliti">
+                    <option value="dmmr-mlh1-pms2">dMMR - Perdita MLH1/PMS2 (IHC)</option>
+                    <option value="dmmr-msh2-msh6">dMMR - Perdita MSH2/MSH6 (IHC)</option>
+                    <option value="dmmr-other">dMMR - Altro pattern (IHC)</option>
+                    <option value="msi-h-pcr">MSI-High (PCR/NGS)</option>
+                </optgroup>
+                <option value="not-tested">Non valutato</option>
+            </select>
+            <div id="msi-result" class="auto-info" style="margin-top: 10px;"></div>
             <div id="dmmr-warning" style="display:none;"></div>
-        </div>
-        
-        <div class="form-group oncologist-section">
-            <span class="section-label">👨‍⚕️ DATI PAZIENTE</span>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                <div>
-                    <label>Cognome e Nome:</label>
-                    <input type="text" id="pt-name" placeholder="Es. Rossi Mario">
-                </div>
-                <div>
-                    <label>Data di nascita:</label>
-                    <input type="date" id="pt-dob">
-                </div>
-                <div>
-                    <label>Nosologico / ID:</label>
-                    <input type="text" id="pt-id" placeholder="Es. 123456">
-                </div>
-                <div>
-                    <label>N. preparato istologico:</label>
-                    <input type="text" id="pt-histology" placeholder="Es. H25-12345">
-                </div>
-                <div style="grid-column: span 2;">
-                    <label>Sede prelievo:</label>
-                    <input type="text" id="pt-site" placeholder="Es. Polmone lobo superiore dx">
-                </div>
-            </div>
         </div>
         
         <div class="form-group oncologist-section">
@@ -846,6 +867,12 @@
         <div id="email-output"></div>
         
         <!-- SEZIONE ANATOMIA PATOLOGICA -->
+        <div class="form-group pathology-section">
+            <span class="section-label pathology">🔬 ANATOMIA PATOLOGICA</span>
+            <label>📋 N. preparato istologico:</label>
+            <input type="text" id="pt-histology" placeholder="Es. H25-12345">
+        </div>
+        
         <div class="form-group pathology-section">
             <span class="section-label pathology">🔬 ANATOMIA PATOLOGICA</span>
             <label>🔍 Clone e metodo richiesto:</label>
@@ -907,13 +934,13 @@
                     alk: document.getElementById('alk')?.checked || false,
                     ros1: document.getElementById('ros1')?.checked || false,
                     braf: document.getElementById('braf')?.checked || false,
-                    her2: document.getElementById('her2')?.checked || false,
-                    msi: document.getElementById('msi')?.checked || false,
-                    ptName: document.getElementById('pt-name')?.value || '',
+                    her2: document.getElementById('her2-status')?.value || '',
+                    msi: document.getElementById('msi-status')?.value || '',
+                    ptSurname: document.getElementById('pt-surname')?.value || '',
+                    ptFirstname: document.getElementById('pt-firstname')?.value || '',
                     ptDob: document.getElementById('pt-dob')?.value || '',
-                    ptId: document.getElementById('pt-id')?.value || '',
+                    ptHistory: document.getElementById('pt-history')?.value || '',
                     ptHistology: document.getElementById('pt-histology')?.value || '',
-                    ptSite: document.getElementById('pt-site')?.value || '',
                     docName: document.getElementById('doc-name')?.value || '',
                     docUnit: document.getElementById('doc-unit')?.value || '',
                     docContact: document.getElementById('doc-contact')?.value || ''
@@ -978,15 +1005,21 @@
                             if (document.getElementById('alk')) document.getElementById('alk').checked = sessionData.alk;
                             if (document.getElementById('ros1')) document.getElementById('ros1').checked = sessionData.ros1;
                             if (document.getElementById('braf')) document.getElementById('braf').checked = sessionData.braf;
-                            if (document.getElementById('her2')) document.getElementById('her2').checked = sessionData.her2;
-                            if (document.getElementById('msi')) document.getElementById('msi').checked = sessionData.msi;
+                            if (document.getElementById('her2-status') && sessionData.her2) {
+                                document.getElementById('her2-status').value = sessionData.her2;
+                                updateHER2Status();
+                            }
+                            if (document.getElementById('msi-status') && sessionData.msi) {
+                                document.getElementById('msi-status').value = sessionData.msi;
+                                updateMSIStatus();
+                            }
                             
                             // Dati paziente
-                            if (document.getElementById('pt-name')) document.getElementById('pt-name').value = sessionData.ptName || '';
+                            if (document.getElementById('pt-surname')) document.getElementById('pt-surname').value = sessionData.ptSurname || '';
+                            if (document.getElementById('pt-firstname')) document.getElementById('pt-firstname').value = sessionData.ptFirstname || '';
                             if (document.getElementById('pt-dob')) document.getElementById('pt-dob').value = sessionData.ptDob || '';
-                            if (document.getElementById('pt-id')) document.getElementById('pt-id').value = sessionData.ptId || '';
+                            if (document.getElementById('pt-history')) document.getElementById('pt-history').value = sessionData.ptHistory || '';
                             if (document.getElementById('pt-histology')) document.getElementById('pt-histology').value = sessionData.ptHistology || '';
-                            if (document.getElementById('pt-site')) document.getElementById('pt-site').value = sessionData.ptSite || '';
                             
                             // Dati richiedente
                             if (document.getElementById('doc-name')) document.getElementById('doc-name').value = sessionData.docName || '';
@@ -1014,7 +1047,7 @@
                     const hoursDiff = (now - savedTime) / (1000 * 60 * 60);
                     
                     // Mostra recovery solo se salvato nelle ultime 24 ore e ha dati significativi
-                    if (hoursDiff < 24 && (sessionData.tumor || sessionData.ptName)) {
+                    if (hoursDiff < 24 && (sessionData.tumor || sessionData.ptSurname)) {
                         showRecoveryBanner(sessionData, savedTime);
                     }
                 }
@@ -1030,7 +1063,8 @@
             
             let preview = '';
             if (sessionData.tumor) preview += clinicalDatabase[sessionData.tumor]?.name || sessionData.tumor;
-            if (sessionData.ptName) preview += ' - ' + sessionData.ptName;
+            if (sessionData.ptSurname) preview += ' - ' + sessionData.ptSurname;
+            if (sessionData.ptFirstname) preview += ' ' + sessionData.ptFirstname;
             
             banner.innerHTML = `
                 <div class="recovery-banner">
@@ -1082,8 +1116,9 @@
                 drug: 'pembrolizumab',
                 line: 'first-mono',
                 score: '65',
-                ptName: 'Demo Paziente',
-                ptSite: 'Polmone lobo superiore destro',
+                ptSurname: 'Rossi',
+                ptFirstname: 'Mario',
+                ptHistory: 'Adenocarcinoma polmonare stadio IV (cT3N2M1b), metastasi ossee vertebrali e costali. EGFR/ALK/ROS1/BRAF wild-type. PS ECOG 1.',
                 docName: 'Dr. Demo',
                 docUnit: 'Oncologia Medica'
             },
@@ -1094,8 +1129,9 @@
                 line: 'second',
                 scoreTC: '55',
                 scoreIC: '8',
-                ptName: 'Demo Paziente 2',
-                ptSite: 'Polmone lobo inferiore sinistro',
+                ptSurname: 'Bianchi',
+                ptFirstname: 'Giuseppe',
+                ptHistory: 'Carcinoma squamoso polmonare stadio IIIB. Progressione dopo carboplatino/paclitaxel. EGFR/ALK wild-type. PS ECOG 1.',
                 docName: 'Dr. Demo',
                 docUnit: 'Oncologia Medica'
             },
@@ -1105,8 +1141,9 @@
                 drug: 'pembrolizumab',
                 line: 'first-line-high',
                 score: '35',
-                ptName: 'Demo Paziente 3',
-                ptSite: 'Orofaringe',
+                ptSurname: 'Verdi',
+                ptFirstname: 'Anna',
+                ptHistory: 'Carcinoma squamoso orofaringeo p16-positivo, stadio IVA. Metastasi linfonodali laterocervicali bilaterali. PS ECOG 0.',
                 docName: 'Dr. Demo',
                 docUnit: 'Oncologia Medica'
             },
@@ -1116,9 +1153,10 @@
                 drug: 'pembrolizumab',
                 line: 'first-combo-her2',
                 score: '5',
-                her2: true,
-                ptName: 'Demo Paziente 4',
-                ptSite: 'Stomaco antro',
+                her2: '3+',
+                ptSurname: 'Neri',
+                ptFirstname: 'Franco',
+                ptHistory: 'Adenocarcinoma gastrico antrale HER2 3+, stadio IV con metastasi epatiche. PS ECOG 1.',
                 docName: 'Dr. Demo',
                 docUnit: 'Oncologia Medica'
             },
@@ -1128,8 +1166,9 @@
                 drug: 'atezolizumab',
                 line: 'first-combo',
                 scoreIC: '3',
-                ptName: 'Demo Paziente 5',
-                ptSite: 'Mammella sinistra QSE',
+                ptSurname: 'Gialli',
+                ptFirstname: 'Maria',
+                ptHistory: 'Carcinoma mammario triplo negativo stadio IV de novo. Metastasi polmonari e linfonodali mediastiniche. BRCA1/2 wild-type. PS ECOG 1.',
                 docName: 'Dr. Demo',
                 docUnit: 'Oncologia Medica'
             },
@@ -1138,9 +1177,10 @@
                 tumor: 'endometrium',
                 drug: 'dostarlimab',
                 line: 'advanced-dmmr',
-                msi: true,
-                ptName: 'Demo Paziente 6',
-                ptSite: 'Endometrio',
+                msi: 'dmmr-mlh1-pms2',
+                ptSurname: 'Blu',
+                ptFirstname: 'Lucia',
+                ptHistory: 'Adenocarcinoma endometriale G2 stadio IIIC, dMMR (perdita MLH1/PMS2). Progressione dopo carboplatino/paclitaxel. PS ECOG 1.',
                 docName: 'Dr. Demo',
                 docUnit: 'Ginecologia Oncologica'
             }
@@ -1165,10 +1205,11 @@
                         score: demo.score || '',
                         scoreTC: demo.scoreTC || '',
                         scoreIC: demo.scoreIC || '',
-                        her2: demo.her2 || false,
-                        msi: demo.msi || false,
-                        ptName: demo.ptName || '',
-                        ptSite: demo.ptSite || '',
+                        her2: demo.her2 || '',
+                        msi: demo.msi || '',
+                        ptSurname: demo.ptSurname || '',
+                        ptFirstname: demo.ptFirstname || '',
+                        ptHistory: demo.ptHistory || '',
                         docName: demo.docName || '',
                         docUnit: demo.docUnit || ''
                     });
@@ -1202,13 +1243,27 @@
                 document.getElementById('msi-group').style.display = 'none';
                 
                 // Reset checkbox
-                ['egfr', 'alk', 'ros1', 'braf', 'her2', 'msi'].forEach(id => {
+                ['egfr', 'alk', 'ros1', 'braf'].forEach(id => {
                     const el = document.getElementById(id);
                     if (el) el.checked = false;
                 });
                 
+                // Reset HER2 status
+                const her2Select = document.getElementById('her2-status');
+                if (her2Select) {
+                    her2Select.value = '';
+                    document.getElementById('her2-result').innerHTML = '';
+                }
+                
+                // Reset MSI status
+                const msiSelect = document.getElementById('msi-status');
+                if (msiSelect) {
+                    msiSelect.value = '';
+                    document.getElementById('msi-result').innerHTML = '';
+                }
+                
                 // Reset campi paziente
-                ['pt-name', 'pt-dob', 'pt-id', 'pt-histology', 'pt-site', 'doc-name', 'doc-unit', 'doc-contact'].forEach(id => {
+                ['pt-surname', 'pt-firstname', 'pt-dob', 'pt-history', 'pt-histology', 'doc-name', 'doc-unit', 'doc-contact'].forEach(id => {
                     const el = document.getElementById(id);
                     if (el) el.value = '';
                 });
@@ -2458,13 +2513,57 @@
             validateDMMR();
         }
 
+        function updateHER2Status() {
+            const her2Select = document.getElementById('her2-status');
+            const her2Result = document.getElementById('her2-result');
+            const value = her2Select?.value;
+            
+            if (!value) {
+                her2Result.innerHTML = '';
+                her2Result.className = 'auto-info';
+                return;
+            }
+            
+            const isPositive = value === '2+fish+' || value === '3+';
+            
+            if (isPositive) {
+                her2Result.innerHTML = '✓ <strong>HER2 POSITIVO</strong> - Eleggibile per terapia anti-HER2 (trastuzumab)';
+                her2Result.className = 'auto-info active';
+            } else {
+                her2Result.innerHTML = '○ <strong>HER2 NEGATIVO</strong> - Non eleggibile per terapia anti-HER2';
+                her2Result.className = 'auto-info';
+            }
+            
+            validateHER2();
+        }
+        
+        function isHER2Positive() {
+            const her2Select = document.getElementById('her2-status');
+            const value = her2Select?.value;
+            return value === '2+fish+' || value === '3+';
+        }
+        
+        function getHER2StatusText() {
+            const her2Select = document.getElementById('her2-status');
+            const value = her2Select?.value;
+            
+            const statusMap = {
+                '0': 'IHC 0 (HER2 negativo)',
+                '1+': 'IHC 1+ (HER2 negativo)',
+                '2+fish-': 'IHC 2+ / FISH negativo (HER2 negativo)',
+                '2+fish+': 'IHC 2+ / FISH positivo (HER2 positivo)',
+                '3+': 'IHC 3+ (HER2 positivo)'
+            };
+            
+            return statusMap[value] || 'Non valutato';
+        }
+
         function validateHER2() {
             const tumor = document.getElementById('tumor').value;
             const line = document.getElementById('line').value;
-            const her2Checkbox = document.getElementById('her2');
             const her2Warning = document.getElementById('her2-warning');
             
-            if (tumor !== 'gastric' || !line || !her2Checkbox || !her2Warning) return;
+            if (tumor !== 'gastric' || !line || !her2Warning) return;
             
             const drug = document.getElementById('drug').value;
             if (!drug) return;
@@ -2472,28 +2571,89 @@
             const indication = clinicalDatabase[tumor].drugs[drug]?.indications[line];
             if (!indication) return;
             
-            const her2Checked = her2Checkbox.checked;
+            const her2Positive = isHER2Positive();
+            const her2Selected = document.getElementById('her2-status')?.value;
             
-            if (indication.her2Required === true && !her2Checked) {
-                her2Warning.style.display = 'block';
-                her2Warning.className = 'dmmr-required error';
-                her2Warning.innerHTML = '❌ <strong>ERRORE:</strong> Questa indicazione (KEYNOTE-811) richiede HER2-positivo confermato. Seleziona la checkbox HER2 o scegli un\'altra indicazione.';
-            } else if (indication.her2Required === false && her2Checked) {
+            if (!her2Selected) {
                 her2Warning.style.display = 'block';
                 her2Warning.className = 'dmmr-required';
-                her2Warning.innerHTML = '⚠️ <strong>ATTENZIONE:</strong> Hai selezionato HER2+ ma questa indicazione è per HER2-negativo. Considera KEYNOTE-811 per HER2+.';
+                her2Warning.innerHTML = '⚠️ Seleziona lo status HER2 per questa indicazione';
+                return;
+            }
+            
+            if (indication.her2Required === true && !her2Positive) {
+                her2Warning.style.display = 'block';
+                her2Warning.className = 'dmmr-required error';
+                her2Warning.innerHTML = '❌ <strong>ERRORE:</strong> Questa indicazione (KEYNOTE-811) richiede HER2 positivo (IHC 3+ o IHC 2+/FISH+). Seleziona un\'altra indicazione per pazienti HER2 negativi.';
+            } else if (indication.her2Required === false && her2Positive) {
+                her2Warning.style.display = 'block';
+                her2Warning.className = 'dmmr-required';
+                her2Warning.innerHTML = '⚠️ <strong>ATTENZIONE:</strong> Paziente HER2 positivo ma indicazione selezionata è per HER2 negativi. Considerare KEYNOTE-811 (pembrolizumab + trastuzumab + chemio).';
             } else {
                 her2Warning.style.display = 'none';
             }
         }
 
+        function updateMSIStatus() {
+            const msiSelect = document.getElementById('msi-status');
+            const msiResult = document.getElementById('msi-result');
+            const value = msiSelect?.value;
+            
+            if (!value) {
+                msiResult.innerHTML = '';
+                msiResult.className = 'auto-info';
+                return;
+            }
+            
+            const isDeficient = isMSIHighOrDMMR();
+            
+            if (isDeficient) {
+                let detail = '';
+                if (value === 'dmmr-mlh1-pms2') detail = ' (pattern sporadico o Lynch)';
+                else if (value === 'dmmr-msh2-msh6') detail = ' (sospetto Lynch)';
+                
+                msiResult.innerHTML = `✓ <strong>dMMR/MSI-H</strong>${detail} - Eleggibile per immunoterapia`;
+                msiResult.className = 'auto-info active';
+            } else if (value === 'not-tested') {
+                msiResult.innerHTML = '⚠️ <strong>Non valutato</strong> - Eseguire test MSI/MMR se indicato';
+                msiResult.className = 'auto-info';
+            } else {
+                msiResult.innerHTML = '○ <strong>pMMR/MSS</strong> - Sistema MMR proficiente';
+                msiResult.className = 'auto-info';
+            }
+            
+            validateDMMR();
+        }
+        
+        function isMSIHighOrDMMR() {
+            const msiSelect = document.getElementById('msi-status');
+            const value = msiSelect?.value;
+            return value && (value.startsWith('dmmr-') || value === 'msi-h-pcr');
+        }
+        
+        function getMSIStatusText() {
+            const msiSelect = document.getElementById('msi-status');
+            const value = msiSelect?.value;
+            
+            const statusMap = {
+                'mss-ihc': 'pMMR (IHC: proteine MMR conservate)',
+                'mss-pcr': 'MSS (PCR/NGS: microsatelliti stabili)',
+                'dmmr-mlh1-pms2': 'dMMR - Perdita MLH1/PMS2 (IHC)',
+                'dmmr-msh2-msh6': 'dMMR - Perdita MSH2/MSH6 (IHC)',
+                'dmmr-other': 'dMMR - Pattern atipico (IHC)',
+                'msi-h-pcr': 'MSI-High (PCR/NGS)',
+                'not-tested': 'Non valutato'
+            };
+            
+            return statusMap[value] || 'Non specificato';
+        }
+
         function validateDMMR() {
             const tumor = document.getElementById('tumor').value;
             const line = document.getElementById('line').value;
-            const msiCheckbox = document.getElementById('msi');
             const dmmrWarning = document.getElementById('dmmr-warning');
             
-            if (!['endometrium', 'gastric', 'uc'].includes(tumor) || !line || !msiCheckbox || !dmmrWarning) return;
+            if (!['endometrium', 'gastric', 'uc'].includes(tumor) || !line || !dmmrWarning) return;
             
             const drug = document.getElementById('drug').value;
             if (!drug) return;
@@ -2501,18 +2661,31 @@
             const indication = clinicalDatabase[tumor]?.drugs[drug]?.indications[line];
             if (!indication) return;
             
-            const msiChecked = msiCheckbox.checked;
+            const msiStatus = document.getElementById('msi-status')?.value;
+            const isDMMR = isMSIHighOrDMMR();
             
-            if (indication.dmmrRequired === true && !msiChecked) {
-                dmmrWarning.style.display = 'block';
-                dmmrWarning.className = 'dmmr-required error';
-                dmmrWarning.innerHTML = '❌ <strong>OBBLIGATORIO:</strong> Questa indicazione richiede conferma dMMR/MSI-H (IHC per MLH1/MSH2/MSH6/PMS2 o PCR). Non procedere senza conferma.';
-            } else if (msiChecked) {
+            if (indication.dmmrRequired === true) {
+                if (!msiStatus) {
+                    dmmrWarning.style.display = 'block';
+                    dmmrWarning.className = 'dmmr-required';
+                    dmmrWarning.innerHTML = '⚠️ <strong>RICHIESTO:</strong> Seleziona lo status MSI/MMR per questa indicazione.';
+                } else if (!isDMMR) {
+                    dmmrWarning.style.display = 'block';
+                    dmmrWarning.className = 'dmmr-required error';
+                    dmmrWarning.innerHTML = '❌ <strong>ERRORE:</strong> Questa indicazione richiede dMMR/MSI-H confermato. Il paziente risulta pMMR/MSS.';
+                } else {
+                    dmmrWarning.style.display = 'block';
+                    dmmrWarning.className = 'dmmr-required';
+                    dmmrWarning.style.background = '#c6f6d5';
+                    dmmrWarning.style.borderColor = '#48bb78';
+                    dmmrWarning.innerHTML = '✓ dMMR/MSI-H confermato - Eccellente risposta all\'immunoterapia attesa.';
+                }
+            } else if (isDMMR) {
                 dmmrWarning.style.display = 'block';
                 dmmrWarning.className = 'dmmr-required';
                 dmmrWarning.style.background = '#c6f6d5';
                 dmmrWarning.style.borderColor = '#48bb78';
-                dmmrWarning.innerHTML = '✓ dMMR/MSI-H confermato - eccellente risposta all\'immunoterapia attesa';
+                dmmrWarning.innerHTML = '✓ dMMR/MSI-H - Eccellente risposta all\'immunoterapia attesa (indipendentemente da PDL-1).';
             } else {
                 dmmrWarning.style.display = 'none';
             }
@@ -2624,28 +2797,40 @@
             
             // Check HER2 per gastrico
             if (tumor === 'gastric') {
-                const her2 = document.getElementById('her2')?.checked;
-                if (indication.her2Required === true && !her2) {
-                    warnings.push('❌ ERRORE: Indicazione HER2+ richiede conferma HER2-positivo!');
-                } else if (indication.her2Required === false && her2) {
-                    warnings.push('⚠️ HER2-positivo selezionato ma indicazione HER2-negativa scelta. Considerare KEYNOTE-811.');
+                const her2Positive = isHER2Positive();
+                const her2Status = document.getElementById('her2-status')?.value;
+                
+                if (her2Status) {
+                    log(`🧬 Status HER2: ${getHER2StatusText()}`, her2Positive ? 'success' : 'info');
+                }
+                
+                if (indication.her2Required === true && !her2Positive) {
+                    warnings.push('❌ ERRORE: Indicazione HER2+ richiede conferma HER2 positivo (IHC 3+ o IHC 2+/FISH+)!');
+                } else if (indication.her2Required === false && her2Positive) {
+                    warnings.push('⚠️ Paziente HER2 positivo ma indicazione per HER2 negativi. Considerare KEYNOTE-811.');
                 }
             }
             
             // Check dMMR per endometrio e altri
             if (indication.dmmrRequired === true) {
-                const msi = document.getElementById('msi')?.checked;
-                if (!msi) {
-                    warnings.push('❌ OBBLIGATORIO: Confermare dMMR/MSI-H prima di procedere (IHC o PCR)');
+                const isDMMR = isMSIHighOrDMMR();
+                const msiStatus = document.getElementById('msi-status')?.value;
+                if (!msiStatus) {
+                    warnings.push('⚠️ RICHIESTO: Selezionare status MSI/MMR per questa indicazione');
+                } else if (!isDMMR) {
+                    warnings.push('❌ ERRORE: Indicazione richiede dMMR/MSI-H ma paziente risulta pMMR/MSS');
                 }
             }
             
             // Check MSI generico
-            if (document.getElementById('msi')?.checked) {
-                log('🧬 MSI-High/dMMR presente', 'success');
+            const msiStatus = document.getElementById('msi-status')?.value;
+            if (isMSIHighOrDMMR()) {
+                log(`🧬 ${getMSIStatusText()}`, 'success');
                 if (!indication.dmmrRequired) {
-                    warnings.push('✓ MSI-High/dMMR: eccellente risposta all\'immunoterapia attesa');
+                    warnings.push('✓ dMMR/MSI-H: eccellente risposta all\'immunoterapia attesa');
                 }
+            } else if (msiStatus && msiStatus !== 'not-tested') {
+                log(`🧬 ${getMSIStatusText()}`, 'info');
             }
             
             // Warning regolatorio
@@ -3020,26 +3205,27 @@
             // HER2
             let her2Info = '';
             if (tumor === 'gastric') {
-                const her2 = document.getElementById('her2')?.checked;
-                her2Info = `\nSTATUS HER2: ${her2 ? 'Positivo (IHC 3+ o IHC 2+/FISH+)' : 'Negativo / Non valutato'}`;
+                her2Info = `\nSTATUS HER2: ${getHER2StatusText()}`;
             }
             
             // MSI
             let msiInfo = '';
             if (['gastric', 'uc', 'endometrium'].includes(tumor)) {
-                const msi = document.getElementById('msi')?.checked;
-                msiInfo = `\nSTATUS MSI/dMMR: ${msi ? 'MSI-High / dMMR confermato' : 'MSS / pMMR / Non valutato'}`;
+                msiInfo = `\nSTATUS MSI/MMR: ${getMSIStatusText()}`;
             }
             
             const today = new Date().toLocaleDateString('it-IT', {day: '2-digit', month: '2-digit', year: 'numeric'});
             
             // Dati paziente
-            const ptName = document.getElementById('pt-name')?.value || '____________________';
+            const ptSurname = document.getElementById('pt-surname')?.value || '____________________';
+            const ptFirstname = document.getElementById('pt-firstname')?.value || '____________________';
+            const ptFullName = (ptSurname !== '____________________' || ptFirstname !== '____________________') 
+                ? `${ptSurname} ${ptFirstname}`.trim() 
+                : '____________________';
             const ptDobRaw = document.getElementById('pt-dob')?.value;
             const ptDob = ptDobRaw ? new Date(ptDobRaw).toLocaleDateString('it-IT') : '____________________';
-            const ptId = document.getElementById('pt-id')?.value || '____________________';
+            const ptHistory = document.getElementById('pt-history')?.value || '';
             const ptHistology = document.getElementById('pt-histology')?.value || '____________________';
-            const ptSite = document.getElementById('pt-site')?.value || '____________________';
             
             // Dati richiedente
             const docName = document.getElementById('doc-name')?.value || '____________________';
@@ -3047,7 +3233,7 @@
             const docContact = document.getElementById('doc-contact')?.value || '____________________';
             
             const emailTo = 'anatomia.patologica.fbf@asst-fbf-sacco.it';
-            const emailSubject = `Richiesta PDL-1 - ${ptName !== '____________________' ? ptName + ' - ' : ''}${drugName} - ${tumorName}`;
+            const emailSubject = `Richiesta PDL-1 - ${ptFullName !== '____________________' ? ptFullName + ' - ' : ''}${drugName} - ${tumorName}`;
             
             const emailBody = `Gentili Colleghi,
 
@@ -3059,12 +3245,13 @@ Data: ${today}
 ═══════════════════════════════════════════════════
 
 DATI PAZIENTE:
-• Cognome e Nome: ${ptName}
+• Cognome: ${ptSurname}
+• Nome: ${ptFirstname}
 • Data di nascita: ${ptDob}
-• Nosologico/ID: ${ptId}
-• N. preparato istologico: ${ptHistology}
-• Sede prelievo: ${ptSite}
-
+${ptHistory ? `
+ANAMNESI PATOLOGICA:
+${ptHistory}
+` : ''}
 DATI CLINICI:
 • Tumore: ${tumorName}
 • Farmaco previsto: ${drugName}
