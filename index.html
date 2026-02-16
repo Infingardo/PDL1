@@ -1515,11 +1515,10 @@
                     
                     // Nota intercambiabilità se usato clone alternativo
                     if (useAlternative && interchange) {
-                        referto += `[NOTA TECNICA: Il clone companion diagnostic approvato FDA/EMA per ${drugData.name}\n`;
-                        referto += `è ${interchange.originalClone} (Dako). È stato utilizzato ${interchange.alternativeClone} (Ventana)\n`;
-                        referto += `sulla base della concordanza ${interchange.concordance} documentata negli studi\n`;
-                        referto += `Blueprint PD-L1 IHC Comparison (Hirsch FR et al, J Thorac Oncol 2017;\n`;
-                        referto += `Tsao MS et al, J Thorac Oncol 2018).]\n\n`;
+                        referto += `[NOTA: Il clone companion diagnostic è ${interchange.originalClone}. Utilizzato\n`;
+                        referto += `${interchange.alternativeClone} come da accordi con Oncologia Medica, sulla base\n`;
+                        referto += `della concordanza ${interchange.concordance} documentata negli studi Blueprint\n`;
+                        referto += `(Hirsch 2017, Tsao 2018)]\n\n`;
                     }
                     
                     referto += `RISULTATO: ${scoreDisplay}\n\n`;
