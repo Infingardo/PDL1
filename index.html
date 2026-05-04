@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PD-L1 AP Tool v3.4.5</title>
+    <title>PD-L1 AP Tool v3.4.7</title>
     <style>
         * { box-sizing: border-box; }
         body { font-family: 'Segoe UI', sans-serif; max-width: 900px; margin: 0 auto; padding: 20px; background: #f7fafc; }
@@ -64,7 +64,7 @@
 </head>
 <body>
 <div class="container">
-    <h1>&#x1F52C; PD-L1 AP Tool <span class="version-tag">v3.4.5 &mdash; Apr 2026</span></h1>
+    <h1>&#x1F52C; PD-L1 AP Tool <span class="version-tag">v3.4.7 &mdash; Apr 2026</span></h1>
     <div class="subtitle">Tool semplificato per Anatomia Patologica &mdash; ASST Fatebenefratelli-Sacco</div>
 
     <div class="general-disclaimer">
@@ -148,13 +148,13 @@ const labConfig = {
 };
 
 const cloneInterchangeability = {
-    '22C3': { alternative: 'SP263', concordance: '>90%', tumors: ['nsclc','hnscc','uc','gastric','tnbc','cervical','escc'] },
+    '22C3': { alternative: 'SP263', concordance: '>90%', tumors: ['nsclc','hnscc','uc','gastric','tnbc','cervical','escc'], note: 'SP263 nativo TPS; se preferisci IC usa SP142' },
     '28-8': { alternative: 'SP263', concordance: '>90%', tumors: ['nsclc','hnscc','uc','melanoma'] }
 };
 
 // ============================
-// DATABASE v3.4.5 — Aprile 2026 (FINALE)
-// Bug fix: optionalScoreMethod undefined, validated_generic, trial mesotelioma, HCC pembrolizumab
+// DATABASE v3.4.7 — Aprile 2026 (FINAL PRODUCTION)
+// TNBC pembrolizumab: chiarito SP263 (TPS) vs SP142 (IC) come alternative a 22C3
 // Fonte: EPAR EMA (preferenziale), FDA, NCCN/ESMO (supportivi)
 // ============================
 const clinicalDatabase = {
@@ -466,7 +466,14 @@ const clinicalDatabase = {
             pembrolizumab: {
                 name: 'Pembrolizumab', clone: '22C3 (Dako)',
                 indications: {
-                    'first-combo': { name: 'Prima linea + chemio', method: 'CPS', cutoff: 10, notes: 'CPS >=10; malattia localmente avanzata o metastatica', trial: 'KEYNOTE-355' },
+                    'first-combo': { 
+                        name: 'Prima linea + chemio', 
+                        method: 'CPS', 
+                        cutoff: 10, 
+                        notes: 'CPS >=10; malattia localmente avanzata o metastatica', 
+                        trial: 'KEYNOTE-355',
+                        guidelineNote: 'Standard EMA: CPS con 22C3. Nel tuo lab, se non hai 22C3, hai due alternative Ventana: SP263 (TPS, ~90% concordanza vs CPS) oppure SP142 (IC, metodo nativo). Scegli quale usare di routine in base a quello che l\'oncologo preferisce (TPS vs IC).'
+                    },
                     'neoadjuvant': { name: 'Neoadiuvante + chemio', method: 'Non richiesto', cutoff: 0, notes: 'PD-L1 agnostico; alto rischio', trial: 'KEYNOTE-522' }
                 }
             },
@@ -1065,7 +1072,7 @@ function generateReport() {
         sA += `L'interpretazione terapeutica e l'eleggibilita' competono esclusivamente all'oncologo curante\n`;
         sA += `nel contesto clinico, regolatorio e multidisciplinare vigente.\n\n`;
         sA += `${labConfig.labName} - Anatomia Patologica\n`;
-        sA += `PD-L1 AP Tool v3.4.5 (Apr 2026) - Supporto operativo interno; non sostituisce il giudizio clinico-patologico professionale.\n`;
+        sA += `PD-L1 AP Tool v3.4.7 (Apr 2026) - Supporto operativo interno; non sostituisce il giudizio clinico-patologico professionale.\n`;
         sA += `Database clinico: Aprile 2026. Verificare sempre EPAR EMA / AIFA / NCCN-ESMO aggiornate.`;
 
         // ================================
