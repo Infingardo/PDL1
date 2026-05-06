@@ -1,435 +1,280 @@
-# PDL-1 Clinical Evaluator v2.3
+# PD-L1 AP Tool v3.3
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![HTML5](https://img.shields.io/badge/HTML-5-orange.svg)](https://developer.mozilla.org/en-US/docs/Web/HTML)
-[![JavaScript](https://img.shields.io/badge/JavaScript-ES6-yellow.svg)](https://www.ecma-international.org/ecma-262/)
-[![Status](https://img.shields.io/badge/Status-Educational-blue.svg)](#disclaimer)
-[![Updated](https://img.shields.io/badge/Updated-November%202025-green.svg)](#changelog)
+[![Status](https://img.shields.io/badge/Uso-Supporto_operativo_interno-blue)](#disclaimer)
+[![Updated](https://img.shields.io/badge/Aggiornato-Dicembre_2025-green)](#changelog)
+[![HTML5](https://img.shields.io/badge/HTML-5-orange)](https://developer.mozilla.org/en-US/docs/Web/HTML)
+[![Dipendenze](https://img.shields.io/badge/Dipendenze_esterne-nessuna-brightgreen)](#specifiche-tecniche)
 
-Tool interattivo per la valutazione dell'espressione PDL-1 e la selezione delle indicazioni immunoterapiche in oncologia, con gestione automatica dei cloni disponibili in-house vs service esterno.
-
----
-
-## ⚠️ DISCLAIMER IMPORTANTE
-
-**QUESTO TOOL È ESCLUSIVAMENTE EDUCATIVO E NON SOSTITUISCE:**
-
-- ❌ Le linee guida ufficiali (NCCN, ESMO, AIOM)
-- ❌ Il giudizio clinico professionale
-- ❌ Le determine AIFA per la rimborsabilità in Italia
-- ❌ La valutazione multidisciplinare paziente-specifica
-- ❌ La revisione di esperti patologi e oncologi
-
-**Le indicazioni terapeutiche e i cutoff PDL-1 variano significativamente tra FDA, EMA e AIFA.**
-
-**🔴 VERIFICARE SEMPRE LE FONTI UFFICIALI AGGIORNATE PRIMA DI QUALSIASI DECISIONE CLINICA.**
+Tool HTML/JS single-file per la valutazione IHC di PD-L1 in Anatomia Patologica. Gestisce selezione clone, metodo di scoring, confronto cutoff e generazione referto strutturato in tre sezioni distinte.
 
 ---
 
-## 🆕 Changelog v2.3 (Novembre 2025)
+## ⚠️ Disclaimer
 
-### Nuove funzionalità
+**Questo tool è uno strumento di supporto operativo interno. Non sostituisce il giudizio clinico-patologico professionale.**
 
-| Feature | Descrizione |
-|---------|-------------|
-| **Salvataggio automatico** | I dati vengono salvati ogni 30 secondi in localStorage |
-| **Recupero sessione** | Banner per ripristinare i dati dopo refresh accidentale |
-| **Casi demo per formazione** | 6 esempi precompilati per training (NSCLC, HNSCC, gastrico, TNBC, endometrio) |
-| **Validazione input** | Controllo automatico che i valori percentuali siano tra 0 e 100 |
-| **Gestione errori** | Try-catch su tutte le funzioni principali - il tool non si blocca |
-| **Localizzazione italiana** | Tutte le stringhe tradotte in italiano |
-| **Generazione email richiesta** | Bottone per generare email precompilata da inviare ad AP |
-| **Gestione cloni in-house/service** | Warning automatico per cloni Dako non disponibili in laboratorio |
-| **Intercambiabilità cloni** | Suggerimento automatico di clone alternativo Ventana quando concordanza >90% |
-| **Workflow Oncologia → AP** | Sezioni separate per compilazione oncologi e anatomia patologica |
-| **Input TC/IC separati** | Campi distinti per TC% e IC% quando richiesto SP142 |
+In particolare non sostituisce:
+- Le linee guida ufficiali aggiornate (NCCN, ESMO, AIOM)
+- Le determine AIFA per la rimborsabilità
+- La valutazione multidisciplinare paziente-specifica
+- La verifica diretta di criteri clinici, molecolari e regolatori della singola indicazione
 
-### Bug fix
+I campi di contesto clinico mostrati sono indicativi e **non esaustivi**. Verificare sempre le fonti ufficiali prima di qualsiasi decisione diagnostica o terapeutica.
 
-| Bug | Correzione |
-|-----|------------|
-| Cemiplimab clone | Ora correttamente indicato come "Non richiesto" (nessun companion diagnostic FDA) |
-| Dostarlimab dMMR | Check obbligatorio dMMR/MSI-H con messaggio bloccante |
-| HER2 gastrico | Validazione stringente con errore se mismatch indicazione/status |
-| TC/IC approssimato | Rimossa logica approssimata, ora input separati precisi |
+**I cutoff e le approvazioni regolatorie variano tra FDA, EMA e AIFA e cambiano nel tempo. Il database ha una data di congelamento (Dicembre 2025) e invecchia.**
 
 ---
 
-## 🏥 Configurazione Laboratorio
+## Configurazione laboratorio
 
-Il tool è preconfigurato per i cloni disponibili presso **ASST Fatebenefratelli-Sacco**:
+Preconfigurato per **ASST Fatebenefratelli-Sacco — Anatomia Patologica**.
 
-### Cloni IN-HOUSE (Ventana)
-- ✅ **SP142** - Companion diagnostic atezolizumab
-- ✅ **SP263** - Companion diagnostic durvalumab
+### Cloni in-house (Ventana)
 
-### Cloni SERVICE ESTERNO (Dako)
-- ⚡ **22C3** - Companion diagnostic pembrolizumab
-- ⚡ **28-8** - Companion diagnostic nivolumab  
-- ⚡ **73-10** - Companion diagnostic avelumab
+| Clone | Companion diagnostic | Note |
+|-------|---------------------|------|
+| **SP142** | Atezolizumab | Scoring TC/IC separati |
+| **SP263** | Durvalumab, Avelumab | Alternativa operativa per 22C3/28-8 |
+
+### Cloni service esterno (Dako)
+
+| Clone | Companion diagnostic |
+|-------|---------------------|
+| **22C3** | Pembrolizumab |
+| **28-8** | Nivolumab |
+| **73-10** | Avelumab |
+
+### Intercambiabilità cloni
+
+Basata sui **Blueprint PD-L1 IHC Comparison Studies**:
+- Hirsch FR et al. *J Thorac Oncol.* 2017;12(2):208–222
+- Tsao MS et al. *J Thorac Oncol.* 2018;13(9):1302–1311
+
+| Clone richiesto | Alternativa in-house | Concordanza analitica | Tumori validati |
+|----------------|---------------------|----------------------|-----------------|
+| 22C3 (Dako) | SP263 (Ventana) | >90% | NSCLC, HNSCC, uroteliale, gastrico, TNBC, cervicale, esofageo sq. |
+| 28-8 (Dako) | SP263 (Ventana) | >90% | NSCLC, HNSCC, uroteliale, melanoma |
+
+> **Nota critica.** Concordanza analitica >90% non equivale a intercambiabilità regolatoria formale, né a equivalenza clinico-decisionale in ogni contesto. La variabilità è potenzialmente rilevante vicino ai valori di cutoff. L'utilizzo di clone alternativo va documentato nel referto (sezione B).
+
+SP142 **non è intercambiabile** (concordanza 73–76%, kappa 0.39–0.55; sensibilità TC −16% rispetto ad altri cloni).
 
 ### Personalizzazione
 
-Per modificare la configurazione, editare l'oggetto `labConfig` all'inizio dello script:
-
 ```javascript
 const labConfig = {
-    inHouseClones: ['SP142', 'SP263'], // Cloni disponibili
-    serviceClones: ['22C3', '28-8', '73-10'], // Cloni da inviare fuori
-    labName: 'Nome del tuo laboratorio'
+    inHouseClones: ['SP142', 'SP263'],
+    serviceClones: ['22C3', '28-8', '73-10'],
+    labName: 'Nome laboratorio'
 };
 ```
 
-### Configurazione Email
-
-Il tool è configurato per la webmail ASST Fatebenefratelli-Sacco:
-
-| Parametro | Valore |
-|-----------|--------|
-| **Webmail URL** | https://posta.asst-fbf-sacco.it/static/login/ |
-| **Email AP** | anatomia.patologica.fbf@asst-fbf-sacco.it |
-
-Per modificare, cercare nel codice:
-- `openWebmail()` → cambiare URL webmail
-- `emailTo` → cambiare indirizzo destinatario
-
 ---
 
-## 🔄 Intercambiabilità Cloni
+## Database clinico v3.3
 
-Basata sui **Blueprint PD-L1 IHC Comparison Studies** (Hirsch 2017, Tsao 2018).
+### Tumori e farmaci coperti (16 tumori, 50+ indicazioni)
 
-### Cloni intercambiabili (concordanza >90%)
-
-| Clone richiesto | Alternativa | Concordanza | Tumori validati |
-|-----------------|-------------|-------------|-----------------|
-| **22C3** (Dako) | SP263 (Ventana) | >90% | NSCLC, HNSCC, uroteliale, gastrico, esofageo, cervicale |
-| **28-8** (Dako) | SP263 (Ventana) | >90% | NSCLC, HNSCC, uroteliale, melanoma |
-
-### Cloni NON intercambiabili
-
-| Clone | Motivo |
-|-------|--------|
-| **SP142** | Concordanza 73-76% (kappa 0.39-0.55). Sensibilità TC -16% vs altri cloni. |
-| **73-10** | Dati di concordanza insufficienti |
-
-### Comportamento del tool
-
-Quando l'oncologo seleziona un farmaco che richiede clone Dako:
-
-1. **Se intercambiabile** → Warning giallo con alternativa SP263 e concordanza
-2. **Se NON intercambiabile** → Warning rosso "SERVICE ESTERNO obbligatorio"
-
----
-
-## 👥 Workflow Operativo
-
-### Step 1: Compilazione Oncologia
-
-L'oncologo compila:
-- 🎯 **Tipo di tumore** (16 opzioni)
-- 💊 **Farmaco immunoterapico** (filtrato per tumore)
-- 📊 **Linea di trattamento** (filtrata per farmaco)
-- 🧬 **Alterazioni molecolari** (se applicabile: EGFR, ALK, ROS1, BRAF, HER2, MSI)
-
-**Dati paziente:**
-- Cognome e Nome
-- Data di nascita
-- Nosologico / ID
-- N. preparato istologico
-- Sede prelievo
-
-**Dati richiedente:**
-- Medico richiedente
-- U.O.
-- Telefono / Email
-
-### Step 2: Generazione Email per AP
-
-Cliccando **"📧 GENERA RICHIESTA EMAIL PER AP"**, il sistema genera una email precompilata con:
-
-- **Destinatario:** anatomia.patologica.fbf@asst-fbf-sacco.it
-- **Oggetto:** Richiesta PDL-1 - [Farmaco] - [Tumore]
-- **Corpo:**
-  - Dati clinici (tumore, farmaco, linea, trial)
-  - Requisiti tecnici (clone, metodo, cutoff)
-  - Status clone (in-house / intercambiabile / service)
-  - Campi da compilare (dati paziente, richiedente)
-
-**Bottoni disponibili:**
-- 🌐 **Apri Webmail ASST** - Apre la webmail aziendale (https://posta.asst-fbf-sacco.it)
-- 📋 **Copia corpo** - Copia il corpo dell'email negli appunti
-- 📝 **Copia oggetto** - Copia solo l'oggetto negli appunti
-- 📋 **Copia** (accanto al destinatario) - Copia l'indirizzo email AP
-
-**Istruzioni per l'oncologo:**
-1. Compila tutti i campi (tumore, farmaco, linea, dati paziente, dati richiedente)
-2. Clicca "📧 GENERA RICHIESTA EMAIL PER AP"
-3. Clicca "Apri Webmail ASST" (si apre in nuova tab)
-4. Effettua login alla webmail
-5. Crea nuovo messaggio
-6. Copia e incolla: destinatario, oggetto e corpo (usando i bottoni)
-7. Verifica i dati e invia
-
-### Step 3: Verifica Clone (automatica)
-
-L'email include automaticamente lo status del clone:
-
-| Scenario | Testo nell'email |
-|----------|------------------|
-| Clone Ventana | ✓ CLONE IN-HOUSE: SP263 disponibile |
-| Clone Dako intercambiabile | ⚠️ CLONE INTERCAMBIABILE: 22C3 non disponibile, utilizzare SP263 (concordanza >90%) |
-| Clone Dako non intercambiabile | ⚡ SERVICE ESTERNO RICHIESTO: 73-10 non disponibile, nessuna alternativa |
-| PDL-1 non richiesto | ✓ PDL-1 NON RICHIESTO per questa indicazione |
-
-### Step 4: Compilazione Anatomia Patologica
-
-Se il clone è disponibile (in-house o intercambiabile), l'AP compila:
-- 📈 **Score PDL-1** (TPS%, CPS%, o TC%/IC% separati)
-
-### Step 5: Valutazione e Referto
-
-- 🧪 **VALUTA INDICAZIONE** → Verifica eleggibilità vs cutoff
-- 📄 **GENERA REFERTO** → Documento stampabile con tutte le note
-
----
-
-## 📚 Casi Demo per Formazione
-
-Il tool include 6 casi precompilati per la formazione del personale:
-
-| Caso | Tumore | Farmaco | Caratteristiche |
-|------|--------|---------|-----------------|
-| **NSCLC TPS≥50%** | NSCLC | Pembrolizumab mono | Score TPS 65%, clone 22C3 |
-| **NSCLC TC/IC** | NSCLC | Atezolizumab 2ª linea | Score TC/IC separati, clone SP142 |
-| **HNSCC CPS** | HNSCC | Pembrolizumab 1ª linea | Score CPS 35%, cutoff ≥20 |
-| **Gastrico HER2+** | Gastrico | Pembrolizumab + trastuzumab | KEYNOTE-811, checkbox HER2 |
-| **TNBC warning FDA** | TNBC | Atezolizumab | Warning ritiro FDA, attivo EMA |
-| **Endometrio dMMR** | Endometrio | Dostarlimab | Checkbox dMMR obbligatorio |
-
-**Come usare:**
-1. Clicca sul caso demo desiderato
-2. I campi vengono precompilati automaticamente
-3. Prova a generare email e referto
-4. Usa "🗑️ Pulisci tutto" per ricominciare
-
----
-
-## 💾 Salvataggio Automatico e Recovery
-
-### Funzionamento
-- I dati vengono salvati automaticamente ogni **30 secondi**
-- In caso di refresh accidentale, appare un banner per ripristinare la sessione
-- I dati vengono conservati per **24 ore**
-
-### Privacy
-- Tutti i dati sono salvati **localmente nel browser** (localStorage)
-- Nessun dato viene inviato a server esterni
-- Per cancellare i dati salvati, clicca "🗑️ Pulisci tutto"
-
----
-
-## 📊 Database Clinico v2.3
-
-### Tumori supportati (16)
-
-| Tumore | Farmaci disponibili |
-|--------|---------------------|
+| Tumore | Farmaci |
+|--------|---------|
 | NSCLC | Pembrolizumab, Nivolumab, Atezolizumab, Durvalumab, Cemiplimab |
 | Melanoma | Pembrolizumab, Nivolumab |
 | HNSCC | Pembrolizumab, Nivolumab |
-| Uroteliale | Pembrolizumab, Nivolumab, Atezolizumab, Avelumab |
-| Gastrico/GEJ | Pembrolizumab, Nivolumab |
-| Esofageo squamoso | Pembrolizumab, Nivolumab |
+| Carcinoma uroteliale | Pembrolizumab, Nivolumab, Atezolizumab, Avelumab, Durvalumab |
+| Carcinoma gastrico/GEJ | Pembrolizumab, Nivolumab, Durvalumab |
+| Carcinoma esofageo squamoso | Pembrolizumab, Nivolumab |
 | TNBC | Pembrolizumab, Atezolizumab |
 | RCC | Pembrolizumab, Nivolumab |
-| Cervicale | Pembrolizumab |
-| Endometriale | Pembrolizumab, Dostarlimab |
-| HCC | Atezolizumab, Pembrolizumab, Nivolumab |
-| Mesotelioma | Nivolumab, Pembrolizumab |
+| Carcinoma cervicale | Pembrolizumab |
+| Carcinoma endometriale | Pembrolizumab, Dostarlimab |
+| HCC | Atezolizumab, Nivolumab, Pembrolizumab |
+| Mesotelioma pleurico | Nivolumab, Pembrolizumab |
 | cSCC | Cemiplimab, Pembrolizumab |
 | BCC | Cemiplimab |
 | BTC (vie biliari) | Pembrolizumab, Durvalumab |
-| MIBC | Pembrolizumab, Nivolumab |
+| CRC | Pembrolizumab, Nivolumab |
 
-### Indicazioni totali: 50+
+### Struttura dei dati per indicazione
 
----
+Ogni indicazione contiene campi separati per tipo di informazione:
 
-## 🔬 Metodi di Scoring
-
-### TPS (Tumor Proportion Score)
-```
-TPS = (Cellule tumorali PDL-1+) / (Totale cellule tumorali) × 100
-```
-- **Range:** 0-100%
-- **Cutoff comuni:** 1%, 10%, 50%
-- **Cloni:** 22C3, 28-8, SP263
-
-### CPS (Combined Positive Score)
-```
-CPS = (TC PDL-1+ + IC PDL-1+) / (Totale cellule tumorali) × 100
-```
-- **Range:** 0-100+ (può superare 100)
-- **Cutoff comuni:** 1%, 5%, 10%, 20%
-- **Clone:** 22C3
-
-### TC/IC (Tumor Cell/Immune Cell)
-```
-TC Score: % cellule tumorali PDL-1+ su membrana
-IC Score: % area tumorale occupata da IC PDL-1+
-```
-- **Categorie:** TC0/IC0, TC1/IC1, TC2/IC2, TC3/IC3
-- **Clone:** SP142 (esclusivo per atezolizumab)
-- **Input:** Campi separati per TC% e IC%
+| Campo | Contenuto | Invecchiamento |
+|-------|-----------|----------------|
+| `notes` | Evidenza trial (popolazione, endpoint, cutoff) | Lento |
+| `regulatoryNote` | Stato approvativo FDA/EMA/AIFA con date | **Rapido** — verificare |
+| `guidelineNote` | Indicazioni ESMO/NCCN | Medio |
+| `clinicalContext` | Prerequisiti clinici/molecolari verificabili | Stabile |
+| `trial` | Trial pivotale di riferimento | Stabile |
 
 ---
 
-## ⚠️ Note Regolatorie Critiche
+## Metodi di scoring
 
-### Discordanze FDA/EMA/AIFA
+### TPS — Tumor Proportion Score
+```
+TPS = (Cellule tumorali PD-L1+) / (Totale cellule tumorali) × 100
+```
+Range 0–100%. Cloni: 22C3, 28-8, SP263.
 
-| Indicazione | FDA | EMA | Note |
-|-------------|-----|-----|------|
-| Atezolizumab TNBC | **RITIRATO** (Aug 2021) | Attivo | IMpassion131 fallito OS |
+### CPS — Combined Positive Score
+```
+CPS = (N° TC PD-L1+ + N° IC PD-L1+) / (N° totale TC) × 100
+```
+Numero assoluto; teoricamente >100, convenzionalmente cappato a 100. Richiede almeno 100 TC vitali valutate. Clone: 22C3.
+
+### IC — Immune Cell score
+```
+IC = % area tumorale occupata da cellule immunitarie PD-L1+
+```
+Clone: SP142 (Ventana, in-house). Indicazioni: atezolizumab uroteliale seconda linea (IC ≥5%), atezolizumab TNBC prima linea (IC ≥1%). **Valutato solo IC; TC non considerato.**
+
+### TC/IC separati
+TC e IC inseriti come valori distinti. Eleggibilità: TC ≥soglia **oppure** IC ≥soglia. Clone: SP142. Il cutoff personalizzato non è applicabile (cutoff TC e IC sono distinti e trial-specifici).
+
+---
+
+## Workflow
+
+### 1. Selezione indicazione
+Tumore → Farmaco → Linea di trattamento. Ogni step filtra le opzioni successive.
+
+### 2. Verifica clone
+Il tool classifica automaticamente:
+- **In-house** → procedere
+- **Alternativa in-house** → warning con concordanza e limiti; scelta esplicita richiesta
+- **Service esterno obbligatorio** → nessuna alternativa validata disponibile
+
+### 3. Contesto clinico (quando presente)
+Per alcune indicazioni vengono mostrati prerequisiti da verificare prima di procedere. I campi contrassegnati come **obbligatori** bloccano la generazione del referto se non spuntati. I campi opzionali sono informativi.
+
+Indicazioni con `clinicalContext` attualmente configurato:
+- NSCLC prima linea monoterapia/nivolumab+ipi → negatività EGFR/ALK/ROS1
+- Uroteliale cisplatino-unfit → criteri di ineleggibilità documentati
+- Gastrico → status HER2 (per tutte le linee pembrolizumab e nivolumab prima linea)
+- Endometrio + CRC dMMR → conferma dMMR/MSI-H
+
+> Per tutte le indicazioni prive di `clinicalContext` esplicito, la sezione C del referto riporta una nota standard che ricorda i parametri clinici da verificare manualmente.
+
+### 4. Inserimento score
+- **TPS/CPS**: range 0–100; opzione cutoff personalizzato disponibile (con tracciabilità nel referto)
+- **IC only**: range 0–100; cutoff fisso (assay-specifico, non modificabile)
+- **TC/IC**: due campi distinti; cutoff fissi; sufficiente uno dei due
+
+### 5. Generazione referto
+
+Il referto è diviso in tre blocchi separati e copiabili indipendentemente:
+
+| Blocco | Contenuto | Destinazione |
+|--------|-----------|--------------|
+| **A — Referto Clinico** | Clone, metodo, risultato, cutoff, interpretazione tecnica, nota competenza oncologo | Cartella clinica / LIS |
+| **B — Nota Tecnica Clone** | Solo se clone alternativo: companion diagnostic originario, concordanza, limiti, riferimenti Blueprint | Documentazione interna |
+| **C — Note Clinico-Regolatorie** | Trial, evidenza, stato regolatorio, note guideline, contesto clinico verificato | Uso interno |
+
+**Linguaggio di output deliberato.** Il referto usa "risultato superiore/inferiore al cutoff" e non "paziente eleggibile/non eleggibile". L'eleggibilità terapeutica dipende da fattori che esulano dalla IHC.
+
+---
+
+## Note regolatorie critiche
+
+| Indicazione | FDA | EMA/AIFA | Note |
+|-------------|-----|----------|------|
+| Atezolizumab TNBC 1L | **Ritirato** Aug 2021 | Attivo | IMpassion131 OS negativo |
 | Pembrolizumab HNSCC periop | Approvato Jun 2025 | In valutazione | KEYNOTE-689 |
-
-### Validazione LDT
-
-Quando si utilizza un clone alternativo (es. SP263 invece di 22C3):
-- ✅ Concordanza >90% documentata in letteratura
-- ⚠️ **Richiede validazione locale come LDT**
-- 📋 Documentare nel referto il clone effettivamente utilizzato
+| Pembrolizumab gastrico HER2+ 1L | Approvato Mar 2025 | In aggiornamento | KEYNOTE-811, PD-L1 agnostico |
+| Durvalumab uroteliale neoadiuvante | Approvato Apr 2025 | In valutazione | NIAGARA |
 
 ---
 
-## 🧬 Requisiti Biomarker Obbligatori
+## Specifiche tecniche
 
-### NSCLC - Alterazioni molecolari
-Prima dell'immunoterapia in prima linea, verificare:
-- EGFR mutazioni
-- ALK riarrangiamento
-- ROS1 riarrangiamento
-- BRAF V600E
-
-### Gastrico - Status HER2
-- **HER2-positivo:** KEYNOTE-811 (pemb + trastuzumab + chemio)
-- **HER2-negativo:** KEYNOTE-859, CheckMate-649
-
-### Endometrio - Status dMMR/MSI-H
-- **Dostarlimab:** OBBLIGATORIO dMMR/MSI-H confermato
-- **Pembrolizumab + lenvatinib:** OBBLIGATORIO dMMR/MSI-H confermato
+- **Formato**: single HTML file, zero dipendenze esterne
+- **Dimensione**: ~85 KB
+- **JavaScript**: ES6, no framework
+- **Storage**: nessuno (nessun dato salvato localmente o trasmesso)
+- **Browser**: Chrome/Chromium 90+, Firefox 88+, Safari 14+, Edge 90+
+- **Offline**: funzionante senza rete
+- **Stampa**: CSS media query dedicata; i pannelli di input non vengono stampati
 
 ---
 
-## 📚 Trial Pivotali Principali
+## Struttura database — come aggiornare
 
-### NSCLC
-- KEYNOTE-024, -042, -189, -407, -671, -091
-- CheckMate-057, -227, -816
-- IMpower150, -010
-- PACIFIC, AEGEAN
+Il database clinico è un oggetto JS (`clinicalDatabase`) nella sezione `<script>`. Ogni aggiornamento regolatorio va fatto **solo nei campi appropriati**:
 
-### HNSCC
-- KEYNOTE-048, -040, -689
-- CheckMate-141
+```javascript
+// Esempio: aggiornare stato EMA dopo approvazione
+'perioperative': {
+    name: 'Perioperatorio (neoadiuvante + adiuvante)',
+    method: 'CPS', cutoff: 1,
+    notes: 'Stadio III/IVA resecabile, CPS >=1',       // non toccare
+    trial: 'KEYNOTE-689',                               // non toccare
+    regulatoryNote: 'FDA Jun 2025; EMA approvato ...',  // aggiornare qui
+    guidelineNote: '...'                                // aggiornare qui se ESMO/NCCN si esprime
+}
+```
 
-### Uroteliale
-- KEYNOTE-052, -045, -A39/EV-302, -905/EV-303
-- CheckMate-274, -275
-- IMvigor211
-- JAVELIN Bladder 100
-
-### Gastrico
-- KEYNOTE-811, -859, -061
-- CheckMate-649
-
-### Vie Biliari
-- KEYNOTE-966
-- TOPAZ-1
+Per aggiungere un'indicazione nuova, copiare la struttura di un'esistente e compilare tutti i campi. Aggiungere `clinicalContext` se l'indicazione ha prerequisiti molecolari obbligatori (dMMR, HER2, driver alterations).
 
 ---
 
-## 🔧 Specifiche Tecniche
+## Changelog
 
-### Browser Supportati
-- ✅ Chrome/Chromium 90+
-- ✅ Firefox 88+
-- ✅ Safari 14+
-- ✅ Edge 90+
+### v3.3 (Dicembre 2025)
+- `NCCN Cat.1` spostato da `regulatoryNote` a `guidelineNote` (classificazione semantica corretta)
+- Guard `navigator.clipboard && navigator.clipboard.writeText` in entrambe le funzioni di copia
+- Sezione A referto: distinzione esplicita "clone di riferimento (trial)" vs "clone utilizzato" quando viene usata alternativa in-house
+- Nota standard in sezione C per indicazioni prive di `clinicalContext` (elenco parametri clinici da verificare manualmente)
+- Disclaimer finale: "Supporto operativo interno; non sostituisce il giudizio clinico-patologico professionale"
 
-### Requisiti
-- JavaScript abilitato
-- Nessuna dipendenza esterna (self-contained HTML)
-- Funziona offline
+### v3.2 (Dicembre 2025)
+- `icOnly` rimosso dal database; unico marker: `method: 'IC'`
+- `dmmrRequired` rimosso come flag; gestito esclusivamente via `clinicalContext` obbligatorio (comportamento uniforme con HER2/EGFR)
+- `interpretationMode: 'cutoff' | 'agnostic'` — il caso agnostico non inquina più `isAboveCutoff`; banner viola distinto
+- Custom cutoff disabilitato anche per `method === 'IC'` (cutoff assay-specifico)
+- Note database ristrutturate in tre campi separati: `notes`, `regulatoryNote`, `guidelineNote`
+- Nota standard in sezione C per `clinicalContext` assente
+- Disclaimer generale sempre visibile
 
-### Dimensione File
-- HTML: ~85 KB
-- Zero librerie CDN
+### v3.1 (Dicembre 2025)
+- `appState` object centralizzato (sostituisce `window.current*`)
+- `getCloneAvailability()` sostituisce `getCloneType()` (semantica corretta: disponibilità ≠ piattaforma)
+- `copyReferto(event)` → `copySection(btn, key)` + fallback `execCommand` con gestione errore
+- Referto diviso in blocchi A/B/C con copy button indipendenti
+- Linguaggio referto: "superiore/inferiore al cutoff" invece di "eleggibile/non eleggibile"
+- Badge "Solo IC" distinto da "TC/IC separati"
+- Custom cutoff nascosto e disabilitato per indicazioni TC/IC
+- `hideDownstream()` null-safe; `resetAll()` null-safe
+- Disclaimer clone alternativo rinforzato
+- `clinicalContext` condizionale con blocco su campi obbligatori
+- `escapeHtml()` nel rendering referto
+- "PDL-1" → "PD-L1" uniformato
+
+### v3.0 (Novembre 2025)
+- Release semplificata per uso AP interno
+- Database clinico consolidato (16 tumori, 50+ indicazioni)
+- Gestione in-house/service/intercambiabilità automatica
+- Generazione referto
 
 ---
 
-## 📖 Riferimenti Bibliografici
+## Riferimenti
 
-### Blueprint Studies (Concordanza cloni)
-- Hirsch FR, et al. PD-L1 Immunohistochemistry Assays for Lung Cancer: Results from Phase 1 of the Blueprint PD-L1 IHC Assay Comparison Project. **J Thorac Oncol.** 2017;12(2):208-222.
-- Tsao MS, et al. PD-L1 Immunohistochemistry Comparability Study in Real-Life Clinical Samples: Results of Blueprint Phase 2 Project. **J Thorac Oncol.** 2018;13(9):1302-1311.
+**Blueprint Studies**
+- Hirsch FR, et al. PD-L1 Immunohistochemistry Assays for Lung Cancer: Results from Phase 1 of the Blueprint PD-L1 IHC Assay Comparison Project. *J Thorac Oncol.* 2017;12(2):208–222.
+- Tsao MS, et al. PD-L1 Immunohistochemistry Comparability Study in Real-Life Clinical Samples: Results of Blueprint Phase 2 Project. *J Thorac Oncol.* 2018;13(9):1302–1311.
 
-### Linee Guida Ufficiali
-- [NCCN Guidelines](https://www.nccn.org/guidelines)
+**Linee guida**
+- [NCCN Clinical Practice Guidelines in Oncology](https://www.nccn.org/guidelines)
 - [ESMO Clinical Practice Guidelines](https://www.esmo.org/guidelines)
-- [AIOM Linee Guida](https://www.aiom.it/)
+- [AIOM Linee Guida](https://www.aiom.it/linee-guida/)
 - [AIFA Determine](https://www.aifa.gov.it/)
 
 ---
 
-## 📝 Licenza
+## Licenza
 
-MIT License - Uso educativo
-
----
-
-## 🎯 Storico Versioni
-
-### v2.3 (Novembre 2025)
-- ✨ Salvataggio automatico ogni 30 secondi
-- ✨ Recovery sessione dopo refresh
-- ✨ 6 casi demo per formazione
-- ✨ Validazione input 0-100%
-- ✨ Try-catch per gestione errori
-- ✨ Localizzazione italiana completa
-
-### v2.2 (Novembre 2025)
-- ✨ Generazione email per webmail ASST
-- ✨ Campi anagrafici paziente e richiedente
-- ✨ Gestione cloni in-house vs service
-- ✨ Intercambiabilità automatica con concordanza
-- ✨ Workflow separato Oncologia/AP
-- ✨ Input TC/IC separati
-- 🐛 Fix cemiplimab, dostarlimab, HER2
-
-### v2.1 (Novembre 2025)
-- Aggiunte indicazioni BTC, MIBC, perioperatorio
-- Warning regolatorio TNBC atezolizumab
-- Badge regolatori FDA/EMA
-
-### v2.0 (Novembre 2025)
-- Debug console migliorata
-- Layout referto professionale
-
-### v1.0 (2024)
-- Release iniziale
+MIT — uso interno, nessuna garanzia clinica.
 
 ---
 
-## 👤 Autore
-
-Tool sviluppato per **ASST Fatebenefratelli-Sacco** - Anatomia Patologica
-
-**Disclaimer:** Questo tool non sostituisce il giudizio clinico professionale.
-
----
-
-**Ultimo aggiornamento:** Novembre 2025
-
-**Status:** Educational - For clinical support purposes only
+*ASST Fatebenefratelli-Sacco — Anatomia Patologica. Ultimo aggiornamento: Dicembre 2025.*
