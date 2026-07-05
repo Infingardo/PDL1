@@ -74,6 +74,7 @@
         <br>• <strong>AIFA Determine</strong> (aifa.gov.it) — rimborsabilità e registri
         <br>• <strong>NCCN Guidelines</strong> (nccn.org) e <strong>ESMO</strong> (esmo.org) — linee guida aggiornate
         <br>Le indicazioni regolatorie cambiano. <strong>Verificare sempre prima di qualsiasi decisione diagnostica o terapeutica.</strong>
+        <br><br>&#x1F4CC; <strong>Patch 05/07/2026:</strong> aggiunte indicazioni ovaio (pembrolizumab, KEYNOTE-B96/ENGOT-ov65, CPS&ge;1) e microcitoma polmonare/SCLC (atezolizumab + lurbinectedina, IMforte), verificate puntualmente su approvazioni EC di Feb/Mar 2026. Il resto del database <strong>non è stato riverificato</strong> oltre Aprile 2026.
     </div>
 
     <div class="lab-header">
@@ -619,6 +620,38 @@ const clinicalDatabase = {
                         name: 'MSI-H/dMMR + ipilimumab', method: 'Non richiesto', cutoff: 0,
                         notes: 'PD-L1 non necessario; eleggibilita\' condizionata a MSI-H/dMMR', trial: 'CheckMate-142',
                         clinicalContext: [ { id: 'crc_dmmr_nivo', label: 'MSI-H/dMMR confermato (IHC MMR +/- PCR per MSI)', required: true } ]
+                    }
+                }
+            }
+        }
+    },
+    sclc: {
+        name: 'Microcitoma polmonare (SCLC)',
+        drugs: {
+            atezolizumab: {
+                name: 'Atezolizumab', clone: 'SP142 (Ventana)',
+                indications: {
+                    'maintenance': {
+                        name: 'Mantenimento prima linea + lurbinectedina',
+                        method: 'Non richiesto', cutoff: 0,
+                        notes: 'Mantenimento dopo induzione con atezolizumab + carboplatino + etoposide senza progressione, in ES-SCLC. PD-L1 agnostico: IMforte non prevede stratificazione né selezione per PD-L1 (EC approval Mar/2026, parere CHMP 27/03/2026).',
+                        trial: 'IMforte'
+                    }
+                }
+            }
+        }
+    },
+    ovarian: {
+        name: 'Carcinoma ovarico/tube di Falloppio/peritoneale primitivo',
+        drugs: {
+            pembrolizumab: {
+                name: 'Pembrolizumab', clone: '22C3 (Dako)',
+                indications: {
+                    'platinum-resistant': {
+                        name: 'Platino-resistente + paclitaxel ± bevacizumab',
+                        method: 'CPS', cutoff: 1,
+                        notes: 'Carcinoma epiteliale ovarico/tube di Falloppio/peritoneale primitivo platino-resistente, dopo 1-2 linee precedenti; CPS >=1. Approvazione EC su parere CHMP di febbraio 2026.',
+                        trial: 'KEYNOTE-B96/ENGOT-ov65'
                     }
                 }
             }
