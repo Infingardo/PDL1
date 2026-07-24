@@ -1,4 +1,4 @@
-# PD-L1 AP Tool v3.3
+# PD-L1 AP Tool v3.4.7
 
 [![Status](https://img.shields.io/badge/Uso-Supporto_operativo_interno-blue)](#disclaimer)
 [![Updated](https://img.shields.io/badge/Aggiornato-Dicembre_2025-green)](#changelog)
