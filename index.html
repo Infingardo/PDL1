@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PD-L1 AP Tool v3.4.7</title>
+    <title>PD-L1 AP Tool v3.5.0</title>
     <style>
         * { box-sizing: border-box; }
         body { font-family: 'Segoe UI', sans-serif; max-width: 900px; margin: 0 auto; padding: 20px; background: #f7fafc; }
@@ -30,8 +30,9 @@
         .btn-copy { background: #4a5568; color: white; padding: 7px 14px; border: none; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600; transition: background 0.2s; margin: 0 3px; }
         .btn-copy:hover { background: #2d3748; }
         .btn-copy.copied { background: #38a169 !important; }
-        .result { background: #c6f6d5; border: 2px solid #48bb78; border-radius: 10px; padding: 25px; margin: 20px 0; }
-        .result.negative { background: #fed7d7; border-color: #fc8181; }
+        .result { background: #eef2ff; border: 2px solid #6366f1; border-radius: 10px; padding: 25px; margin: 20px 0; }
+        .result.negative { background: #f1f5f9; border-color: #64748b; }
+        .result .result-disclaimer { margin: 10px 0 0 0; font-size: 11.5px; color: #475569; font-style: italic; }
         .referto { background: #fafafa; border: 1px solid #cbd5e0; border-radius: 6px; padding: 18px; margin: 8px 0 0 0; font-family: 'Courier New', monospace; white-space: pre-wrap; font-size: 12.5px; line-height: 1.65; }
         .referto-block { border-radius: 10px; padding: 18px; margin: 12px 0; border: 2px solid; }
         .referto-block.clinical { background: #f0fff4; border-color: #48bb78; }
@@ -64,17 +65,22 @@
 </head>
 <body>
 <div class="container">
-    <h1>&#x1F52C; PD-L1 AP Tool <span class="version-tag">v3.4.7 &mdash; Apr 2026</span></h1>
+    <h1>&#x1F52C; PD-L1 AP Tool <span class="version-tag">v3.5.0 &mdash; Ago 2026</span></h1>
     <div class="subtitle">Tool semplificato per Anatomia Patologica &mdash; ASST Fatebenefratelli-Sacco</div>
 
     <div class="general-disclaimer">
         &#x26A0;&#xFE0F; <strong>Questo tool non sostituisce la verifica completa dei criteri clinici, molecolari e regolatori della specifica indicazione.</strong>
-        La banca dati clinica è congelata ad <strong>Aprile 2026</strong>. Se più tempo è passato, verificare OBBLIGATORIAMENTE le fonti ufficiali aggiornate:
+        Nessuna voce di questo database va considerata "verificata per sempre": ogni riga ha una data di ultima verifica puntuale (vedi log versioni sotto) e va ri-controllata OBBLIGATORIAMENTE se sono passati mesi, sulle fonti ufficiali aggiornate:
         <br>• <strong>EPAR EMA</strong> (ema.europa.eu) — autorità preferenziale per approvazioni
         <br>• <strong>AIFA Determine</strong> (aifa.gov.it) — rimborsabilità e registri
         <br>• <strong>NCCN Guidelines</strong> (nccn.org) e <strong>ESMO</strong> (esmo.org) — linee guida aggiornate
         <br>Le indicazioni regolatorie cambiano. <strong>Verificare sempre prima di qualsiasi decisione diagnostica o terapeutica.</strong>
-        <br><br>&#x1F4CC; <strong>Patch 05/07/2026:</strong> aggiunte indicazioni ovaio (pembrolizumab, KEYNOTE-B96/ENGOT-ov65, CPS&ge;1) e microcitoma polmonare/SCLC (atezolizumab + lurbinectedina, IMforte), verificate puntualmente su approvazioni EC di Feb/Mar 2026. Il resto del database <strong>non è stato riverificato</strong> oltre Aprile 2026.
+        <br><br><strong>Log versioni (verifica puntuale, non "congelamento" unico):</strong>
+        <br>&#x1F4CC; <em>Aprile 2026</em> — verifica generale dell'intero database su EPAR EMA/FDA/NCCN-ESMO.
+        <br>&#x1F4CC; <em>05/07/2026</em> — aggiunte indicazioni ovaio (pembrolizumab, KEYNOTE-B96/ENGOT-ov65, CPS&ge;1) e microcitoma polmonare/SCLC (atezolizumab + lurbinectedina, IMforte), verificate puntualmente su approvazioni EC di Feb/Mar 2026.
+        <br>&#x1F4CC; <em>27/08/2026</em> — aggiunte indicazioni perioperatorie/adiuvanti mancanti (alto volume in AP): NSCLC adiuvante atezolizumab (IMpower010, TC&ge;50% SP263 — attenzione, clone diverso da SP142), NSCLC perioperatorio pembrolizumab (KEYNOTE-671, agnostico), NSCLC neoadiuvante nivolumab (CheckMate-816, TC&ge;1%), HNSCC neoadiuvante/adiuvante pembrolizumab (KEYNOTE-689, CPS&ge;1); verificate su EPAR EMA aggiornati alla stessa data.
+        <br>Tutte le altre voci non elencate nei patch <strong>risalgono alla verifica di Aprile 2026 e non sono state ricontrollate da allora</strong>.
+        <div id="staleness-banner" style="margin-top:12px;"></div>
     </div>
 
     <div class="lab-header">
@@ -83,7 +89,8 @@
         <span class="clone-tag inhouse">&#x2713; SP263 (Ventana)</span>
         <span class="clone-tag service">&#x26A1; 22C3 (Dako) &rarr; Service</span>
         <span class="clone-tag service">&#x26A1; 28-8 (Dako) &rarr; Service</span>
-        <span class="clone-tag service">&#x26A1; 73-10 (Dako) &rarr; Service</span>
+        <span class="clone-tag service" title="Non richiesto da alcuna indicazione attualmente presente nel database di questo tool">&#x26A1; 73-10 (Dako) &rarr; Service *</span>
+        <p style="font-size:10.5px;color:#a0aec0;margin:8px 0 0 0;">* 73-10 non è al momento companion diagnostic di nessuna indicazione mappata in questo tool (nessun farmaco/indicazione qui lo richiede). Mantenuto in elenco solo come nota di inventario laboratorio.</p>
     </div>
 
     <div class="section">
@@ -114,8 +121,12 @@
                     </label>
                     <div id="custom-cutoff-input" style="display:none;">
                         <label style="font-size:13px; color:#92400e;">Soglia per uso interno (non sostituisce il cutoff regolatorio):</label>
-                        <input type="number" id="custom-cutoff-value" placeholder="Inserisci valore" min="0" max="100" step="0.1">
-                        <p style="font-size:11px; color:#78350f; margin:5px 0 0 0;">Questa soglia viene riportata solo per documentazione interna e non sostituisce il cutoff validato dal trial/indicazione regolatoria.</p>
+                        <input type="number" id="custom-cutoff-value" placeholder="Inserisci valore" min="0" max="100" step="1">
+                        <label style="font-size:13px; color:#92400e; margin-top:10px;">Richiesta da (nome/cognome oncologo referente):</label>
+                        <input type="text" id="custom-cutoff-requester" placeholder="Es. Dr./Dr.ssa Cognome Nome">
+                        <label style="font-size:13px; color:#92400e;">Motivazione clinica della soglia non regolatoria:</label>
+                        <input type="text" id="custom-cutoff-rationale" placeholder="Breve razionale clinico">
+                        <p style="font-size:11px; color:#78350f; margin:5px 0 0 0;">Questa soglia viene riportata solo per documentazione interna e non sostituisce il cutoff validato dal trial/indicazione regolatoria. Nome del richiedente e motivazione sono obbligatori per tracciabilità: una soglia non regolatoria senza chi l'ha chiesta e perché non deve entrare in un referto.</p>
                     </div>
                 </div>
             </div>
@@ -139,6 +150,7 @@ const appState = {
     currentIndication:  null,
     currentDrug:        null,
     currentTumor:       null,
+    currentClone:       null,
     refertoSections:    { a: '', b: '', c: '' }
 };
 
@@ -154,7 +166,7 @@ const cloneInterchangeability = {
 };
 
 // ============================
-// DATABASE v3.4.7 — Aprile 2026 (FINAL PRODUCTION)
+// DATABASE v3.5.0 — verifica puntuale più recente 27/08/2026 (vedi log versioni nel disclaimer)
 // TNBC pembrolizumab: chiarito SP263 (TPS) vs SP142 (IC) come alternative a 22C3
 // Fonte: EPAR EMA (preferenziale), FDA, NCCN/ESMO (supportivi)
 // ============================
@@ -186,6 +198,14 @@ const clinicalDatabase = {
                         optionalScoreMethod: 'TPS',
                         notes: 'Pembrolizumab + gemcitabina/cisplatino o pembrolizumab + paclitaxel/carboplatin per NSCLC squamoso avanzato. PD-L1 non è criterio di eleggibilità (EPAR EMA Keytruda KEYNOTE-407).',
                         trial: 'KEYNOTE-407'
+                    },
+                    'perioperative': {
+                        name: 'Perioperatorio (neoadiuvante + adiuvante)',
+                        method: 'Non richiesto', cutoff: 0,
+                        optionalScoreMethod: 'TPS',
+                        notes: 'Pembrolizumab + chemioterapia a base di platino come neoadiuvante (4 cicli), poi pembrolizumab monoterapia come adiuvante, NSCLC resecabile ad alto rischio di recidiva. PD-L1 non è criterio di eleggibilità secondo EPAR EMA Keytruda (KEYNOTE-671).',
+                        trial: 'KEYNOTE-671',
+                        guidelineNote: 'PD-L1 può essere richiesto a fini descrittivi/prognostici (il beneficio è comunque osservato indipendentemente dall\'espressione). Se eseguito, usare TPS.'
                     }
                 }
             },
@@ -195,9 +215,18 @@ const clinicalDatabase = {
                     'second': { name: 'Seconda linea', method: 'Non richiesto', cutoff: 0, notes: 'Post-platino; PD-L1 agnostico', trial: 'CheckMate-057' },
                     'first-combo-ipi': {
                         name: 'Prima linea + ipilimumab + chemio', method: 'Non richiesto', cutoff: 0,
-                        notes: 'Nivolumab + ipilimumab + 2 cicli di chemioterapia in prima linea NSCLC metastatico senza mutazioni EGFR/ALK. PD-L1 non è criterio di eleggibilità secondo EPAR EMA Opdivo. (CheckMate-227 attuali dati + approvazione EMA)', 
+                        notes: 'Nivolumab + ipilimumab + 2 cicli di chemioterapia in prima linea NSCLC metastatico senza mutazioni EGFR/ALK. PD-L1 non è criterio di eleggibilità secondo EPAR EMA Opdivo. (CheckMate-227 attuali dati + approvazione EMA)',
                         trial: 'CheckMate-227',
                         guidelineNote: 'Nota: la combinazione "nivo + ipi senza chemio" con TPS ≥1% rimane rilevante in ambito trial/guideline, ma la label EMA attuale richiede chemioterapia e non menziona PD-L1 come criterio di eleggibilità.'
+                    },
+                    'neoadjuvant': {
+                        name: 'Neoadiuvante + chemio (pre-chirurgia)',
+                        method: 'TPS', cutoff: 1,
+                        notes: 'Nivolumab + chemioterapia a base di platino come neoadiuvante (3 cicli), NSCLC resecabile ad alto rischio di recidiva, PD-L1 TC >=1%, secondo EPAR EMA Opdivo (CheckMate-816).',
+                        trial: 'CheckMate-816',
+                        clinicalContext: [
+                            { id: 'nsclc_egfr_alk_nivo_neoadj', label: 'Assenza di mutazioni EGFR o riarrangiamenti ALK documentata (popolazione esclusa dallo studio registrativo)', required: true }
+                        ]
                     }
                 }
             },
@@ -225,13 +254,25 @@ const clinicalDatabase = {
                             { id: 'nsclc_egfr_alk_atezo', label: 'Assenza di mutazioni EGFR o riarrangiamenti ALK documentata', required: true }
                         ]
                     },
-                    'second-postchemo': { 
-                        name: 'Seconda linea/post-chemioterapia', 
-                        method: 'Non richiesto', cutoff: 0, 
+                    'second-postchemo': {
+                        name: 'Seconda linea/post-chemioterapia',
+                        method: 'Non richiesto', cutoff: 0,
                         optionalScoreMethod: 'TPS',
-                        notes: 'Atezolizumab dopo precedente chemioterapia; PD-L1 non è criterio di eleggibilità secondo EPAR EMA Tecentriq (OAK)', 
+                        notes: 'Atezolizumab dopo precedente chemioterapia; PD-L1 non è criterio di eleggibilità secondo EPAR EMA Tecentriq (OAK)',
                         trial: 'OAK',
                         guidelineNote: 'PD-L1 può essere valutato a fini descrittivi/prognostici, ma non come requisito di eleggibilità.'
+                    },
+                    'adjuvant': {
+                        name: 'Adiuvante post-resezione + chemio (stadio II-IIIA)',
+                        method: 'TPS', cutoff: 50,
+                        indicationClone: 'SP263 (Ventana)',
+                        notes: 'Atezolizumab monoterapia come adiuvante dopo resezione completa e chemioterapia a base di platino, NSCLC stadio II-IIIA ad alto rischio di recidiva, PD-L1 TC >=50%, EGFR e ALK wild-type, secondo EPAR EMA Tecentriq (IMpower010).',
+                        trial: 'IMpower010',
+                        guidelineNote: 'ATTENZIONE clone: assay validato per questa indicazione è VENTANA PD-L1 (SP263), diverso da SP142 usato nelle altre indicazioni NSCLC di atezolizumab. Nota anche la divergenza regolatoria: cutoff EMA TC>=50%, mentre il cutoff FDA per la stessa indicazione è TC>=1% sull\'intera popolazione stadio II-IIIA - non intercambiabili, verificare quale autorità è di riferimento.',
+                        clinicalContext: [
+                            { id: 'nsclc_egfr_alk_atezo_adj', label: 'Assenza di mutazioni EGFR o riarrangiamenti ALK documentata', required: true },
+                            { id: 'nsclc_resection_atezo_adj', label: 'Resezione completa (R0) e chemioterapia adiuvante a base di platino completate', required: true }
+                        ]
                     }
                 }
             },
@@ -297,7 +338,13 @@ const clinicalDatabase = {
                 indications: {
                     'first-mono': { name: 'Prima linea monoterapia', method: 'CPS', cutoff: 1, notes: 'Prima linea R/M HNSCC secondo EPAR EMA: CPS >=1. (KEYNOTE-048)', trial: 'KEYNOTE-048', guidelineNote: 'CPS >=20 rappresenta un sottogruppo clinicamente rilevante ma non è il cutoff regolatorio EMA.' },
                     'first-combo': { name: 'Prima linea + chemio', method: 'CPS', cutoff: 1, notes: 'CPS >=1 in combinazione con platino/5-FU, R/M (KEYNOTE-048)', trial: 'KEYNOTE-048' },
-                    'second': { name: 'Seconda linea (R/M post-platino)', method: 'TPS', cutoff: 50, notes: 'Pembrolizumab monoterapia nel R/M HNSCC dopo fallimento di terapia contenente platino: PD-L1 TPS >=50% secondo EPAR EMA Keytruda. (KEYNOTE-040)', trial: 'KEYNOTE-040' }
+                    'second': { name: 'Seconda linea (R/M post-platino)', method: 'TPS', cutoff: 50, notes: 'Pembrolizumab monoterapia nel R/M HNSCC dopo fallimento di terapia contenente platino: PD-L1 TPS >=50% secondo EPAR EMA Keytruda. (KEYNOTE-040)', trial: 'KEYNOTE-040' },
+                    'neoadjuvant-adjuvant': {
+                        name: 'Neoadiuvante + adiuvante (resecabile localmente avanzato)',
+                        method: 'CPS', cutoff: 1,
+                        notes: 'Pembrolizumab monoterapia come neoadiuvante, poi adiuvante in combinazione con radioterapia +/- cisplatino concomitante e infine monoterapia, HNSCC resecabile localmente avanzato (LA-HNSCC), PD-L1 CPS >=1, secondo EPAR EMA Keytruda.',
+                        trial: 'KEYNOTE-689'
+                    }
                 }
             },
             nivolumab: {
@@ -698,52 +745,22 @@ function escapeHtml(t) {
 // ============================
 // VALIDAZIONE INPUT — FIX #3
 // ============================
+// Valida un singolo input numerico di score: deve essere un INTERO 0-100.
+// CPS/TPS/TC/IC sono per definizione rapporti fra conteggi (N cellule positive / N totale x 100):
+// un valore come "34.7%" comunica una precisione analitica che il metodo non garantisce.
+function validateScoreField(inputEl) {
+    if (!inputEl || inputEl.value === '') return true;
+    const val = parseFloat(inputEl.value);
+    const ok = !isNaN(val) && val >= 0 && val <= 100 && Number.isInteger(val);
+    inputEl.classList.toggle('input-error', !ok);
+    return ok;
+}
+
 function validateAllScoreInputs() {
+    const fields = ['score', 'score-tc', 'score-ic', 'score-optional', 'custom-cutoff-value']
+        .map(id => document.getElementById(id));
     let isValid = true;
-    
-    const scoreInput = document.getElementById('score');
-    const scoreTCInput = document.getElementById('score-tc');
-    const scoreICInput = document.getElementById('score-ic');
-    const scoreOptionalInput = document.getElementById('score-optional');
-    
-    if (scoreInput && scoreInput.value !== '') {
-        const val = parseFloat(scoreInput.value);
-        if (isNaN(val) || val < 0 || val > 100) {
-            scoreInput.classList.add('input-error');
-            isValid = false;
-        } else {
-            scoreInput.classList.remove('input-error');
-        }
-    }
-    if (scoreTCInput && scoreTCInput.value !== '') {
-        const val = parseFloat(scoreTCInput.value);
-        if (isNaN(val) || val < 0 || val > 100) {
-            scoreTCInput.classList.add('input-error');
-            isValid = false;
-        } else {
-            scoreTCInput.classList.remove('input-error');
-        }
-    }
-    if (scoreICInput && scoreICInput.value !== '') {
-        const val = parseFloat(scoreICInput.value);
-        if (isNaN(val) || val < 0 || val > 100) {
-            scoreICInput.classList.add('input-error');
-            isValid = false;
-        } else {
-            scoreICInput.classList.remove('input-error');
-        }
-    }
-    // FIX: Validare anche score-optional (TPS aggiuntivo non obbligatorio)
-    if (scoreOptionalInput && scoreOptionalInput.value !== '') {
-        const val = parseFloat(scoreOptionalInput.value);
-        if (isNaN(val) || val < 0 || val > 100) {
-            scoreOptionalInput.classList.add('input-error');
-            isValid = false;
-        } else {
-            scoreOptionalInput.classList.remove('input-error');
-        }
-    }
-    
+    fields.forEach(el => { if (!validateScoreField(el)) isValid = false; });
     return isValid;
 }
 
@@ -788,6 +805,7 @@ function hideDownstream() {
     appState.currentIndication  = null;
     appState.currentDrug        = null;
     appState.currentTumor       = null;
+    appState.currentClone       = null;
     appState.refertoSections    = { a:'', b:'', c:'' };
 }
 
@@ -803,28 +821,29 @@ function showCloneAndMethod() {
 
     const drugData    = clinicalDatabase[tumor].drugs[drug];
     const indication  = drugData.indications[line];
-    const avail       = getCloneAvailability(drugData.clone);
-    const interchange = checkInterchangeability(drugData.clone, tumor);
+    const cloneForIndication = indication.indicationClone || drugData.clone;
+    const avail       = getCloneAvailability(cloneForIndication);
+    const interchange = checkInterchangeability(cloneForIndication, tumor);
     const isICOnly    = indication.method === 'IC';
 
     let html = '';
-    if (drugData.clone === 'Non richiesto') {
+    if (cloneForIndication === 'Non richiesto') {
         html = `<div class="clone-box inhouse"><strong>&#x2713; PD-L1 NON RICHIESTO</strong><p style="margin:5px 0 0 0;color:#22543d;">Indicazione PD-L1 agnostica</p></div>`;
     } else if (indication.method === 'Non richiesto') {
         html = `<div class="clone-box inhouse"><strong>&#x2713; PD-L1 NON RICHIESTO per eleggibilita'</strong>
             <p style="margin:8px 0 0 0;color:#22543d;">Indicazione PD-L1 agnostica.</p>`;
-        
-        const optAvail = getCloneAvailability(drugData.clone);
+
+        const optAvail = getCloneAvailability(cloneForIndication);
         if (optAvail === 'inhouse') {
-            html += `<p style="margin:8px 0 0 0;color:#4a5568;">Se richiesto a fini documentali/prognostici: <strong>${drugData.clone}</strong> disponibile in-house.</p>`;
+            html += `<p style="margin:8px 0 0 0;color:#4a5568;">Se richiesto a fini documentali/prognostici: <strong>${cloneForIndication}</strong> disponibile in-house.</p>`;
         } else if (optAvail === 'service') {
-            html += `<p style="margin:8px 0 0 0;color:#c41f3b;"><strong>&#x26A0; Attenzione:</strong> Se richiesto a fini documentali: <strong>${drugData.clone}</strong> non disponibile in-house. Valutare service esterno.</p>`;
+            html += `<p style="margin:8px 0 0 0;color:#c41f3b;"><strong>&#x26A0; Attenzione:</strong> Se richiesto a fini documentali: <strong>${cloneForIndication}</strong> non disponibile in-house. Valutare service esterno.</p>`;
         } else {
-            html += `<p style="margin:8px 0 0 0;color:#4a5568;">Se richiesto a fini documentali/prognostici: verificare disponibilità del clone <strong>${drugData.clone}</strong>.</p>`;
+            html += `<p style="margin:8px 0 0 0;color:#4a5568;">Se richiesto a fini documentali/prognostici: verificare disponibilità del clone <strong>${cloneForIndication}</strong>.</p>`;
         }
         html += `</div>`;
     } else if (avail === 'inhouse') {
-        html = `<div class="clone-box inhouse"><strong>&#x2713; CLONE IN-HOUSE: ${drugData.clone}</strong>
+        html = `<div class="clone-box inhouse"><strong>&#x2713; CLONE IN-HOUSE: ${cloneForIndication}</strong>
             <p style="margin:5px 0 0 0;color:#22543d;">Disponibile nel laboratorio</p></div>`;
     } else if (avail === 'validated_generic') {
         html = `<div class="clone-box interchange">
@@ -837,7 +856,7 @@ function showCloneAndMethod() {
             </p></div>`;
     } else if (avail === 'service' && interchange) {
         html = `<div class="clone-box interchange">
-            <strong>&#x26A0;&#xFE0F; CLONE COMPANION DIAGNOSTIC: ${drugData.clone}</strong>
+            <strong>&#x26A0;&#xFE0F; CLONE COMPANION DIAGNOSTIC: ${cloneForIndication}</strong>
             <p style="margin:10px 0;">Non disponibile in-house. Seleziona:</p>
             <div style="background:white;padding:15px;border-radius:5px;margin-top:10px;">
                 <label style="display:flex;align-items:flex-start;margin-bottom:12px;cursor:pointer;">
@@ -848,12 +867,12 @@ function showCloneAndMethod() {
                 </label>
                 <label style="display:flex;align-items:flex-start;cursor:pointer;">
                     <input type="radio" name="clone-choice" value="service" style="margin:4px 10px 0 0;">
-                    <span><strong>&#x26A1; SERVICE ESTERNO: ${drugData.clone}</strong><br>
+                    <span><strong>&#x26A1; SERVICE ESTERNO: ${cloneForIndication}</strong><br>
                     <small style="color:#92400e;">Clone companion diagnostic originario - invio a laboratorio esterno</small></span>
                 </label>
             </div></div>`;
     } else {
-        html = `<div class="clone-box service"><strong>&#x26A1; SERVICE ESTERNO OBBLIGATORIO: ${drugData.clone}</strong>
+        html = `<div class="clone-box service"><strong>&#x26A1; SERVICE ESTERNO OBBLIGATORIO: ${cloneForIndication}</strong>
             <p style="margin:5px 0 0 0;color:#9b2c2c;">Nessuna alternativa in-house validata</p></div>`;
     }
 
@@ -875,11 +894,12 @@ function showCloneAndMethod() {
     document.getElementById('clone-section').style.display = 'block';
 
     showContextSection(indication);
-    createScoreInputs(indication, drugData.clone);
+    createScoreInputs(indication, cloneForIndication);
 
     appState.currentIndication  = indication;
     appState.currentDrug        = drugData;
     appState.currentTumor       = tumor;
+    appState.currentClone       = cloneForIndication;
 }
 
 // ============================
@@ -946,7 +966,7 @@ function createScoreInputs(indication, clone) {
                     </label>
                     <div id="optional-pdl1-input" style="display:none;margin-top:10px;">
                         <label>${optMethodLabel}:</label>
-                        <input type="number" id="score-optional" placeholder="0-100" min="0" max="100" step="0.1">
+                        <input type="number" id="score-optional" placeholder="0-100" min="0" max="100" step="1">
                         <p style="font-size:11px;color:#718096;margin-top:5px;">Score ${optMethod} a fini documentali; non influenza l'eleggibilita'.</p>
                     </div></div>`;
             }
@@ -960,26 +980,26 @@ function createScoreInputs(indication, clone) {
 
     if (isICOnly) {
         html = `<label>IC (Immune Cell) %:</label>
-            <input type="number" id="score-ic" placeholder="0-100" min="0" max="100" step="0.1">
+            <input type="number" id="score-ic" placeholder="0-100" min="0" max="100" step="1">
             <p style="font-size:12px;color:#718096;margin-top:5px;">
                 Valutato <strong>SOLO IC</strong> (% area tumorale occupata da cellule immunitarie PD-L1+). TC non considerato.
             </p>
             <p class="tcic-note">&#x2139;&#xFE0F; Il cutoff IC e' parte integrante della validazione assay/trial e non e' modificabile in questo contesto.</p>`;
     } else if (indication.tcic) {
         html = `<div class="score-input-group">
-            <div><label>TC (Tumor Cell) %:</label><input type="number" id="score-tc" placeholder="0-100" min="0" max="100" step="0.1">
+            <div><label>TC (Tumor Cell) %:</label><input type="number" id="score-tc" placeholder="0-100" min="0" max="100" step="1">
             <p style="font-size:11px;color:#718096;margin-top:3px;">% cellule tumorali con membrana PD-L1+</p></div>
-            <div><label>IC (Immune Cell) %:</label><input type="number" id="score-ic" placeholder="0-100" min="0" max="100" step="0.1">
+            <div><label>IC (Immune Cell) %:</label><input type="number" id="score-ic" placeholder="0-100" min="0" max="100" step="1">
             <p style="font-size:11px;color:#718096;margin-top:3px;">% area tumorale con IC PD-L1+</p></div></div>
             <p style="font-size:12px;color:#718096;"><strong>Cutoff:</strong> TC &gt;=${indication.cutoffTC}% <strong>OPPURE</strong> IC &gt;=${indication.cutoffIC}%</p>
             <p class="tcic-note">&#x2139;&#xFE0F; Cutoff TC e IC sono distinti e trial-specifici: il cutoff personalizzato non e' applicabile a questa modalita'.</p>`;
     } else if (indication.method === 'TPS') {
         html = `<label>TPS (Tumor Proportion Score) - PERCENTUALE:</label>
-            <input type="number" id="score" placeholder="0-100" min="0" max="100" step="0.1">
+            <input type="number" id="score" placeholder="0-100" min="0" max="100" step="1">
             <p style="font-size:12px;color:#718096;margin-top:5px;">TPS = (TC PD-L1+) / (Totale TC) x 100</p>`;
     } else if (indication.method === 'CPS') {
         html = `<label>CPS (Combined Positive Score) - NUMERO:</label>
-            <input type="number" id="score" placeholder="0-100" min="0" max="100" step="0.1">
+            <input type="number" id="score" placeholder="0-100" min="0" max="100" step="1">
             <div class="cps-formula"><strong>FORMULA CPS:</strong><br>
             CPS = <strong>(N TC PD-L1+ + N IC PD-L1+) / N totale TC x 100</strong><br><br>
             <strong>Requisiti:</strong> almeno 100 TC vitali valutate; CPS e' un numero (non %), puo' superare 100; <strong>valore max da inserire: 100</strong></div>
@@ -993,7 +1013,11 @@ function toggleCustomCutoff() {
     const cb = document.getElementById('use-custom-cutoff'), div = document.getElementById('custom-cutoff-input');
     if (!div) return;
     div.style.display = cb.checked ? 'block' : 'none';
-    if (!cb.checked) { const el = document.getElementById('custom-cutoff-value'); if (el) el.value = ''; }
+    if (!cb.checked) {
+        ['custom-cutoff-value', 'custom-cutoff-requester', 'custom-cutoff-rationale'].forEach(id => {
+            const el = document.getElementById(id); if (el) el.value = '';
+        });
+    }
 }
 function toggleOptionalPDL1() {
     const cb = document.getElementById('optional-pdl1'), div = document.getElementById('optional-pdl1-input');
@@ -1014,7 +1038,7 @@ function generateReport() {
         
         // FIX #3: Validazione rigorosa 0-100
         if (!validateAllScoreInputs()) {
-            alert('❌ Errore: i valori dello score devono essere compresi tra 0 e 100');
+            alert('❌ Errore: i valori dello score devono essere numeri interi compresi tra 0 e 100 (CPS/TPS/TC/IC sono rapporti fra conteggi, non ammettono decimali)');
             return;
         }
 
@@ -1022,8 +1046,9 @@ function generateReport() {
         const today = new Date().toLocaleDateString('it-IT');
 
         // Clone
-        let cloneUsed = drugData.clone, useAlternative = false;
-        const avail = getCloneAvailability(drugData.clone), interchange = checkInterchangeability(drugData.clone, tumor);
+        const indicationClone = appState.currentClone || indication.indicationClone || drugData.clone;
+        let cloneUsed = indicationClone, useAlternative = false;
+        const avail = getCloneAvailability(indicationClone), interchange = checkInterchangeability(indicationClone, tumor);
         if (avail === 'service' && interchange) {
             const ch = document.querySelector('input[name="clone-choice"]:checked');
             if (!ch) { alert('Seleziona il clone da utilizzare'); return; }
@@ -1032,12 +1057,18 @@ function generateReport() {
 
         // Cutoff per la sezione C
         let cutoffUsed = indication.cutoff, cutoffSource = 'trial';
+        let customCutoffRequester = '', customCutoffRationale = '';
         const useCust = document.getElementById('use-custom-cutoff'), custEl = document.getElementById('custom-cutoff-value');
+        const custRequesterEl = document.getElementById('custom-cutoff-requester'), custRationaleEl = document.getElementById('custom-cutoff-rationale');
         if (useCust && useCust.checked && !indication.tcic && !isICOnly) {
             if (!custEl || custEl.value === '') { alert('Hai abilitato il cutoff personalizzato ma non hai inserito il valore'); return; }
             const cv = parseFloat(custEl.value);
-            if (isNaN(cv) || cv < 0 || cv > 100) { alert('Cutoff personalizzato deve essere 0-100'); return; }
+            if (isNaN(cv) || cv < 0 || cv > 100 || !Number.isInteger(cv)) { alert('Cutoff personalizzato deve essere un numero intero 0-100'); return; }
+            if (!custRequesterEl || custRequesterEl.value.trim() === '') { alert('Indica chi ha richiesto la soglia descrittiva non regolatoria (nome oncologo referente)'); return; }
+            if (!custRationaleEl || custRationaleEl.value.trim() === '') { alert('Indica la motivazione clinica della soglia descrittiva non regolatoria'); return; }
             cutoffUsed = cv; cutoffSource = 'descrittivo_non_regolatorio';
+            customCutoffRequester = custRequesterEl.value.trim();
+            customCutoffRationale = custRationaleEl.value.trim();
         }
 
         // Score
@@ -1105,8 +1136,8 @@ function generateReport() {
         sA += `L'interpretazione terapeutica e l'eleggibilita' competono esclusivamente all'oncologo curante\n`;
         sA += `nel contesto clinico, regolatorio e multidisciplinare vigente.\n\n`;
         sA += `${labConfig.labName} - Anatomia Patologica\n`;
-        sA += `PD-L1 AP Tool v3.4.7 (Apr 2026) - Supporto operativo interno; non sostituisce il giudizio clinico-patologico professionale.\n`;
-        sA += `Database clinico: Aprile 2026. Verificare sempre EPAR EMA / AIFA / NCCN-ESMO aggiornate.`;
+        sA += `PD-L1 AP Tool v3.5.0 - Supporto operativo interno; non sostituisce il giudizio clinico-patologico professionale.\n`;
+        sA += `Database clinico: verifica generale Aprile 2026, ultimo aggiornamento puntuale 27/08/2026 (vedi log versioni). Verificare sempre EPAR EMA / AIFA / NCCN-ESMO aggiornate.`;
 
         // ================================
         // SEZIONE B — Nota tecnica clone
@@ -1141,15 +1172,21 @@ function generateReport() {
             else if (indication.tcic) sC += `TC >= ${indication.cutoffTC}% OPPURE IC >= ${indication.cutoffIC}%\n\n`;
             else if (indication.method === 'TPS') sC += `TPS >= ${cutoffUsed}%${cutoffSource === 'descrittivo_non_regolatorio' ? ` (soglia descrittiva non regolatoria richiesta; cutoff standard trial: ${indication.cutoff}%)` : ''}\n\n`;
             else if (indication.method === 'CPS') sC += `CPS >= ${cutoffUsed}${cutoffSource === 'descrittivo_non_regolatorio' ? ` (soglia descrittiva non regolatoria richiesta; cutoff standard trial: ${indication.cutoff})` : ''}\n\n`;
-            
+
+            if (cutoffSource === 'descrittivo_non_regolatorio') {
+                sC += `TRACCIABILITA' SOGLIA NON REGOLATORIA:\n`;
+                sC += `  Richiesta da: ${customCutoffRequester}\n`;
+                sC += `  Motivazione: ${customCutoffRationale}\n\n`;
+            }
+
             // Interpretazione numerica
             let isAboveCutoff = false;
             if (isICOnly) isAboveCutoff = scoreIC !== null && scoreIC >= indication.cutoffIC;
             else if (indication.tcic) isAboveCutoff = (scoreTC!==null&&scoreTC>=indication.cutoffTC)||(scoreIC!==null&&scoreIC>=indication.cutoffIC);
             else if (score !== null) isAboveCutoff = score >= cutoffUsed;
             
-            sC += `INTERPRETAZIONE NUMERICA:\n`;
-            sC += isAboveCutoff ? `Risultato superiore alla soglia numerica selezionata.\n` : `Risultato inferiore alla soglia numerica selezionata.\n`;
+            sC += `CONFRONTO NUMERICO (non un giudizio di eleggibilita'):\n`;
+            sC += isAboveCutoff ? `Valore >= soglia numerica selezionata.\n` : `Valore < soglia numerica selezionata.\n`;
             sC += `(L'eleggibilita' terapeutica sara' valutata dall'oncologo in base a criteri clinici, molecolari e regolatori complessivi.)\n\n`;
         }
 
@@ -1185,22 +1222,24 @@ function generateReport() {
         let rClass = '', rLabel = '', rSub = '';
         if (indication.method === 'Non richiesto') {
             rLabel = '&#x1F7E3; Indicazione PD-L1 agnostica';
-            rSub = 'Il risultato non influenza l\'eleggibilita\' per questa indicazione';
+            rSub = 'Il dato non influenza l\'eleggibilita\' per questa indicazione';
         } else {
             let isAboveCutoff = false;
             if (isICOnly) isAboveCutoff = scoreIC !== null && scoreIC >= indication.cutoffIC;
             else if (indication.tcic) isAboveCutoff = (scoreTC!==null&&scoreTC>=indication.cutoffTC)||(scoreIC!==null&&scoreIC>=indication.cutoffIC);
             else if (score !== null) isAboveCutoff = score >= cutoffUsed;
-            
+
+            // Nota: framing volutamente NEUTRO (niente spunta/croce né verde/rosso a semaforo).
+            // Questo è un confronto numerico, non un giudizio di eleggibilità: quello spetta all'oncologo.
             if (isAboveCutoff) {
-                rLabel = '&#x2705; Risultato superiore alla soglia numerica selezionata';
+                rLabel = '&#x25B2; Valore &ge; soglia numerica selezionata';
             } else {
                 rClass = 'negative';
-                rLabel = '&#x274C; Risultato inferiore alla soglia numerica selezionata';
+                rLabel = '&#x25BC; Valore &lt; soglia numerica selezionata';
             }
             rSub = scoreDisplay;
         }
-        document.getElementById('result').innerHTML = `<div class="result ${rClass}"><h3>${rLabel}</h3><p style="margin:8px 0 0 0;font-size:14px;color:#4a5568;">${rSub}</p></div>`;
+        document.getElementById('result').innerHTML = `<div class="result ${rClass}"><h3>${rLabel}</h3><p style="margin:8px 0 0 0;font-size:14px;color:#4a5568;">${rSub}</p><p class="result-disclaimer">Confronto numerico, non un giudizio di eleggibilità: l'interpretazione clinica spetta all'oncologo curante.</p></div>`;
 
         // ================================
         // RENDERING REFERTO
@@ -1258,15 +1297,45 @@ function resetAll() {
     if (d) d.innerHTML = '<option value="">-- Seleziona prima il tumore --</option>';
     if (l) l.innerHTML = '<option value="">-- Seleziona prima il farmaco --</option>';
     hideDownstream();
-    const ids = ['use-custom-cutoff','custom-cutoff-value','custom-cutoff-input','custom-cutoff-section'];
-    const [cb, val, inp, sec] = ids.map(id => document.getElementById(id));
+    const ids = ['use-custom-cutoff','custom-cutoff-value','custom-cutoff-requester','custom-cutoff-rationale','custom-cutoff-input','custom-cutoff-section'];
+    const [cb, val, req, rat, inp, sec] = ids.map(id => document.getElementById(id));
     if (cb)  cb.checked = false;
     if (val) val.value = '';
+    if (req) req.value = '';
+    if (rat) rat.value = '';
     if (inp) inp.style.display = 'none';
     if (sec) sec.style.display = 'none';
 }
 
-document.addEventListener('DOMContentLoaded', populateTumors);
+// ============================
+// STALENESS CHECK — avvisa se il database non è stato ricontrollato di recente
+// ============================
+const LAST_VERIFIED_DATE = new Date('2026-08-27');
+
+function monthsElapsed(from, to) {
+    return (to.getFullYear() - from.getFullYear()) * 12 + (to.getMonth() - from.getMonth());
+}
+
+function checkStaleness() {
+    const el = document.getElementById('staleness-banner');
+    if (!el) return;
+    const months = monthsElapsed(LAST_VERIFIED_DATE, new Date());
+
+    if (months >= 6) {
+        el.innerHTML = `<div style="background:#fee2e2;border:2px solid #dc2626;border-radius:6px;padding:10px 14px;color:#7f1d1d;">
+            &#x1F534; <strong>Sono passati ${months} mesi dall'ultima verifica puntuale (27/08/2026).</strong>
+            A questo punto è probabile che parte del database sia superata: NON usare questo tool come unica fonte.
+            Verificare ogni indicazione su EPAR EMA/AIFA/NCCN-ESMO prima di refertare.</div>`;
+    } else if (months >= 3) {
+        el.innerHTML = `<div style="background:#fef3c7;border:2px solid #f59e0b;border-radius:6px;padding:10px 14px;color:#78350f;">
+            &#x1F7E1; <strong>Sono passati ${months} mesi dall'ultima verifica puntuale (27/08/2026).</strong>
+            Possibile che qualche indicazione/label sia cambiata nel frattempo: verificare le fonti ufficiali prima di refertare casi borderline.</div>`;
+    } else {
+        el.innerHTML = `<div style="font-size:12px;color:#92400e;">Ultima verifica puntuale: 27/08/2026 (${months} mesi fa).</div>`;
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => { populateTumors(); checkStaleness(); });
 </script>
 </body>
 </html>
