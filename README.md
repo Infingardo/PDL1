@@ -1,7 +1,8 @@
-# PD-L1 AP Tool v3.4.7
+# PD-L1 AP Tool v3.6.0
 
 [![Status](https://img.shields.io/badge/Uso-Supporto_operativo_interno-blue)](#disclaimer)
-[![Updated](https://img.shields.io/badge/Aggiornato-Dicembre_2025-green)](#changelog)
+[![Updated](https://img.shields.io/badge/Aggiornato-Settembre_2026-green)](CHANGELOG.md)
+[![Test](https://img.shields.io/badge/npm_test-746_asserzioni-brightgreen)](tests/run.mjs)
 [![HTML5](https://img.shields.io/badge/HTML-5-orange)](https://developer.mozilla.org/en-US/docs/Web/HTML)
 [![Dipendenze](https://img.shields.io/badge/Dipendenze_esterne-nessuna-brightgreen)](#specifiche-tecniche)
 
@@ -71,7 +72,9 @@ const labConfig = {
 
 ---
 
-## Database clinico v3.3
+> Le note di versione dalla 3.5.0 in poi stanno in [`CHANGELOG.md`](CHANGELOG.md). La sezione changelog piu' in basso in questo file si ferma alla 3.3.
+
+## Database clinico v3.6.0
 
 ### Tumori e farmaci coperti (16 tumori, 50+ indicazioni)
 
@@ -278,3 +281,12 @@ MIT — uso interno, nessuna garanzia clinica.
 ---
 
 *ASST Fatebenefratelli-Sacco — Anatomia Patologica. Ultimo aggiornamento: Dicembre 2025.*
+
+
+## Test
+
+```
+npm test
+```
+
+Il database clinico e la logica pura stanno in `engine.js` (nessun DOM). La suite percorre il database riga per riga: metodi di score che l'interfaccia sa disegnare, cutoff coerenti col metodo, cloni riconosciuti, id del contesto clinico unici, una sola data di verifica.

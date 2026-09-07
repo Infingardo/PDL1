@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PD-L1 AP Tool v3.5.0</title>
+    <title>PD-L1 AP Tool v3.6.0</title>
     <style>
         * { box-sizing: border-box; }
         body { font-family: 'Segoe UI', sans-serif; max-width: 900px; margin: 0 auto; padding: 20px; background: #f7fafc; }
@@ -65,7 +65,7 @@
 </head>
 <body>
 <div class="container">
-    <h1>&#x1F52C; PD-L1 AP Tool <span class="version-tag">v3.5.0 &mdash; Ago 2026</span></h1>
+    <h1>&#x1F52C; PD-L1 AP Tool <span class="version-tag">v3.6.0 &mdash; Set 2026</span></h1>
     <div class="subtitle">Tool semplificato per Anatomia Patologica &mdash; ASST Fatebenefratelli-Sacco</div>
 
     <div class="general-disclaimer">
@@ -79,6 +79,11 @@
         <br>&#x1F4CC; <em>Aprile 2026</em> — verifica generale dell'intero database su EPAR EMA/FDA/NCCN-ESMO.
         <br>&#x1F4CC; <em>05/07/2026</em> — aggiunte indicazioni ovaio (pembrolizumab, KEYNOTE-B96/ENGOT-ov65, CPS&ge;1) e microcitoma polmonare/SCLC (atezolizumab + lurbinectedina, IMforte), verificate puntualmente su approvazioni EC di Feb/Mar 2026.
         <br>&#x1F4CC; <em>27/08/2026</em> — aggiunte indicazioni perioperatorie/adiuvanti mancanti (alto volume in AP): NSCLC adiuvante atezolizumab (IMpower010, TC&ge;50% SP263 — attenzione, clone diverso da SP142), NSCLC perioperatorio pembrolizumab (KEYNOTE-671, agnostico), NSCLC neoadiuvante nivolumab (CheckMate-816, TC&ge;1%), HNSCC neoadiuvante/adiuvante pembrolizumab (KEYNOTE-689, CPS&ge;1); verificate su EPAR EMA aggiornati alla stessa data.
+        <br>&#x1F4CC; <em>07/09/2026</em> — revisione delle indicazioni PD-L1-dipendenti su SmPC EMA di Keytruda, Opdivo, Tecentriq, Imfinzi, Libtayo, Tevimbra e Cejemly.
+        <strong>Rimosse due voci che non sono indicazioni EMA:</strong> esofago squamoso pembrolizumab seconda linea CPS&ge;10 (KEYNOTE-181, ritirata anche da FDA nel 2023) e cervice pembrolizumab seconda linea CPS&ge;1 (KEYNOTE-158, indicazione FDA).
+        <strong>Aggiunte indicazioni con soglia che mancavano:</strong> NSCLC pembrolizumab monoterapia dopo chemioterapia (TPS&ge;1%, KEYNOTE-010), NSCLC nivolumab perioperatorio (TC&ge;1%, CheckMate-77T), NSCLC sugemalimab stadio III (TC&ge;1%, GEMSTONE-301), NSCLC tislelizumab non squamoso (TC&ge;50%, combinazione con soglia alta), gastrico ed esofago squamoso tislelizumab (TAP&ge;5%).
+        <strong>Nuovo metodo di score: TAP</strong> (tumour area positivity) — stima di area, non conteggio cellulare: non convertibile da CPS.
+        Aggiunte inoltre le indicazioni agnostiche mancanti (atezolizumab IPSOS, durvalumab AEGEAN/POSEIDON/CASPIAN/ADRIATIC, sugemalimab, tislelizumab, cemiplimab adiuvante e cervice, durvalumab HCC) e il carcinoma rinofaringeo.
         <br>Tutte le altre voci non elencate nei patch <strong>risalgono alla verifica di Aprile 2026 e non sono state ricontrollate da allora</strong>.
         <div id="staleness-banner" style="margin-top:12px;"></div>
     </div>
@@ -142,6 +147,7 @@
     </div>
 </div>
 
+<script src="engine.js?v=3.6.0"></script>
 <script>
 // ============================
 // APP STATE
@@ -154,588 +160,13 @@ const appState = {
     refertoSections:    { a: '', b: '', c: '' }
 };
 
-const labConfig = {
-    inHouseClones: ['SP142', 'SP263'],
-    serviceClones: ['22C3', '28-8', '73-10'],
-    labName: 'ASST Fatebenefratelli-Sacco'
-};
-
-const cloneInterchangeability = {
-    '22C3': { alternative: 'SP263', concordance: '>90%', tumors: ['nsclc','hnscc','uc','gastric','tnbc','cervical','escc'], note: 'SP263 nativo TPS; se preferisci IC usa SP142' },
-    '28-8': { alternative: 'SP263', concordance: '>90%', tumors: ['nsclc','hnscc','uc','melanoma'] }
-};
-
-// ============================
-// DATABASE v3.5.0 — verifica puntuale più recente 27/08/2026 (vedi log versioni nel disclaimer)
-// TNBC pembrolizumab: chiarito SP263 (TPS) vs SP142 (IC) come alternative a 22C3
-// Fonte: EPAR EMA (preferenziale), FDA, NCCN/ESMO (supportivi)
-// ============================
-const clinicalDatabase = {
-    nsclc: {
-        name: 'NSCLC (Non-Small Cell Lung Cancer)',
-        drugs: {
-            pembrolizumab: {
-                name: 'Pembrolizumab', clone: '22C3 (Dako)',
-                indications: {
-                    'first-mono': {
-                        name: 'Prima linea monoterapia', method: 'TPS', cutoff: 50,
-                        notes: 'TPS >=50%, popolazione senza alterazioni EGFR/ALK/ROS1 (KEYNOTE-024)',
-                        trial: 'KEYNOTE-024',
-                        clinicalContext: [
-                            { id: 'nsclc_drivers', label: 'Negativita\' EGFR, ALK e ROS1 confermata (IHC/FISH/NGS)', required: true },
-                            { id: 'nsclc_hist_mono', label: 'Istotipo non squamoso o squamoso (entrambi ammissibili)', required: false }
-                        ]
-                    },
-                    'first-combo-chemo': {
-                        name: 'Prima linea + chemio (non squamoso)', method: 'Non richiesto', cutoff: 0,
-                        optionalScoreMethod: 'TPS',
-                        notes: 'Pembrolizumab + pemetrexed + platino per NSCLC non squamoso avanzato. PD-L1 non è criterio di eleggibilità per questa combinazione (EPAR EMA Keytruda). Valutazione clinica su base di performance status, funzione renale, istologia.',
-                        trial: 'KEYNOTE-189',
-                        guidelineNote: 'PD-L1 può essere richiesto solo a fini prognostici/documentali, non per eleggibilità terapeutica. Se riportato, usare TPS.'
-                    },
-                    'first-combo-chemo-sq': {
-                        name: 'Prima linea + chemio (squamoso)', method: 'Non richiesto', cutoff: 0,
-                        optionalScoreMethod: 'TPS',
-                        notes: 'Pembrolizumab + gemcitabina/cisplatino o pembrolizumab + paclitaxel/carboplatin per NSCLC squamoso avanzato. PD-L1 non è criterio di eleggibilità (EPAR EMA Keytruda KEYNOTE-407).',
-                        trial: 'KEYNOTE-407'
-                    },
-                    'perioperative': {
-                        name: 'Perioperatorio (neoadiuvante + adiuvante)',
-                        method: 'Non richiesto', cutoff: 0,
-                        optionalScoreMethod: 'TPS',
-                        notes: 'Pembrolizumab + chemioterapia a base di platino come neoadiuvante (4 cicli), poi pembrolizumab monoterapia come adiuvante, NSCLC resecabile ad alto rischio di recidiva. PD-L1 non è criterio di eleggibilità secondo EPAR EMA Keytruda (KEYNOTE-671).',
-                        trial: 'KEYNOTE-671',
-                        guidelineNote: 'PD-L1 può essere richiesto a fini descrittivi/prognostici (il beneficio è comunque osservato indipendentemente dall\'espressione). Se eseguito, usare TPS.'
-                    }
-                }
-            },
-            nivolumab: {
-                name: 'Nivolumab', clone: '28-8 (Dako)',
-                indications: {
-                    'second': { name: 'Seconda linea', method: 'Non richiesto', cutoff: 0, notes: 'Post-platino; PD-L1 agnostico', trial: 'CheckMate-057' },
-                    'first-combo-ipi': {
-                        name: 'Prima linea + ipilimumab + chemio', method: 'Non richiesto', cutoff: 0,
-                        notes: 'Nivolumab + ipilimumab + 2 cicli di chemioterapia in prima linea NSCLC metastatico senza mutazioni EGFR/ALK. PD-L1 non è criterio di eleggibilità secondo EPAR EMA Opdivo. (CheckMate-227 attuali dati + approvazione EMA)',
-                        trial: 'CheckMate-227',
-                        guidelineNote: 'Nota: la combinazione "nivo + ipi senza chemio" con TPS ≥1% rimane rilevante in ambito trial/guideline, ma la label EMA attuale richiede chemioterapia e non menziona PD-L1 come criterio di eleggibilità.'
-                    },
-                    'neoadjuvant': {
-                        name: 'Neoadiuvante + chemio (pre-chirurgia)',
-                        method: 'TPS', cutoff: 1,
-                        notes: 'Nivolumab + chemioterapia a base di platino come neoadiuvante (3 cicli), NSCLC resecabile ad alto rischio di recidiva, PD-L1 TC >=1%, secondo EPAR EMA Opdivo (CheckMate-816).',
-                        trial: 'CheckMate-816',
-                        clinicalContext: [
-                            { id: 'nsclc_egfr_alk_nivo_neoadj', label: 'Assenza di mutazioni EGFR o riarrangiamenti ALK documentata (popolazione esclusa dallo studio registrativo)', required: true }
-                        ]
-                    }
-                }
-            },
-            atezolizumab: {
-                name: 'Atezolizumab', clone: 'SP142 (Ventana)',
-                indications: {
-                    'first-combo': { 
-                        name: 'Prima linea + chemio + bevacizumab', 
-                        method: 'Non richiesto', cutoff: 0, 
-                        optionalScoreMethod: null,
-                        notes: 'Istotipo non squamoso; PD-L1 non richiesto per la combinazione (IMpower150)', 
-                        trial: 'IMpower150',
-                        guidelineNote: 'Se PD-L1 viene richiesto a fini descrittivi, specificare metodo e clone validato: SP142 (TC/IC), 22C3 (TPS), 28-8 (TPS) con razionale locale.'
-                    },
-                    'first-mono-high': { 
-                        name: 'Prima linea monoterapia (alta espressione PD-L1)', 
-                        method: 'TC/IC', 
-                        cutoffTC: 50, 
-                        cutoffIC: 10, 
-                        optionalScoreMethod: 'TPS',
-                        notes: 'Atezolizumab monoterapia in NSCLC metastatico con PD-L1 TC >=50% oppure IC >=10%, senza mutazioni EGFR/ALK (IMpower110)', 
-                        trial: 'IMpower110',
-                        tcic: true,
-                        clinicalContext: [
-                            { id: 'nsclc_egfr_alk_atezo', label: 'Assenza di mutazioni EGFR o riarrangiamenti ALK documentata', required: true }
-                        ]
-                    },
-                    'second-postchemo': {
-                        name: 'Seconda linea/post-chemioterapia',
-                        method: 'Non richiesto', cutoff: 0,
-                        optionalScoreMethod: 'TPS',
-                        notes: 'Atezolizumab dopo precedente chemioterapia; PD-L1 non è criterio di eleggibilità secondo EPAR EMA Tecentriq (OAK)',
-                        trial: 'OAK',
-                        guidelineNote: 'PD-L1 può essere valutato a fini descrittivi/prognostici, ma non come requisito di eleggibilità.'
-                    },
-                    'adjuvant': {
-                        name: 'Adiuvante post-resezione + chemio (stadio II-IIIA)',
-                        method: 'TPS', cutoff: 50,
-                        indicationClone: 'SP263 (Ventana)',
-                        notes: 'Atezolizumab monoterapia come adiuvante dopo resezione completa e chemioterapia a base di platino, NSCLC stadio II-IIIA ad alto rischio di recidiva, PD-L1 TC >=50%, EGFR e ALK wild-type, secondo EPAR EMA Tecentriq (IMpower010).',
-                        trial: 'IMpower010',
-                        guidelineNote: 'ATTENZIONE clone: assay validato per questa indicazione è VENTANA PD-L1 (SP263), diverso da SP142 usato nelle altre indicazioni NSCLC di atezolizumab. Nota anche la divergenza regolatoria: cutoff EMA TC>=50%, mentre il cutoff FDA per la stessa indicazione è TC>=1% sull\'intera popolazione stadio II-IIIA - non intercambiabili, verificare quale autorità è di riferimento.',
-                        clinicalContext: [
-                            { id: 'nsclc_egfr_alk_atezo_adj', label: 'Assenza di mutazioni EGFR o riarrangiamenti ALK documentata', required: true },
-                            { id: 'nsclc_resection_atezo_adj', label: 'Resezione completa (R0) e chemioterapia adiuvante a base di platino completate', required: true }
-                        ]
-                    }
-                }
-            },
-            durvalumab: {
-                name: 'Durvalumab', clone: 'SP263 (Ventana)',
-                indications: {
-                    'consolidation': {
-                        name: 'Consolidamento post-RT (PACIFIC)', method: 'TPS', cutoff: 1,
-                        notes: 'Stadio III non resecabile; post radio-chemio concomitante', trial: 'PACIFIC',
-                        guidelineNote: 'ESMO suggerisce di considerare durvalumab indipendentemente da PD-L1 (beneficio osservato anche in TPS<1% nelle analisi post-hoc)'
-                    }
-                }
-            },
-            cemiplimab: {
-                name: 'Cemiplimab',
-                clone: 'Test PD-L1 validato (assay specifico, non clone SP-defined)',
-                indications: {
-                    'first-mono': {
-                        name: 'Prima linea monoterapia',
-                        method: 'TPS',
-                        cutoff: 50,
-                        notes: 'Cemiplimab monoterapia in NSCLC localmente avanzato/metastatico con PD-L1 >=50% su cellule tumorali, senza EGFR, ALK o ROS1 secondo EPAR EMA Libtayo (EMPOWER-Lung 1).',
-                        trial: 'EMPOWER-Lung 1',
-                        clinicalContext: [
-                            { id: 'nsclc_drivers_cemi_mono', label: 'Assenza di EGFR, ALK e ROS1 documentata', required: true }
-                        ]
-                    },
-                    'first-combo-chemo': {
-                        name: 'Prima linea + chemioterapia a base di platino',
-                        method: 'TPS',
-                        cutoff: 1,
-                        notes: 'Cemiplimab + chemioterapia a base di platino in NSCLC localmente avanzato/metastatico con PD-L1 >=1% su cellule tumorali, senza EGFR, ALK o ROS1 secondo EPAR EMA Libtayo (EMPOWER-Lung 3).',
-                        trial: 'EMPOWER-Lung 3',
-                        clinicalContext: [
-                            { id: 'nsclc_drivers_cemi_combo', label: 'Assenza di EGFR, ALK e ROS1 documentata', required: true }
-                        ]
-                    }
-                }
-            }
-        }
-    },
-    melanoma: {
-        name: 'Melanoma',
-        drugs: {
-            pembrolizumab: {
-                name: 'Pembrolizumab', clone: 'SP263 (Ventana)',
-                indications: { 'any': { name: 'Qualsiasi linea', method: 'Non richiesto', cutoff: 0, notes: 'PD-L1 agnostico; SP263 usabile se richiesto per valutazione prognostica', trial: 'KEYNOTE-006' } }
-            },
-            nivolumab: {
-                name: 'Nivolumab', clone: 'SP263 (Ventana)',
-                indications: {
-                    'any': { name: 'Qualsiasi linea', method: 'Non richiesto', cutoff: 0, notes: 'PD-L1 agnostico; SP263 usabile per valutazione prognostica', trial: 'CheckMate-066/067' },
-                    'adjuvant': { name: 'Adiuvante (stadio III/IV resecato)', method: 'Non richiesto', cutoff: 0, notes: 'PD-L1 agnostico', trial: 'CheckMate-238' }
-                }
-            }
-        }
-    },
-    hnscc: {
-        name: 'HNSCC (Head and Neck Squamous Cell)',
-        drugs: {
-            pembrolizumab: {
-                name: 'Pembrolizumab', clone: '22C3 (Dako)',
-                indications: {
-                    'first-mono': { name: 'Prima linea monoterapia', method: 'CPS', cutoff: 1, notes: 'Prima linea R/M HNSCC secondo EPAR EMA: CPS >=1. (KEYNOTE-048)', trial: 'KEYNOTE-048', guidelineNote: 'CPS >=20 rappresenta un sottogruppo clinicamente rilevante ma non è il cutoff regolatorio EMA.' },
-                    'first-combo': { name: 'Prima linea + chemio', method: 'CPS', cutoff: 1, notes: 'CPS >=1 in combinazione con platino/5-FU, R/M (KEYNOTE-048)', trial: 'KEYNOTE-048' },
-                    'second': { name: 'Seconda linea (R/M post-platino)', method: 'TPS', cutoff: 50, notes: 'Pembrolizumab monoterapia nel R/M HNSCC dopo fallimento di terapia contenente platino: PD-L1 TPS >=50% secondo EPAR EMA Keytruda. (KEYNOTE-040)', trial: 'KEYNOTE-040' },
-                    'neoadjuvant-adjuvant': {
-                        name: 'Neoadiuvante + adiuvante (resecabile localmente avanzato)',
-                        method: 'CPS', cutoff: 1,
-                        notes: 'Pembrolizumab monoterapia come neoadiuvante, poi adiuvante in combinazione con radioterapia +/- cisplatino concomitante e infine monoterapia, HNSCC resecabile localmente avanzato (LA-HNSCC), PD-L1 CPS >=1, secondo EPAR EMA Keytruda.',
-                        trial: 'KEYNOTE-689'
-                    }
-                }
-            },
-            nivolumab: {
-                name: 'Nivolumab', clone: '28-8 (Dako)',
-                indications: { 
-                    'second': { 
-                        name: 'Seconda linea (R/M post-platino)', 
-                        method: 'Non richiesto', cutoff: 0, 
-                        notes: 'Carcinoma squamoso ricorrente/metastatico in progressione durante o dopo chemioterapia a base di platino. PD-L1 non è criterio di eleggibilità (EPAR EMA Opdivo CheckMate-141).', 
-                        trial: 'CheckMate-141',
-                        guidelineNote: 'PD-L1 può essere valutato a fini prognostici. Se eseguito, usare TPS.'
-                    } 
-                }
-            }
-        }
-    },
-    uc: {
-        name: 'Carcinoma uroteliale',
-        drugs: {
-            pembrolizumab: {
-                name: 'Pembrolizumab', clone: '22C3 (Dako)',
-                indications: {
-                    'first-cisplatin-unfit': {
-                        name: 'Prima linea (cisplatino-unfit)', method: 'CPS', cutoff: 10,
-                        notes: 'CPS >=10; pazienti non eleggibili a cisplatino (EPAR EMA Keytruda KEYNOTE-052)', trial: 'KEYNOTE-052',
-                        clinicalContext: [ { id: 'uc_cisplatin_unfit', label: 'Ineleggibilita\' a cisplatino documentata (ECOG >=2, ClCr <60 mL/min, neuropatia >=G2, ipoacusia >=G2 o insufficienza cardiaca NYHA >=III)', required: true } ]
-                    },
-                    'second': {
-                        name: 'Seconda linea (post-platino)', method: 'Non richiesto', cutoff: 0,
-                        notes: 'Carcinoma uroteliale metastatico o localmente avanzato in progressione durante o dopo chemioterapia a base di platino. PD-L1 non è criterio di eleggibilità (EPAR EMA Keytruda KEYNOTE-045).',
-                        trial: 'KEYNOTE-045',
-                        guidelineNote: 'La determinazione di PD-L1 (CPS) può essere eseguita a fini prognostici/descrittivi'
-                    }
-                }
-            },
-            nivolumab: {
-                name: 'Nivolumab', clone: '28-8 (Dako)',
-                indications: { 
-                    'second': { 
-                        name: 'Seconda linea (post-platino)', 
-                        method: 'Non richiesto', cutoff: 0, 
-                        notes: 'Nivolumab monoterapia nel carcinoma uroteliale localmente avanzato/metastatico dopo fallimento di platino; PD-L1 non è criterio di eleggibilità secondo EPAR EMA Opdivo. (CheckMate-275)', 
-                        trial: 'CheckMate-275'
-                    },
-                    'adjuvant-miuc': {
-                        name: 'Adiuvante MIUC post-cistectomia',
-                        method: 'TPS',
-                        cutoff: 1,
-                        notes: 'Carcinoma uroteliale muscolo-invasivo ad alto rischio dopo resezione radicale (cistectomia): Tumore cell PD-L1 >=1% secondo EPAR EMA Opdivo. (CheckMate-274)',
-                        trial: 'CheckMate-274'
-                    }
-                }
-            },
-            atezolizumab: {
-                name: 'Atezolizumab', clone: 'SP142 (Ventana)',
-                indications: {
-                    'first-cisplatin-unfit': {
-                        name: 'Prima linea (cisplatino-unfit)',
-                        method: 'IC',
-                        cutoffIC: 5,
-                        notes: 'Atezolizumab monoterapia nei pazienti ineleggibili per cisplatino con PD-L1 >=5% (IC2/3) secondo EPAR EMA Tecentriq. (IMvigor210)',
-                        trial: 'IMvigor210',
-                        clinicalContext: [
-                            { id: 'uc_cisplatin_unfit_atezo', label: 'Ineleggibilita\' a cisplatino documentata (ECOG >=2, ClCr <60 mL/min, neuropatia >=G2, ipoacusia >=G2 o insufficienza cardiaca NYHA >=III)', required: true }
-                        ]
-                    },
-                    'second-postplat': {
-                        name: 'Seconda linea (post-platino)',
-                        method: 'Non richiesto',
-                        cutoff: 0,
-                        optionalScoreMethod: 'IC',
-                        notes: 'Atezolizumab monoterapia nel carcinoma uroteliale dopo precedente chemioterapia contenente platino; PD-L1 non è criterio di eleggibilità secondo EPAR EMA Tecentriq. (IMvigor211)',
-                        trial: 'IMvigor211'
-                    }
-                }
-            },
-            avelumab: {
-                name: 'Avelumab', clone: 'SP263 (Ventana)',
-                indications: { 'maintenance': { name: 'Mantenimento post-chemio', method: 'Non richiesto', cutoff: 0, notes: 'PD-L1 agnostico; dopo risposta a platino', trial: 'JAVELIN Bladder 100' } }
-            },
-            durvalumab: {
-                name: 'Durvalumab', clone: 'SP263 (Ventana)',
-                indications: { 'neoadjuvant': { name: 'Neoadiuvante MIBC', method: 'Non richiesto', cutoff: 0, notes: '+ gemcitabina/cisplatino prima di cistectomia radicale; PD-L1 agnostico', trial: 'NIAGARA', regulatoryNote: 'FDA Apr 2025' } }
-            }
-        }
-    },
-    gastric: {
-        name: 'Carcinoma gastrico/GEJ',
-        drugs: {
-            pembrolizumab: {
-                name: 'Pembrolizumab', clone: '22C3 (Dako)',
-                indications: {
-                    'first-combo': {
-                        name: 'Prima linea + chemio (HER2-neg)', method: 'CPS', cutoff: 1,
-                        notes: 'CPS >=1 (EPAR EMA Keytruda KEYNOTE-859)', trial: 'KEYNOTE-859',
-                        clinicalContext: [ { id: 'gastric_her2_neg', label: 'HER2-negativita\' confermata (IHC 0/1+, oppure IHC 2+/ISH negativo)', required: true } ]
-                    },
-                    'first-her2': {
-                        name: 'Prima linea + trastuzumab + chemio (HER2+)', method: 'CPS', cutoff: 1,
-                        notes: 'CPS >=1; HER2-positivo (IHC 3+ o IHC 2+/FISH+) (FDA 2025, EPAR EMA Keytruda KEYNOTE-811)',
-                        trial: 'KEYNOTE-811',
-                        regulatoryNote: 'FDA approvazione tradizionale Marzo 2025; EMA in aggiornamento',
-                        clinicalContext: [ { id: 'gastric_her2_pos', label: 'HER2-positivita\' confermata (IHC 3+, oppure IHC 2+/ISH positivo)', required: true } ]
-                    },
-                    'second': {
-                        name: 'Seconda linea', method: 'CPS', cutoff: 1,
-                        notes: 'CPS >=1', trial: 'KEYNOTE-061',
-                        clinicalContext: [ { id: 'gastric_2nd_ctx', label: 'HER2-negativita\' confermata o progressione dopo anti-HER2', required: false } ]
-                    }
-                }
-            },
-            nivolumab: {
-                name: 'Nivolumab', clone: '28-8 (Dako)',
-                indications: {
-                    'first-combo': {
-                        name: 'Prima linea + chemio', method: 'CPS', cutoff: 5, notes: 'CPS >=5', trial: 'CheckMate-649',
-                        clinicalContext: [ { id: 'gastric_her2_neg_nivo', label: 'HER2-negativita\' confermata', required: true } ]
-                    },
-                    'third': { name: 'Terza linea', method: 'Non richiesto', cutoff: 0, notes: 'PD-L1 agnostico; dopo 2 linee', trial: 'ATTRACTION-2', guidelineNote: 'Dati prevalentemente da popolazione asiatica; generalizzabilita\' limitata' }
-                }
-            },
-            durvalumab: {
-                name: 'Durvalumab', clone: 'SP263 (Ventana)',
-                indications: {
-                    'perioperative': {
-                        name: 'Perioperatorio + FLOT (resecabile)', method: 'Non richiesto', cutoff: 0,
-                        notes: 'PD-L1 agnostico; malattia resecabile', trial: 'MATTERHORN',
-                        guidelineNote: 'NCCN Cat.1 (2025). Nessun beneficio documentato nell\'istotipo diffuso di Lauren (analisi esplorativa)'
-                    }
-                }
-            }
-        }
-    },
-    escc: {
-        name: 'Carcinoma esofageo squamoso',
-        drugs: {
-            pembrolizumab: {
-                name: 'Pembrolizumab', clone: '22C3 (Dako)',
-                indications: {
-                    'first-combo': { name: 'Prima linea + chemio', method: 'CPS', cutoff: 10, notes: 'CPS >=10', trial: 'KEYNOTE-590' },
-                    'second': { name: 'Seconda linea', method: 'CPS', cutoff: 10, notes: 'CPS >=10', trial: 'KEYNOTE-181' }
-                }
-            },
-            nivolumab: {
-                name: 'Nivolumab', clone: '28-8 (Dako)',
-                indications: {
-                    'first-combo': { 
-                        name: 'Prima linea + chemio + ipilimumab', 
-                        method: 'TPS', cutoff: 1, 
-                        notes: 'Tumore cell (TC) PD-L1 >=1% (EPAR EMA Opdivo CheckMate-648)', 
-                        trial: 'CheckMate-648' 
-                    },
-                    'second': { 
-                        name: 'Seconda linea (post-chemio)', 
-                        method: 'Non richiesto', cutoff: 0, 
-                        notes: 'Carcinoma esofageo squamoso in progressione dopo fluoropirimidina/platino. PD-L1 non è criterio di eleggibilità; beneficio osservato indipendentemente dall\'espressione tumorale di PD-L1 (EPAR EMA Opdivo, FDA ATTRACTION-3).', 
-                        trial: 'ATTRACTION-3',
-                        guidelineNote: 'PD-L1 può essere valutato a fini prognostici.'
-                    }
-                }
-            }
-        }
-    },
-    tnbc: {
-        name: 'TNBC (Triplo Negativo Mammella)',
-        drugs: {
-            pembrolizumab: {
-                name: 'Pembrolizumab', clone: '22C3 (Dako)',
-                indications: {
-                    'first-combo': { 
-                        name: 'Prima linea + chemio', 
-                        method: 'CPS', 
-                        cutoff: 10, 
-                        notes: 'CPS >=10; malattia localmente avanzata o metastatica', 
-                        trial: 'KEYNOTE-355',
-                        guidelineNote: 'Standard EMA: CPS con 22C3. Nel tuo lab, se non hai 22C3, hai due alternative Ventana: SP263 (TPS, ~90% concordanza vs CPS) oppure SP142 (IC, metodo nativo). Scegli quale usare di routine in base a quello che l\'oncologo preferisce (TPS vs IC).'
-                    },
-                    'neoadjuvant': { name: 'Neoadiuvante + chemio', method: 'Non richiesto', cutoff: 0, notes: 'PD-L1 agnostico; alto rischio', trial: 'KEYNOTE-522' }
-                }
-            },
-            atezolizumab: {
-                name: 'Atezolizumab', clone: 'SP142 (Ventana)',
-                indications: {
-                    'first-combo': {
-                        name: 'Prima linea + nab-paclitaxel',
-                        method: 'IC',
-                        cutoffIC: 1,
-                        notes: 'IC >=1%; valutato solo IC',
-                        trial: 'IMpassion130',
-                        regulatoryNote: 'FDA withdrawn Aug 2021 (IMpassion131 OS negativo). Indicazione ancora attiva EMA/AIFA.'
-                    }
-                }
-            }
-        }
-    },
-    rcc: {
-        name: 'Carcinoma renale (RCC)',
-        drugs: {
-            pembrolizumab: {
-                name: 'Pembrolizumab', clone: 'Non richiesto',
-                indications: {
-                    'first-combo-axi': { name: 'Prima linea + axitinib', method: 'Non richiesto', cutoff: 0, notes: 'PD-L1 agnostico; a cellule chiare', trial: 'KEYNOTE-426' },
-                    'first-combo-len': { name: 'Prima linea + lenvatinib', method: 'Non richiesto', cutoff: 0, notes: 'PD-L1 agnostico; a cellule chiare', trial: 'KEYNOTE-581/CLEAR' }
-                }
-            },
-            nivolumab: {
-                name: 'Nivolumab', clone: 'Non richiesto',
-                indications: {
-                    'first-combo-ipi': { name: 'Prima linea + ipilimumab', method: 'Non richiesto', cutoff: 0, notes: 'PD-L1 agnostico; rischio intermedio/alto', trial: 'CheckMate-214' },
-                    'second': { name: 'Seconda linea', method: 'Non richiesto', cutoff: 0, notes: 'PD-L1 agnostico; post-TKI', trial: 'CheckMate-025' },
-                    'first-combo-cabo': { name: 'Prima linea + cabozantinib', method: 'Non richiesto', cutoff: 0, notes: 'PD-L1 agnostico', trial: 'CheckMate-9ER' }
-                }
-            }
-        }
-    },
-    cervical: {
-        name: 'Carcinoma cervicale',
-        drugs: {
-            pembrolizumab: {
-                name: 'Pembrolizumab', clone: '22C3 (Dako)',
-                indications: {
-                    'first-combo': { name: 'Prima linea + chemio +/- beva', method: 'CPS', cutoff: 1, notes: 'CPS >=1; persistente/ricorrente/metastatico', trial: 'KEYNOTE-826' },
-                    'second': { name: 'Seconda linea', method: 'CPS', cutoff: 1, notes: 'CPS >=1; post-chemio', trial: 'KEYNOTE-158' }
-                }
-            }
-        }
-    },
-    endometrium: {
-        name: 'Carcinoma endometriale',
-        drugs: {
-            pembrolizumab: {
-                name: 'Pembrolizumab', clone: 'Non richiesto',
-                indications: {
-                    'first-combo': { name: 'Prima linea + chemio', method: 'Non richiesto', cutoff: 0, notes: 'PD-L1 agnostico', trial: 'NRG-GY018' },
-                    'advanced-dmmr': {
-                        name: 'Avanzato + lenvatinib (dMMR/MSI-H)', method: 'Non richiesto', cutoff: 0,
-                        notes: 'PD-L1 non richiesto; eleggibilita\' condizionata a dMMR/MSI-H',
-                        trial: 'KEYNOTE-775',
-                        clinicalContext: [ { id: 'endo_dmmr_pembro', label: 'dMMR/MSI-H confermato da test molecolare validato (IHC MMR +/- PCR/NGS)', required: true } ]
-                    }
-                }
-            },
-            dostarlimab: {
-                name: 'Dostarlimab', clone: 'Non richiesto',
-                indications: {
-                    'advanced-dmmr': {
-                        name: 'Avanzato (dMMR/MSI-H obbligatorio)', method: 'Non richiesto', cutoff: 0,
-                        notes: 'PD-L1 non richiesto; eleggibilita\' condizionata a dMMR/MSI-H', trial: 'GARNET',
-                        clinicalContext: [ { id: 'endo_dmmr_dosta', label: 'dMMR/MSI-H confermato da test molecolare validato (IHC MMR +/- PCR/NGS)', required: true } ]
-                    },
-                    'first-combo': { name: 'Prima linea + chemio', method: 'Non richiesto', cutoff: 0, notes: 'PD-L1 agnostico', trial: 'RUBY' }
-                }
-            }
-        }
-    },
-    hcc: {
-        name: 'Epatocarcinoma (HCC)',
-        drugs: {
-            atezolizumab: { name: 'Atezolizumab', clone: 'Non richiesto', indications: { 'first-combo-bev': { name: 'Prima linea + bevacizumab', method: 'Non richiesto', cutoff: 0, notes: 'PD-L1 agnostico', trial: 'IMbrave150' } } },
-            nivolumab: { name: 'Nivolumab', clone: 'Non richiesto', indications: { 'first-combo-ipi': { name: 'Prima linea + ipilimumab', method: 'Non richiesto', cutoff: 0, notes: 'PD-L1 agnostico secondo EPAR EMA Opdivo', trial: 'CheckMate-040 subset + nuove approvazioni EMA' } } },
-            pembrolizumab: { name: 'Pembrolizumab', clone: 'Non richiesto', indications: { 'msih-dmmr-special': { name: 'SOLO se MSI-H/dMMR (non indicazione HCC ordinaria)', method: 'Non richiesto', cutoff: 0, notes: 'PD-L1 non necessario. ATTENZIONE: Non usare come eleggibilità HCC standard. Verificare che il tumore sia MSI-H/dMMR e rientri in indicazioni tumour-agnostic secondo EPAR EMA.', trial: 'MSI-H/dMMR tumour-agnostic (fuori HCC ordinaria)', guidelineNote: 'Voce speciale: richiedere conferma oncologo MSI-H/dMMR, non è indicazione HCC standard.' } } }
-        }
-    },
-    mesothelioma: {
-        name: 'Mesotelioma pleurico',
-        drugs: {
-            nivolumab: { name: 'Nivolumab', clone: 'Non richiesto', indications: { 'first-combo-ipi': { name: 'Prima linea + ipilimumab', method: 'Non richiesto', cutoff: 0, notes: 'PD-L1 agnostico secondo EPAR EMA Opdivo', trial: 'CheckMate-743' } } },
-            pembrolizumab: { name: 'Pembrolizumab', clone: 'Non richiesto', indications: { 'first-combo-chemo': { name: 'Prima linea + pemetrexed + platino', method: 'Non richiesto', cutoff: 0, notes: 'Mesotelioma pleurico maligno non epitelioide; PD-L1 agnostico secondo EPAR EMA Keytruda', trial: 'IND.227/KEYNOTE-483' } } }
-        }
-    },
-    cscc: {
-        name: 'Carcinoma cutaneo squamoso (cSCC)',
-        drugs: {
-            cemiplimab: { name: 'Cemiplimab', clone: 'Non richiesto', indications: { 'advanced': { name: 'Localmente avanzato/metastatico', method: 'Non richiesto', cutoff: 0, notes: 'PD-L1 agnostico', trial: 'EMPOWER-CSCC-1' } } },
-            pembrolizumab: { name: 'Pembrolizumab', clone: 'Non richiesto', indications: { 'recurrent': { name: 'Ricorrente/metastatico', method: 'Non richiesto', cutoff: 0, notes: 'PD-L1 agnostico', trial: 'KEYNOTE-629' } } }
-        }
-    },
-    bcc: {
-        name: 'Carcinoma basocellulare (BCC)',
-        drugs: {
-            cemiplimab: { name: 'Cemiplimab', clone: 'Non richiesto', indications: { 'advanced': { name: 'Avanzato post-hedgehog', method: 'Non richiesto', cutoff: 0, notes: 'PD-L1 agnostico; dopo inibitori hedgehog', trial: 'Phase 2 study' } } }
-        }
-    },
-    btc: {
-        name: 'Colangiocarcinoma/vie biliari (BTC)',
-        drugs: {
-            pembrolizumab: { 
-                name: 'Pembrolizumab', clone: '22C3 (Dako)', 
-                indications: { 
-                    'first-combo': { 
-                        name: 'Prima linea + gemcitabina/cisplatino', 
-                        method: 'Non richiesto', cutoff: 0,
-                        optionalScoreMethod: 'CPS',
-                        notes: 'Carcinoma delle vie biliari localmente avanzato/metastatico. PD-L1 non è criterio di eleggibilità (EPAR EMA Keytruda KEYNOTE-966).', 
-                        trial: 'KEYNOTE-966',
-                        guidelineNote: 'PD-L1 può essere valutato a fini prognostici/descrittivi. Se eseguito, usare CPS.'
-                    } 
-                } 
-            },
-            durvalumab: { name: 'Durvalumab', clone: 'SP263 (Ventana)', indications: { 'first-combo': { name: 'Prima linea + gemcitabina/cisplatino', method: 'Non richiesto', cutoff: 0, notes: 'PD-L1 agnostico', trial: 'TOPAZ-1' } } }
-        }
-    },
-    crc: {
-        name: 'Carcinoma colon-retto (CRC)',
-        drugs: {
-            pembrolizumab: {
-                name: 'Pembrolizumab', clone: 'Non richiesto',
-                indications: {
-                    'dmmr-msi': {
-                        name: 'MSI-H/dMMR (qualsiasi linea)', method: 'Non richiesto', cutoff: 0,
-                        notes: 'PD-L1 non necessario; eleggibilita\' condizionata a MSI-H/dMMR', trial: 'KEYNOTE-177',
-                        clinicalContext: [ { id: 'crc_dmmr_pembro', label: 'MSI-H/dMMR confermato (IHC MMR +/- PCR per MSI)', required: true } ]
-                    }
-                }
-            },
-            nivolumab: {
-                name: 'Nivolumab', clone: 'Non richiesto',
-                indications: {
-                    'dmmr-msi': {
-                        name: 'MSI-H/dMMR + ipilimumab', method: 'Non richiesto', cutoff: 0,
-                        notes: 'PD-L1 non necessario; eleggibilita\' condizionata a MSI-H/dMMR', trial: 'CheckMate-142',
-                        clinicalContext: [ { id: 'crc_dmmr_nivo', label: 'MSI-H/dMMR confermato (IHC MMR +/- PCR per MSI)', required: true } ]
-                    }
-                }
-            }
-        }
-    },
-    sclc: {
-        name: 'Microcitoma polmonare (SCLC)',
-        drugs: {
-            atezolizumab: {
-                name: 'Atezolizumab', clone: 'SP142 (Ventana)',
-                indications: {
-                    'maintenance': {
-                        name: 'Mantenimento prima linea + lurbinectedina',
-                        method: 'Non richiesto', cutoff: 0,
-                        notes: 'Mantenimento dopo induzione con atezolizumab + carboplatino + etoposide senza progressione, in ES-SCLC. PD-L1 agnostico: IMforte non prevede stratificazione né selezione per PD-L1 (EC approval Mar/2026, parere CHMP 27/03/2026).',
-                        trial: 'IMforte'
-                    }
-                }
-            }
-        }
-    },
-    ovarian: {
-        name: 'Carcinoma ovarico/tube di Falloppio/peritoneale primitivo',
-        drugs: {
-            pembrolizumab: {
-                name: 'Pembrolizumab', clone: '22C3 (Dako)',
-                indications: {
-                    'platinum-resistant': {
-                        name: 'Platino-resistente + paclitaxel ± bevacizumab',
-                        method: 'CPS', cutoff: 1,
-                        notes: 'Carcinoma epiteliale ovarico/tube di Falloppio/peritoneale primitivo platino-resistente, dopo 1-2 linee precedenti; CPS >=1. Approvazione EC su parere CHMP di febbraio 2026.',
-                        trial: 'KEYNOTE-B96/ENGOT-ov65'
-                    }
-                }
-            }
-        }
-    }
-};
+// I dati clinici e la logica pura stanno in engine.js — vedi commento in testa a quel file.
+// Qui restano lo stato dell'applicazione, il DOM e la generazione del referto.
 
 // ============================
 // HELPERS
 // ============================
-function getCloneName(s) {
-    for (const c of ['22C3','28-8','73-10','SP142','SP263']) if (s && s.includes(c)) return c;
-    return null;
-}
-function getCloneAvailability(s) {
-    if (!s || s === 'Non richiesto') return 'none';
-    if (s.includes('Test PD-L1 validato')) return 'validated_generic';
-    if (labConfig.inHouseClones.some(c => s.includes(c))) return 'inhouse';
-    if (labConfig.serviceClones.some(c => s.includes(c))) return 'service';
-    return 'unknown';
-}
-
-function getOptionalScoreMethod(indication) {
-    if (Object.prototype.hasOwnProperty.call(indication, 'optionalScoreMethod')) {
-        return indication.optionalScoreMethod; // può essere 'TPS', 'CPS', 'IC', oppure null
-    }
-    return null; // default prudente: niente score opzionale automatico
-}
-
-function checkInterchangeability(cloneStr, tumor) {
-    const name = getCloneName(cloneStr);
-    if (!name || !cloneInterchangeability[name]) return null;
-    const info = cloneInterchangeability[name];
-    if (!info.alternative || !info.tumors.includes(tumor)) return null;
-    if (!labConfig.inHouseClones.includes(info.alternative)) return null;
-    return { originalClone: name, alternativeClone: info.alternative, concordance: info.concordance };
-}
+// (getCloneName, getCloneAvailability, getOptionalScoreMethod, checkInterchangeability: engine.js)
 function escapeHtml(t) {
     if (!t) return '';
     const m = {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'};
@@ -750,8 +181,12 @@ function escapeHtml(t) {
 // un valore come "34.7%" comunica una precisione analitica che il metodo non garantisce.
 function validateScoreField(inputEl) {
     if (!inputEl || inputEl.value === '') return true;
+    // v3.6.0: il massimo non e' sempre 100. Il CPS e' un rapporto fra conteggi
+    // moltiplicato per 100 e puo' superare 100 — il tool lo scriveva nella formula
+    // e poi rifiutava il valore. TPS/TC/IC/TAP restano percentuali 0-100.
+    const max = Number(inputEl.dataset && inputEl.dataset.max) || 100;
     const val = parseFloat(inputEl.value);
-    const ok = !isNaN(val) && val >= 0 && val <= 100 && Number.isInteger(val);
+    const ok = !isNaN(val) && val >= 0 && val <= max && Number.isInteger(val);
     inputEl.classList.toggle('input-error', !ok);
     return ok;
 }
@@ -997,12 +432,23 @@ function createScoreInputs(indication, clone) {
         html = `<label>TPS (Tumor Proportion Score) - PERCENTUALE:</label>
             <input type="number" id="score" placeholder="0-100" min="0" max="100" step="1">
             <p style="font-size:12px;color:#718096;margin-top:5px;">TPS = (TC PD-L1+) / (Totale TC) x 100</p>`;
+    } else if (indication.method === 'TAP') {
+        html = `<label>TAP (Tumour Area Positivity) - PERCENTUALE:</label>
+            <input type="number" id="score" placeholder="0-100" min="0" max="100" step="1" data-max="100">
+            <div class="cps-formula"><strong>TAP — stima di AREA, non conteggio di cellule</strong><br>
+            TAP = percentuale dell'<strong>area tumorale</strong> occupata da cellule tumorali <em>e</em> immunitarie PD-L1 positive, sul totale dell'area tumorale valutabile.<br><br>
+            <strong>Differenza dal CPS:</strong> il CPS si ottiene contando le cellule (numeratore: TC + IC positive; denominatore: TC vitali) ed è un numero puro; il TAP si ottiene per stima visiva di area ed è una percentuale.
+            <strong>Un CPS non si converte in un TAP</strong>: la concordanza riportata è buona (ICC ~0,81; concordanza 82% alla soglia del 5%) ma non è un'equivalenza, e in prossimità del cutoff le due misure divergono.</div>
+            <p style="font-size:12px;color:#92400e;margin-top:8px;background:#fef3c7;border:1px solid #f59e0b;border-radius:5px;padding:8px;">
+            <strong>&#x26A0; Assay:</strong> la SmPC Tevimbra non nomina un clone e richiede genericamente «un IVD marcato CE con la destinazione d'uso corrispondente».
+            Il TAP score è stato sviluppato e validato negli studi RATIONALE con l'assay <strong>VENTANA PD-L1 (SP263)</strong>, disponibile in-house.
+            Verificare che la validazione interna copra esplicitamente il TAP score e questa indicazione: la lettura in area non è la stessa procedura del TPS.</p>`;
     } else if (indication.method === 'CPS') {
         html = `<label>CPS (Combined Positive Score) - NUMERO:</label>
-            <input type="number" id="score" placeholder="0-100" min="0" max="100" step="1">
+            <input type="number" id="score" placeholder="es. 1, 10, 45" min="0" step="1" data-max="400">
             <div class="cps-formula"><strong>FORMULA CPS:</strong><br>
             CPS = <strong>(N TC PD-L1+ + N IC PD-L1+) / N totale TC x 100</strong><br><br>
-            <strong>Requisiti:</strong> almeno 100 TC vitali valutate; CPS e' un numero (non %), puo' superare 100; <strong>valore max da inserire: 100</strong></div>
+            <strong>Requisiti:</strong> almeno 100 TC vitali valutate. Il CPS e' un numero, non una percentuale, e <strong>puo' superare 100</strong>: per convenzione si riporta come "&gt;100" oltre quel valore, ma il campo accetta il valore reale.</div>
             <p style="font-size:12px;color:#718096;margin-top:8px;"><strong>Nota:</strong> il valore numerico verra' reportato senza alcuna interpretazione di eleggibilita'. L'interpretazione clinica spetta all'oncologo.</p>`;
     }
     cont.innerHTML = html;
@@ -1038,7 +484,7 @@ function generateReport() {
         
         // FIX #3: Validazione rigorosa 0-100
         if (!validateAllScoreInputs()) {
-            alert('❌ Errore: i valori dello score devono essere numeri interi compresi tra 0 e 100 (CPS/TPS/TC/IC sono rapporti fra conteggi, non ammettono decimali)');
+            alert('❌ Errore: i valori dello score devono essere numeri interi (TPS/TC/IC/TAP sono percentuali 0-100; il CPS e\' un numero che puo\' superare 100). Nessuno dei due ammette decimali: sono rapporti fra conteggi o stime di area.');
             return;
         }
 
@@ -1102,7 +548,8 @@ function generateReport() {
             if (!el || el.value === '') { alert('Inserisci lo score'); return; }
             score = parseFloat(el.value);
             if (indication.method === 'TPS') { if(isNaN(score)||score<0||score>100){alert('TPS deve essere 0-100%');return;} scoreDisplay = `TPS: ${score}%`; }
-            else { if(isNaN(score)||score<0||score>100){alert('CPS deve essere 0-100');return;} scoreDisplay = `CPS: ${score}`; }
+            else if (indication.method === 'TAP') { if(isNaN(score)||score<0||score>100){alert('TAP deve essere 0-100%');return;} scoreDisplay = `TAP: ${score}%`; }
+            else { if(isNaN(score)||score<0){alert('CPS deve essere un numero intero >= 0');return;} scoreDisplay = `CPS: ${score}`; }
         }
 
         // ================================
@@ -1128,7 +575,7 @@ function generateReport() {
             sA += useAlternative && interchange
                 ? `Clone di riferimento (trial): ${interchange.originalClone}\nClone utilizzato: ${cloneUsed}\n`
                 : `Clone: ${cloneUsed}\n`;
-            sA += `Metodo: ${indication.method === 'IC' ? 'IC (Immune Cell score)' : indication.method}\n`;
+            sA += `Metodo: ${METHOD_LABELS[indication.method] || indication.method}\n`;
             sA += `Risultato: ${scoreDisplay}\n`;
         }
 
@@ -1136,8 +583,8 @@ function generateReport() {
         sA += `L'interpretazione terapeutica e l'eleggibilita' competono esclusivamente all'oncologo curante\n`;
         sA += `nel contesto clinico, regolatorio e multidisciplinare vigente.\n\n`;
         sA += `${labConfig.labName} - Anatomia Patologica\n`;
-        sA += `PD-L1 AP Tool v3.5.0 - Supporto operativo interno; non sostituisce il giudizio clinico-patologico professionale.\n`;
-        sA += `Database clinico: verifica generale Aprile 2026, ultimo aggiornamento puntuale 27/08/2026 (vedi log versioni). Verificare sempre EPAR EMA / AIFA / NCCN-ESMO aggiornate.`;
+        sA += `PD-L1 AP Tool v3.6.0 - Supporto operativo interno; non sostituisce il giudizio clinico-patologico professionale.\n`;
+        sA += `Database clinico: verifica generale Aprile 2026, ultimo aggiornamento puntuale ${LAST_VERIFIED_IT} (vedi log versioni). Verificare sempre EPAR EMA / AIFA / NCCN-ESMO aggiornate.`;
 
         // ================================
         // SEZIONE B — Nota tecnica clone
@@ -1310,7 +757,7 @@ function resetAll() {
 // ============================
 // STALENESS CHECK — avvisa se il database non è stato ricontrollato di recente
 // ============================
-const LAST_VERIFIED_DATE = new Date('2026-08-27');
+const LAST_VERIFIED_DATE = new Date(LAST_VERIFIED_ISO);   // v3.6.0: un'unica fonte, in engine.js
 
 function monthsElapsed(from, to) {
     return (to.getFullYear() - from.getFullYear()) * 12 + (to.getMonth() - from.getMonth());
@@ -1323,15 +770,15 @@ function checkStaleness() {
 
     if (months >= 6) {
         el.innerHTML = `<div style="background:#fee2e2;border:2px solid #dc2626;border-radius:6px;padding:10px 14px;color:#7f1d1d;">
-            &#x1F534; <strong>Sono passati ${months} mesi dall'ultima verifica puntuale (27/08/2026).</strong>
+            &#x1F534; <strong>Sono passati ${months} mesi dall'ultima verifica puntuale (${LAST_VERIFIED_IT}).</strong>
             A questo punto è probabile che parte del database sia superata: NON usare questo tool come unica fonte.
             Verificare ogni indicazione su EPAR EMA/AIFA/NCCN-ESMO prima di refertare.</div>`;
     } else if (months >= 3) {
         el.innerHTML = `<div style="background:#fef3c7;border:2px solid #f59e0b;border-radius:6px;padding:10px 14px;color:#78350f;">
-            &#x1F7E1; <strong>Sono passati ${months} mesi dall'ultima verifica puntuale (27/08/2026).</strong>
+            &#x1F7E1; <strong>Sono passati ${months} mesi dall'ultima verifica puntuale (${LAST_VERIFIED_IT}).</strong>
             Possibile che qualche indicazione/label sia cambiata nel frattempo: verificare le fonti ufficiali prima di refertare casi borderline.</div>`;
     } else {
-        el.innerHTML = `<div style="font-size:12px;color:#92400e;">Ultima verifica puntuale: 27/08/2026 (${months} mesi fa).</div>`;
+        el.innerHTML = `<div style="font-size:12px;color:#92400e;">Ultima verifica puntuale: ${LAST_VERIFIED_IT} (${months} mesi fa).</div>`;
     }
 }
 

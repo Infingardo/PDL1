@@ -1,0 +1,12 @@
+{
+  "name": "pdl1-ap-tool",
+  "version": "3.6.0",
+  "private": true,
+  "description": "Supporto operativo alla refertazione PD-L1 in Anatomia Patologica",
+  "scripts": {
+    "test": "node tests/run.mjs"
+  },
+  "dependencies": {
+    "jsdom": "^30.0.1"
+  }
+}
