@@ -311,13 +311,16 @@ const clinicalDatabase = {
         drugs: {
             pembrolizumab: {
                 name: 'Pembrolizumab', clone: 'SP263 (Ventana)',
-                indications: { 'any': { name: 'Qualsiasi linea', method: 'Non richiesto', cutoff: 0, notes: 'PD-L1 agnostico; SP263 usabile se richiesto per valutazione prognostica', trial: 'KEYNOTE-006' } }
+                indications: {
+                    'advanced': { name: 'Avanzato (non resecabile/metastatico)', method: 'Non richiesto', cutoff: 0, notes: 'Pembrolizumab monoterapia nel melanoma avanzato non resecabile o metastatico. PD-L1 non è criterio di eleggibilità (SmPC EMA Keytruda); SP263 utilizzabile se richiesto a fini prognostici.', trial: 'KEYNOTE-006' },
+                    'adjuvant': { name: 'Adiuvante (stadio IIB, IIC o III resecato)', method: 'Non richiesto', cutoff: 0, notes: 'Pembrolizumab monoterapia come adiuvante in adulti e adolescenti dai 12 anni con melanoma di stadio IIB, IIC o III sottoposto a resezione completa (SmPC EMA Keytruda, KEYNOTE-716/KEYNOTE-054). PD-L1 non è criterio di eleggibilità.', trial: 'KEYNOTE-716 / KEYNOTE-054' }
+                }
             },
             nivolumab: {
                 name: 'Nivolumab', clone: 'SP263 (Ventana)',
                 indications: {
                     'any': { name: 'Qualsiasi linea', method: 'Non richiesto', cutoff: 0, notes: 'PD-L1 agnostico; SP263 usabile per valutazione prognostica', trial: 'CheckMate-066/067' },
-                    'adjuvant': { name: 'Adiuvante (stadio III/IV resecato)', method: 'Non richiesto', cutoff: 0, notes: 'PD-L1 agnostico', trial: 'CheckMate-238' }
+                    'adjuvant': { name: 'Adiuvante (stadio IIB/IIC, o linfonodi/metastasi resecati)', method: 'Non richiesto', cutoff: 0, notes: 'Nivolumab monoterapia come adiuvante in adulti e adolescenti dai 12 anni con melanoma di stadio IIB o IIC, oppure con interessamento linfonodale o malattia metastatica sottoposta a resezione completa (SmPC EMA Opdivo). PD-L1 non è criterio di eleggibilità.', trial: 'CheckMate-238 / CheckMate-76K' }
                 }
             }
         }
@@ -369,6 +372,22 @@ const clinicalDatabase = {
                         notes: 'Carcinoma uroteliale metastatico o localmente avanzato in progressione durante o dopo chemioterapia a base di platino. PD-L1 non è criterio di eleggibilità (EPAR EMA Keytruda KEYNOTE-045).',
                         trial: 'KEYNOTE-045',
                         guidelineNote: 'La determinazione di PD-L1 (CPS) può essere eseguita a fini prognostici/descrittivi'
+                    },
+                    'first-combo-ev': {
+                        name: 'Prima linea + enfortumab vedotin (non resecabile/metastatico)',
+                        method: 'Non richiesto', cutoff: 0,
+                        optionalScoreMethod: 'CPS',
+                        notes: 'Pembrolizumab + enfortumab vedotin in prima linea nel carcinoma uroteliale non resecabile o metastatico. PD-L1 non è criterio di eleggibilità (SmPC EMA Keytruda, KEYNOTE-A39/EV-302).',
+                        trial: 'KEYNOTE-A39 / EV-302',
+                        guidelineNote: 'E\' oggi lo schema di prima linea di riferimento e non richiede PD-L1: prima di avviare un CPS in un uroteliale, verificare quale schema sia previsto. Il CPS >=10 serve solo per la monoterapia nei non eleggibili a cisplatino.'
+                    },
+                    'perioperative-ev': {
+                        name: 'Perioperatorio MIBC + enfortumab vedotin (cisplatino-ineleggibili)',
+                        method: 'Non richiesto', cutoff: 0,
+                        optionalScoreMethod: 'CPS',
+                        notes: 'Pembrolizumab + enfortumab vedotin come neoadiuvante e poi proseguito dopo cistectomia radicale come adiuvante, nel carcinoma uroteliale muscolo-invasivo in pazienti non eleggibili a cisplatino (SmPC EMA Keytruda). PD-L1 non è criterio di eleggibilità.',
+                        trial: 'KEYNOTE-905 / EV-303',
+                        clinicalContext: [ { id: 'uc_cisplatin_unfit_ev', label: 'Ineleggibilita\' a cisplatino documentata', required: true } ]
                     }
                 }
             },
@@ -380,6 +399,13 @@ const clinicalDatabase = {
                         method: 'Non richiesto', cutoff: 0, 
                         notes: 'Nivolumab monoterapia nel carcinoma uroteliale localmente avanzato/metastatico dopo fallimento di platino; PD-L1 non è criterio di eleggibilità secondo EPAR EMA Opdivo. (CheckMate-275)', 
                         trial: 'CheckMate-275'
+                    },
+                    'first-combo-cisgem': {
+                        name: 'Prima linea + cisplatino/gemcitabina',
+                        method: 'Non richiesto', cutoff: 0,
+                        optionalScoreMethod: 'TPS',
+                        notes: 'Nivolumab + cisplatino e gemcitabina in prima linea nel carcinoma uroteliale non resecabile o metastatico. PD-L1 non è criterio di eleggibilità (SmPC EMA Opdivo, CheckMate-901).',
+                        trial: 'CheckMate-901'
                     },
                     'adjuvant-miuc': {
                         name: 'Adiuvante MIUC post-cistectomia',
@@ -446,12 +472,6 @@ const clinicalDatabase = {
                         regulatoryNote: 'Indicazione presente nella SmPC EMA Keytruda (verifica 07/09/2026): "in combinazione con trastuzumab, fluoropirimidina e chemioterapia contenente platino... i cui tumori esprimono PD-L1 con CPS >= 1". FDA: approvazione tradizionale Marzo 2025.',
                         clinicalContext: [ { id: 'gastric_her2_pos', label: 'HER2-positivita\' confermata (IHC 3+, oppure IHC 2+/ISH positivo)', required: true } ]
                     },
-                    'second': {
-                        name: 'Seconda linea', method: 'CPS', cutoff: 1,
-                        notes: 'Pembrolizumab monoterapia nell\'adenocarcinoma gastrico/GEJ avanzato dopo precedente chemioterapia; CPS >=1. Voce risalente alla verifica generale di Aprile 2026: ricontrollare la SmPC prima di refertare, la seconda linea gastrica e\' stata rivista piu\' volte.',
-                        trial: 'KEYNOTE-061',
-                        clinicalContext: [ { id: 'gastric_2nd_ctx', label: 'HER2-negativita\' confermata o progressione dopo anti-HER2', required: false } ]
-                    }
                 }
             },
             nivolumab: {
@@ -462,8 +482,7 @@ const clinicalDatabase = {
                         notes: 'Nivolumab + chemioterapia a base di fluoropirimidina e platino in prima linea nell\'adenocarcinoma gastrico, della giunzione gastro-esofagea o dell\'esofago, HER2-negativo, con CPS >=5 (EPAR EMA Opdivo, CheckMate-649).',
                         trial: 'CheckMate-649',
                         clinicalContext: [ { id: 'gastric_her2_neg_nivo', label: 'HER2-negativita\' confermata', required: true } ]
-                    },
-                    'third': { name: 'Terza linea', method: 'Non richiesto', cutoff: 0, notes: 'PD-L1 agnostico; dopo 2 linee', trial: 'ATTRACTION-2', guidelineNote: 'Dati prevalentemente da popolazione asiatica; generalizzabilita\' limitata' }
+                    }
                 }
             },
             tislelizumab: {
@@ -584,7 +603,8 @@ const clinicalDatabase = {
                 name: 'Pembrolizumab', clone: 'Non richiesto',
                 indications: {
                     'first-combo-axi': { name: 'Prima linea + axitinib', method: 'Non richiesto', cutoff: 0, notes: 'PD-L1 agnostico; a cellule chiare', trial: 'KEYNOTE-426' },
-                    'first-combo-len': { name: 'Prima linea + lenvatinib', method: 'Non richiesto', cutoff: 0, notes: 'PD-L1 agnostico; a cellule chiare', trial: 'KEYNOTE-581/CLEAR' }
+                    'first-combo-len': { name: 'Prima linea + lenvatinib', method: 'Non richiesto', cutoff: 0, notes: 'PD-L1 agnostico; a cellule chiare', trial: 'KEYNOTE-581/CLEAR' },
+                    'adjuvant': { name: 'Adiuvante post-nefrectomia (rischio aumentato)', method: 'Non richiesto', cutoff: 0, notes: 'Pembrolizumab monoterapia come adiuvante nel carcinoma renale ad aumentato rischio di recidiva dopo nefrectomia, o dopo nefrectomia e resezione delle lesioni metastatiche (SmPC EMA Keytruda, KEYNOTE-564). PD-L1 non è criterio di eleggibilità.', trial: 'KEYNOTE-564' }
                 }
             },
             nivolumab: {
@@ -593,6 +613,12 @@ const clinicalDatabase = {
                     'first-combo-ipi': { name: 'Prima linea + ipilimumab', method: 'Non richiesto', cutoff: 0, notes: 'PD-L1 agnostico; rischio intermedio/alto', trial: 'CheckMate-214' },
                     'second': { name: 'Seconda linea', method: 'Non richiesto', cutoff: 0, notes: 'PD-L1 agnostico; post-TKI', trial: 'CheckMate-025' },
                     'first-combo-cabo': { name: 'Prima linea + cabozantinib', method: 'Non richiesto', cutoff: 0, notes: 'PD-L1 agnostico', trial: 'CheckMate-9ER' }
+                }
+            },
+            avelumab: {
+                name: 'Avelumab', clone: 'Non richiesto',
+                indications: {
+                    'first-combo-axi': { name: 'Prima linea + axitinib', method: 'Non richiesto', cutoff: 0, notes: 'Avelumab + axitinib in prima linea nel carcinoma renale avanzato. PD-L1 non è criterio di eleggibilità (SmPC EMA Bavencio, JAVELIN Renal 101).', trial: 'JAVELIN Renal 101' }
                 }
             }
         }
@@ -633,11 +659,17 @@ const clinicalDatabase = {
                 name: 'Pembrolizumab', clone: 'Non richiesto',
                 indications: {
                     'first-combo': { name: 'Prima linea + chemio', method: 'Non richiesto', cutoff: 0, notes: 'PD-L1 agnostico', trial: 'NRG-GY018' },
-                    'advanced-dmmr': {
-                        name: 'Avanzato + lenvatinib (dMMR/MSI-H)', method: 'Non richiesto', cutoff: 0,
-                        notes: 'PD-L1 non richiesto; eleggibilita\' condizionata a dMMR/MSI-H',
+                    'advanced-lenvatinib': {
+                        name: 'Avanzato/ricorrente + lenvatinib (dopo platino)', method: 'Non richiesto', cutoff: 0,
+                        notes: 'Pembrolizumab + lenvatinib nel carcinoma endometriale avanzato o ricorrente in progressione durante o dopo un precedente trattamento contenente platino, in pazienti non candidati a chirurgia o radioterapia curativa (SmPC EMA Keytruda, KEYNOTE-775). PD-L1 non è criterio di eleggibilità.',
                         trial: 'KEYNOTE-775',
-                        clinicalContext: [ { id: 'endo_dmmr_pembro', label: 'dMMR/MSI-H confermato da test molecolare validato (IHC MMR +/- PCR/NGS)', required: true } ]
+                        guidelineNote: 'v3.6.0 — CORREZIONE: questa voce esigeva dMMR/MSI-H come requisito bloccante. La SmPC non lo prevede: l\'indicazione vale indipendentemente dallo stato MMR, ed è anzi la strada per i casi MMR-proficienti. Il gate impediva di produrre il referto proprio per la popolazione a cui l\'indicazione si rivolge.'
+                    },
+                    'advanced-dmmr-mono': {
+                        name: 'Monoterapia MSI-H/dMMR (dopo platino)', method: 'Non richiesto', cutoff: 0,
+                        notes: 'Pembrolizumab monoterapia nel carcinoma endometriale avanzato o ricorrente MSI-H o dMMR in progressione dopo un precedente trattamento contenente platino, in pazienti non candidati a chirurgia o radioterapia curativa (SmPC EMA Keytruda). PD-L1 non è criterio di eleggibilità; lo è lo stato MMR.',
+                        trial: 'KEYNOTE-158 (coorte MSI-H)',
+                        clinicalContext: [ { id: 'endo_dmmr_pembro_mono', label: 'MSI-H/dMMR confermato da test validato (IHC MMR e/o PCR/NGS)', required: true } ]
                     }
                 }
             },
@@ -662,7 +694,13 @@ const clinicalDatabase = {
             durvalumab: { name: 'Durvalumab', clone: 'Non richiesto', indications: {
                 'first-combo-treme': { name: 'Prima linea + tremelimumab (STRIDE)', method: 'Non richiesto', cutoff: 0, notes: 'Durvalumab + dose singola di tremelimumab in prima linea nell\'HCC avanzato/non resecabile. PD-L1 non è criterio di eleggibilità (EPAR EMA Imfinzi, HIMALAYA).', trial: 'HIMALAYA' }
             } },
-            pembrolizumab: { name: 'Pembrolizumab', clone: 'Non richiesto', indications: { 'msih-dmmr-special': { name: 'SOLO se MSI-H/dMMR (non indicazione HCC ordinaria)', method: 'Non richiesto', cutoff: 0, notes: 'PD-L1 non necessario. ATTENZIONE: Non usare come eleggibilità HCC standard. Verificare che il tumore sia MSI-H/dMMR e rientri in indicazioni tumour-agnostic secondo EPAR EMA.', trial: 'MSI-H/dMMR tumour-agnostic (fuori HCC ordinaria)', guidelineNote: 'Voce speciale: richiedere conferma oncologo MSI-H/dMMR, non è indicazione HCC standard.' } } }
+            pembrolizumab: { name: 'Pembrolizumab', clone: 'Non richiesto', indications: { 'msih-dmmr-fuori-lista': {
+                name: 'MSI-H/dMMR — l\'HCC NON è nella lista EMA', method: 'Non richiesto', cutoff: 0,
+                notes: 'PD-L1 non è richiesto, ma non è questo il punto: l\'indicazione MSI-H/dMMR di pembrolizumab in EMA è una LISTA CHIUSA — colon-retto, endometrio, stomaco, piccolo intestino, vie biliari — e non è tumour-agnostic come in FDA. L\'epatocarcinoma non ne fa parte. Se arriva una richiesta di PD-L1 su un HCC motivata dallo stato MSI-H, la premessa regolatoria va verificata con l\'oncologo prima dell\'esame.',
+                trial: 'KEYNOTE-158 / KEYNOTE-164 (coorti MSI-H)',
+                guidelineNote: 'v3.6.0 — CORREZIONE: la voce precedente parlava di "indicazioni tumour-agnostic secondo EPAR EMA". In EMA quella lista è chiusa e non comprende l\'HCC.',
+                clinicalContext: [ { id: 'hcc_msih_fuori_lista', label: 'Preso atto che l\'HCC non rientra nell\'indicazione MSI-H/dMMR EMA di pembrolizumab: la richiesta è stata verificata con l\'oncologo', required: true } ]
+            } } }
         }
     },
     mesothelioma: {
@@ -701,10 +739,16 @@ const clinicalDatabase = {
                         notes: 'Carcinoma delle vie biliari localmente avanzato/metastatico. PD-L1 non è criterio di eleggibilità (EPAR EMA Keytruda KEYNOTE-966).', 
                         trial: 'KEYNOTE-966',
                         guidelineNote: 'PD-L1 può essere valutato a fini prognostici/descrittivi. Se eseguito, usare CPS.'
-                    } 
+                    },
+                    'msih-dmmr': {
+                        name: 'Monoterapia MSI-H/dMMR (dopo terapia precedente)', method: 'Non richiesto', cutoff: 0,
+                        notes: 'Pembrolizumab monoterapia nel carcinoma delle vie biliari non resecabile o metastatico MSI-H o dMMR in progressione dopo una precedente terapia (SmPC EMA Keytruda, lista chiusa MSI-H/dMMR). PD-L1 non è criterio di eleggibilità; lo è lo stato MMR.',
+                        trial: 'KEYNOTE-158 (coorte MSI-H)',
+                        clinicalContext: [ { id: 'btc_dmmr_pembro', label: 'MSI-H/dMMR confermato (IHC MMR e/o PCR/NGS)', required: true } ]
+                    }
                 } 
             },
-            durvalumab: { name: 'Durvalumab', clone: 'SP263 (Ventana)', indications: { 'first-combo': { name: 'Prima linea + gemcitabina/cisplatino', method: 'Non richiesto', cutoff: 0, notes: 'PD-L1 agnostico', trial: 'TOPAZ-1' } } }
+            durvalumab: { name: 'Durvalumab', clone: 'Non richiesto', indications: { 'first-combo': { name: 'Prima linea + gemcitabina/cisplatino', method: 'Non richiesto', cutoff: 0, notes: 'Durvalumab + gemcitabina e cisplatino in prima linea nel carcinoma delle vie biliari localmente avanzato o metastatico. PD-L1 non è criterio di eleggibilità (EPAR EMA Imfinzi, TOPAZ-1).', trial: 'TOPAZ-1' } } }
         }
     },
     crc: {
@@ -713,20 +757,34 @@ const clinicalDatabase = {
             pembrolizumab: {
                 name: 'Pembrolizumab', clone: 'Non richiesto',
                 indications: {
-                    'dmmr-msi': {
-                        name: 'MSI-H/dMMR (qualsiasi linea)', method: 'Non richiesto', cutoff: 0,
-                        notes: 'PD-L1 non necessario; eleggibilita\' condizionata a MSI-H/dMMR', trial: 'KEYNOTE-177',
-                        clinicalContext: [ { id: 'crc_dmmr_pembro', label: 'MSI-H/dMMR confermato (IHC MMR +/- PCR per MSI)', required: true } ]
+                    'first-line-dmmr': {
+                        name: 'Prima linea metastatico (MSI-H/dMMR)', method: 'Non richiesto', cutoff: 0,
+                        notes: 'Pembrolizumab monoterapia in prima linea nel carcinoma del colon-retto metastatico MSI-H o dMMR (SmPC EMA Keytruda, KEYNOTE-177). PD-L1 non è criterio di eleggibilità; lo è lo stato MMR.',
+                        trial: 'KEYNOTE-177',
+                        clinicalContext: [ { id: 'crc_dmmr_pembro_1l', label: 'MSI-H/dMMR confermato (IHC MMR e/o PCR per MSI)', required: true } ]
+                    },
+                    'pretreated-dmmr': {
+                        name: 'Dopo fluoropirimidina (MSI-H/dMMR)', method: 'Non richiesto', cutoff: 0,
+                        notes: 'Pembrolizumab monoterapia nel carcinoma del colon-retto non resecabile o metastatico MSI-H o dMMR dopo precedente terapia di combinazione a base di fluoropirimidina (SmPC EMA Keytruda). PD-L1 non è criterio di eleggibilità.',
+                        trial: 'KEYNOTE-164',
+                        clinicalContext: [ { id: 'crc_dmmr_pembro_2l', label: 'MSI-H/dMMR confermato (IHC MMR e/o PCR per MSI)', required: true } ]
                     }
                 }
             },
             nivolumab: {
                 name: 'Nivolumab', clone: 'Non richiesto',
                 indications: {
-                    'dmmr-msi': {
-                        name: 'MSI-H/dMMR + ipilimumab', method: 'Non richiesto', cutoff: 0,
-                        notes: 'PD-L1 non necessario; eleggibilita\' condizionata a MSI-H/dMMR', trial: 'CheckMate-142',
-                        clinicalContext: [ { id: 'crc_dmmr_nivo', label: 'MSI-H/dMMR confermato (IHC MMR +/- PCR per MSI)', required: true } ]
+                    'first-line-dmmr': {
+                        name: 'Prima linea + ipilimumab (MSI-H/dMMR)', method: 'Non richiesto', cutoff: 0,
+                        notes: 'Nivolumab + ipilimumab in prima linea nel carcinoma del colon-retto non resecabile o metastatico dMMR o MSI-H (SmPC EMA Opdivo, CheckMate-8HW). PD-L1 non è criterio di eleggibilità; lo è lo stato MMR.',
+                        trial: 'CheckMate-8HW',
+                        clinicalContext: [ { id: 'crc_dmmr_nivo_1l', label: 'MSI-H/dMMR confermato (IHC MMR e/o PCR per MSI)', required: true } ]
+                    },
+                    'pretreated-dmmr': {
+                        name: 'Dopo fluoropirimidina + ipilimumab (MSI-H/dMMR)', method: 'Non richiesto', cutoff: 0,
+                        notes: 'Nivolumab + ipilimumab nel carcinoma del colon-retto metastatico dMMR o MSI-H dopo precedente chemioterapia di combinazione a base di fluoropirimidina (SmPC EMA Opdivo). PD-L1 non è criterio di eleggibilità.',
+                        trial: 'CheckMate-142 / CheckMate-8HW',
+                        clinicalContext: [ { id: 'crc_dmmr_nivo_2l', label: 'MSI-H/dMMR confermato (IHC MMR e/o PCR per MSI)', required: true } ]
                     }
                 }
             }
@@ -783,6 +841,23 @@ const clinicalDatabase = {
             }
         }
     },
+    mcc: {
+        name: 'Carcinoma a cellule di Merkel (MCC)',
+        drugs: {
+            avelumab: {
+                name: 'Avelumab', clone: 'Non richiesto',
+                indications: {
+                    'metastatic': {
+                        name: 'Metastatico (monoterapia)', method: 'Non richiesto', cutoff: 0,
+                        notes: 'Avelumab monoterapia nel carcinoma a cellule di Merkel metastatico. PD-L1 non è criterio di eleggibilità (SmPC EMA Bavencio, JAVELIN Merkel 200).',
+                        trial: 'JAVELIN Merkel 200',
+                        guidelineNote: 'La caratterizzazione utile in AP è semmai lo stato di poliomavirus di Merkel (MCPyV, IHC CM2B4) e il CK20 con pattern paranucleare a punto, non il PD-L1.'
+                    }
+                }
+            }
+        }
+    },
+
     npc: {
         name: 'Carcinoma rinofaringeo (NPC)',
         drugs: {

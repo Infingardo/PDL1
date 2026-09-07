@@ -66,11 +66,49 @@ cemiplimab cSCC adiuvante (C-POST) e cervice (EMPOWER-Cervical 1). Nuovo tumore:
 
 ### Infrastruttura
 - Database e logica pura estratti in **`engine.js`** (nessun DOM).
-- **`npm test`** → `tests/run.mjs`, **746 asserzioni**. Il database viene percorso riga per riga: ogni indicazione ha nome,
+- **`npm test`** → `tests/run.mjs`, **838 asserzioni**. Il database viene percorso riga per riga: ogni indicazione ha nome,
   note e studio; ogni metodo è fra quelli che l'interfaccia sa disegnare **e ha un ramo in `createScoreInputs`**;
   ogni metodo con soglia ha il proprio cutoff; nessuna indicazione con score ha clone «Non richiesto» (altrimenti la
   pagina mostra «PD-L1 non richiesto» e non disegna il campo); gli id del contesto clinico sono unici perché diventano id
   del DOM; i tumori citati in `cloneInterchangeability` esistono.
+
+### Seconda passata (stessa giornata): le voci ferme ad aprile 2026
+
+Rimosse perché **non corrispondono ad alcuna indicazione EMA**:
+
+| voce | perché |
+|---|---|
+| gastrico · pembrolizumab · 2ª linea CPS≥1 (KEYNOTE-061) | La SmPC Keytruda **non ha alcuna monoterapia gastrica**. KEYNOTE-061 era negativo; l'accelerata FDA di KEYNOTE-059 è stata ritirata nel 2021. |
+| gastrico · nivolumab · 3ª linea (ATTRACTION-2) | La SmPC Opdivo ha per lo stomaco **solo** la prima linea in combinazione (CPS≥5). ATTRACTION-2 è approvazione asiatica. |
+
+Corretti **due gate che bloccavano il referto sulla popolazione sbagliata**:
+
+1. **Endometrio · pembrolizumab + lenvatinib.** La voce esigeva `dMMR/MSI-H confermato` come requisito **bloccante**.
+   La SmPC non lo prevede: «*advanced or recurrent endometrial carcinoma in adults who have disease progression on or
+   following prior treatment with a platinum-containing therapy*», senza requisito MMR — ed è anzi la strada per i casi
+   **MMR-proficienti**. Il gate impediva di generare il referto proprio per la popolazione a cui l'indicazione si rivolge.
+   Ora sono due voci distinte: la combinazione con lenvatinib (nessun gate) e la monoterapia MSI-H/dMMR (gate corretto).
+2. **HCC · pembrolizumab · MSI-H.** La voce rimandava a «indicazioni tumour-agnostic secondo EPAR EMA». In EMA quella
+   indicazione **non è tumour-agnostic**: è una lista chiusa — colon-retto, endometrio, stomaco, piccolo intestino, vie
+   biliari — e **l'epatocarcinoma non ne fa parte** (in FDA sì, ed è probabilmente da lì che veniva la voce).
+
+Aggiunte:
+
+- **Uroteliale · pembrolizumab + enfortumab vedotin**, prima linea metastatica e perioperatorio MIBC nei cisplatino-ineleggibili.
+  Entrambe agnostiche. Mancava lo schema che oggi è il riferimento in prima linea: senza, il tool non sapeva rispondere
+  «per questo schema il PD-L1 non serve» alla richiesta più frequente che arriva sull'uroteliale. Il CPS≥10 resta, ma solo
+  per la monoterapia nei non eleggibili a cisplatino.
+- Uroteliale · nivolumab 1ª linea + cisplatino/gemcitabina (CheckMate-901); melanoma · pembrolizumab adiuvante IIB/IIC/III;
+  rene · pembrolizumab adiuvante (KEYNOTE-564) e avelumab + axitinib; vie biliari · pembrolizumab MSI-H;
+  colon-retto · le due linee separate per entrambi i farmaci (CheckMate-8HW per nivolumab).
+- Nuovo tumore: **carcinoma a cellule di Merkel** (avelumab, agnostico).
+- Corretti gli stadi dell'adiuvante del melanoma: nivolumab non è «stadio III/IV resecato» ma stadio IIB/IIC o con
+  interessamento linfonodale/metastasi resecate.
+
+Nuovo test strutturale, quello che ha pescato la voce dell'HCC dopo che avevo corretto solo l'endometrio:
+**ogni gate MMR bloccante deve appartenere a un'indicazione davvero MMR-ristretta, e viceversa**.
+
+Totale suite: **838 asserzioni**.
 
 ### Fonti
 SmPC/EPAR EMA di Keytruda, Opdivo, Tecentriq, Imfinzi, Libtayo, Tevimbra, Cejemly, Jemperli (consultate il 07/09/2026);
@@ -79,7 +117,6 @@ per la concordanza TAP/CPS: *Concordance Between the PD-L1 Tumor Area Positivity
 Gastric or Esophageal Cancers Treated With Tislelizumab*, Modern Pathology 2025.
 
 ### Aperto
-Le voci **non toccate da questa revisione né da quelle di luglio e agosto risalgono alla verifica generale di aprile 2026**
-e non sono state ricontrollate: melanoma, RCC, endometrio, mesotelioma, BCC, CRC, HCC (voci preesistenti), UC
-(pembrolizumab e atezolizumab), TNBC, gastrico 2ª e 3ª linea. Il log versioni in pagina lo dichiara. Una verifica completa
-del database richiede una passata dedicata su tutte le SmPC, non un patch.
+Restano ferme alla verifica generale di aprile 2026, e **non sono state ricontrollate**: TNBC (pembrolizumab e
+atezolizumab), uroteliale · atezolizumab, mesotelioma, cSCC, BCC, e le voci preesistenti dell'epatocarcinoma
+(atezolizumab + bevacizumab, nivolumab + ipilimumab). Il log versioni in pagina lo dichiara riga per riga.

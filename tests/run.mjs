@@ -206,6 +206,60 @@ section('le voci che la v3.6.0 ha cambiato');
   eq('esofago squamoso: tislelizumab TAP',   escc.tislelizumab.indications['first-combo'].method, 'TAP');
 }
 
+section('le voci rimaste ferme ad aprile 2026, riviste nella 3.6.0');
+{
+  const trova = (t, d, i) => clinicalDatabase[t]?.drugs?.[d]?.indications?.[i];
+  const farmaco = (t, d) => clinicalDatabase[t]?.drugs?.[d]?.indications || {};
+
+  // Nessuna monoterapia gastrica esiste nella SmPC, ne' di Keytruda ne' di Opdivo.
+  check('gastrico: nessuna monoterapia di pembrolizumab', !trova('gastric','pembrolizumab','second'));
+  check('gastrico: nessuna terza linea di nivolumab', !trova('gastric','nivolumab','third'));
+  check('gastrico: restano solo combinazioni',
+    Object.values(farmaco('gastric','pembrolizumab')).concat(Object.values(farmaco('gastric','nivolumab')))
+      .every(i => /combo|chemio|trastuzumab/i.test(i.name)));
+
+  // Uroteliale: lo schema di prima linea di riferimento non richiede PD-L1.
+  eq('uroteliale: pembrolizumab + enfortumab vedotin 1L è agnostica',
+    trova('uc','pembrolizumab','first-combo-ev')?.method, 'Non richiesto');
+  eq('uroteliale: perioperatorio con enfortumab vedotin è agnostico',
+    trova('uc','pembrolizumab','perioperative-ev')?.method, 'Non richiesto');
+  eq('uroteliale: la monoterapia cisplatino-unfit resta CPS >=10',
+    `${trova('uc','pembrolizumab','first-cisplatin-unfit')?.method} ${trova('uc','pembrolizumab','first-cisplatin-unfit')?.cutoff}`, 'CPS 10');
+  eq('uroteliale: nivolumab 1L + cis/gem è agnostica',
+    trova('uc','nivolumab','first-combo-cisgem')?.method, 'Non richiesto');
+
+  check('melanoma: adiuvante di pembrolizumab presente', !!trova('melanoma','pembrolizumab','adjuvant'));
+  check('rene: adiuvante di pembrolizumab presente', !!trova('rcc','pembrolizumab','adjuvant'));
+  check('rene: avelumab + axitinib presente', !!trova('rcc','avelumab','first-combo-axi'));
+  check('carcinoma a cellule di Merkel presente', !!clinicalDatabase.mcc);
+  check('colon-retto: le due linee sono distinte per entrambi i farmaci',
+    !!trova('crc','pembrolizumab','first-line-dmmr') && !!trova('crc','pembrolizumab','pretreated-dmmr') &&
+    !!trova('crc','nivolumab','first-line-dmmr') && !!trova('crc','nivolumab','pretreated-dmmr'));
+}
+
+section('i gate su MMR corrispondono a quello che la SmPC richiede davvero');
+{
+  // Il difetto trovato nell'endometrio: la combinazione con lenvatinib esigeva
+  // dMMR/MSI-H come requisito BLOCCANTE, mentre la SmPC non lo prevede — ed e'
+  // anzi la strada per i casi MMR-proficienti. Il gate impediva di produrre il
+  // referto proprio per la popolazione a cui l'indicazione si rivolge.
+  const gateMMR = ind => (ind.clinicalContext || []).some(c => c.required && /MSI-H|dMMR|MMR/i.test(c.label));
+  const parlaDiMMR = ind => /MSI-H|dMMR/i.test(`${ind.name} ${ind.notes}`);
+  TUTTE.forEach(({ via, ind }) => {
+    if (gateMMR(ind))
+      check(`${via}: gate MMR bloccante → l'indicazione deve essere davvero MMR-ristretta`,
+        parlaDiMMR(ind), `nome: ${ind.name}`);
+  });
+  const lenv = clinicalDatabase.endometrium.drugs.pembrolizumab.indications['advanced-lenvatinib'];
+  check('endometrio + lenvatinib: nessun gate MMR bloccante', lenv && !gateMMR(lenv));
+  check('endometrio + lenvatinib: la correzione è documentata nella voce', /CORREZIONE/.test(lenv.guidelineNote || ''));
+  const mono = clinicalDatabase.endometrium.drugs.pembrolizumab.indications['advanced-dmmr-mono'];
+  check('endometrio monoterapia MSI-H: il gate MMR c\'è', mono && gateMMR(mono));
+  // e nessuna indicazione MMR-ristretta deve restare senza gate
+  TUTTE.filter(({ ind }) => /\b(MSI-H|dMMR)\b/.test(ind.name)).forEach(({ via, ind }) =>
+    check(`${via}: indicazione MMR-ristretta → gate presente`, gateMMR(ind)));
+}
+
 section('governance: una sola data di verifica');
 {
   const html = fs.readFileSync(new URL('../index.html', import.meta.url), 'utf8');
@@ -224,13 +278,19 @@ section('governance: una sola data di verifica');
   // La data di verifica veniva riscritta a mano in cinque punti (banner, referto,
   // titolo del database, log). Il log versioni e' una cronologia e le date passate
   // ci stanno; ovunque altro deve venire dalla costante.
-  const log = (html.match(/&#x1F4CC;[\s\S]*?non sono state ricontrollate da allora/) || [''])[0];
+  const i0 = html.indexOf('&#x1F4CC;');
+  const i1 = html.lastIndexOf('ricontrollare');
+  const log = i0 >= 0 && i1 > i0 ? html.slice(i0, i1) : '';
+  check('il log versioni è stato individuato', log.length > 500, String(log.length));
   const fuoriDalLog = senzaCommenti(html).replace(log, '');
   const dateSparse = [...fuoriDalLog.matchAll(/\d{2}\/\d{2}\/20\d{2}/g)].map(m => m[0]);
   eq('nessuna data scritta a mano fuori dal log versioni',
     [...new Set(dateSparse)].join(','), '');
-  eq('la data corrente compare una sola volta, nel log',
-    (html.match(new RegExp(LAST_VERIFIED_IT, 'g')) || []).length, 1);
+  // La data corrente deve comparire nel log (che documenta la verifica) e in nessun
+  // altro punto: banner, referto e intestazione la prendono dalla costante.
+  check('il log documenta la verifica corrente', log.includes(LAST_VERIFIED_IT));
+  eq('la data corrente non compare fuori dal log',
+    (fuoriDalLog.match(new RegExp(LAST_VERIFIED_IT, 'g')) || []).length, 0);
   check('la data vive nel motore', /LAST_VERIFIED_IT/.test(eng));
   eq('le due forme della data coincidono',
     LAST_VERIFIED_ISO.split('-').reverse().join('/'), LAST_VERIFIED_IT);

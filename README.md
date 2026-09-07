@@ -2,7 +2,7 @@
 
 [![Status](https://img.shields.io/badge/Uso-Supporto_operativo_interno-blue)](#disclaimer)
 [![Updated](https://img.shields.io/badge/Aggiornato-Settembre_2026-green)](CHANGELOG.md)
-[![Test](https://img.shields.io/badge/npm_test-746_asserzioni-brightgreen)](tests/run.mjs)
+[![Test](https://img.shields.io/badge/npm_test-840_asserzioni-brightgreen)](tests/run.mjs)
 [![HTML5](https://img.shields.io/badge/HTML-5-orange)](https://developer.mozilla.org/en-US/docs/Web/HTML)
 [![Dipendenze](https://img.shields.io/badge/Dipendenze_esterne-nessuna-brightgreen)](#specifiche-tecniche)
 
