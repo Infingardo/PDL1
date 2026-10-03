@@ -85,8 +85,16 @@ const clinicalDatabase = {
                     'first-combo-chemo-sq': {
                         name: 'Prima linea + chemio (squamoso)', method: 'Non richiesto', cutoff: 0,
                         optionalScoreMethod: 'TPS',
-                        notes: 'Pembrolizumab + gemcitabina/cisplatino o pembrolizumab + paclitaxel/carboplatin per NSCLC squamoso avanzato. PD-L1 non è criterio di eleggibilità (EPAR EMA Keytruda KEYNOTE-407).',
+                        notes: 'Pembrolizumab + carboplatino + paclitaxel oppure pembrolizumab + carboplatino + nab-paclitaxel per NSCLC squamoso avanzato. PD-L1 non è criterio di eleggibilità (EPAR EMA Keytruda KEYNOTE-407).',
                         trial: 'KEYNOTE-407'
+                    },
+                    'adjuvant': {
+                        name: 'Adiuvante post-resezione + chemioterapia',
+                        method: 'Non richiesto', cutoff: 0,
+                        optionalScoreMethod: 'TPS',
+                        notes: 'Pembrolizumab monoterapia come adiuvante nel NSCLC resecato completamente ad alto rischio di recidiva, dopo chemioterapia a base di platino. PD-L1 non è criterio di eleggibilità secondo EPAR EMA Keytruda (KEYNOTE-091 / PEARLS).',
+                        trial: 'KEYNOTE-091 / PEARLS',
+                        guidelineNote: 'PD-L1 può essere riportato a fini descrittivi/documentali usando TPS, ma non determina l\'eleggibilità terapeutica nell\'indicazione EMA. Percorso distinto dal perioperatorio KEYNOTE-671, che comprende pembrolizumab neoadiuvante.'
                     },
                     'perioperative': {
                         name: 'Perioperatorio (neoadiuvante + adiuvante)',
@@ -114,8 +122,8 @@ const clinicalDatabase = {
                     'second': { name: 'Seconda linea', method: 'Non richiesto', cutoff: 0, notes: 'Post-platino; PD-L1 agnostico', trial: 'CheckMate-057' },
                     'first-combo-ipi': {
                         name: 'Prima linea + ipilimumab + chemio', method: 'Non richiesto', cutoff: 0,
-                        notes: 'Nivolumab + ipilimumab + 2 cicli di chemioterapia in prima linea NSCLC metastatico senza mutazioni EGFR/ALK. PD-L1 non è criterio di eleggibilità secondo EPAR EMA Opdivo. (CheckMate-227 attuali dati + approvazione EMA)',
-                        trial: 'CheckMate-227',
+                        notes: 'Nivolumab + ipilimumab + 2 cicli di chemioterapia in prima linea NSCLC metastatico senza mutazioni EGFR/ALK. PD-L1 non è criterio di eleggibilità secondo EPAR EMA Opdivo. (CheckMate-9LA)',
+                        trial: 'CheckMate-9LA',
                         guidelineNote: 'Nota: la combinazione "nivo + ipi senza chemio" con TPS ≥1% rimane rilevante in ambito trial/guideline, ma la label EMA attuale richiede chemioterapia e non menziona PD-L1 come criterio di eleggibilità.'
                     },
                     'neoadjuvant': {
@@ -280,7 +288,7 @@ const clinicalDatabase = {
             },
             cemiplimab: {
                 name: 'Cemiplimab',
-                clone: 'Test PD-L1 validato (assay specifico, non clone SP-defined)',
+                clone: '22C3 (Dako)',
                 indications: {
                     'first-mono': {
                         name: 'Prima linea monoterapia',
@@ -288,6 +296,7 @@ const clinicalDatabase = {
                         cutoff: 50,
                         notes: 'Cemiplimab monoterapia in NSCLC localmente avanzato/metastatico con PD-L1 >=50% su cellule tumorali, senza EGFR, ALK o ROS1 secondo EPAR EMA Libtayo (EMPOWER-Lung 1).',
                         trial: 'EMPOWER-Lung 1',
+                        guidelineNote: 'Assay di riferimento registrativo: PD-L1 IHC 22C3 pharmDx. SP263 utilizzabile sulla base di bridging clinico-analitico validato per la monoterapia alla soglia TC >=50% (doi:10.1200/PO-25-00177), con validazione e documentazione del metodo. Non implica identità formale o intercambiabilità universale fra companion diagnostic.',
                         clinicalContext: [
                             { id: 'nsclc_drivers_cemi_mono', label: 'Assenza di EGFR, ALK e ROS1 documentata', required: true }
                         ]
@@ -298,6 +307,7 @@ const clinicalDatabase = {
                         cutoff: 1,
                         notes: 'Cemiplimab + chemioterapia a base di platino in NSCLC localmente avanzato/metastatico con PD-L1 >=1% su cellule tumorali, senza EGFR, ALK o ROS1 secondo EPAR EMA Libtayo (EMPOWER-Lung 3).',
                         trial: 'EMPOWER-Lung 3',
+                        guidelineNote: 'Riferimento PD-L1: 22C3. SP263 utilizzabile solo con validazione/bridging adeguati alla combinazione e alla soglia TC >=1%. Il bridging clinico di EMPOWER-Lung 1 alla soglia >=50% non è automaticamente estendibile a questa indicazione; non presumere intercambiabilità universale fra companion diagnostic.',
                         clinicalContext: [
                             { id: 'nsclc_drivers_cemi_combo', label: 'Assenza di EGFR, ALK e ROS1 documentata', required: true }
                         ]

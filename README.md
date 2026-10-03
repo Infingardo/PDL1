@@ -2,7 +2,7 @@
 
 [![Status](https://img.shields.io/badge/Uso-Supporto_operativo_interno-blue)](#disclaimer)
 [![Updated](https://img.shields.io/badge/Aggiornato-Settembre_2026-green)](CHANGELOG.md)
-[![Test](https://img.shields.io/badge/npm_test-840_asserzioni-brightgreen)](tests/run.mjs)
+[![Test](https://img.shields.io/badge/npm_test-875_asserzioni-brightgreen)](tests/run.mjs)
 [![HTML5](https://img.shields.io/badge/HTML-5-orange)](https://developer.mozilla.org/en-US/docs/Web/HTML)
 [![Dipendenze](https://img.shields.io/badge/Dipendenze_esterne-nessuna-brightgreen)](#specifiche-tecniche)
 
@@ -22,7 +22,7 @@ In particolare non sostituisce:
 
 I campi di contesto clinico mostrati sono indicativi e **non esaustivi**. Verificare sempre le fonti ufficiali prima di qualsiasi decisione diagnostica o terapeutica.
 
-**I cutoff e le approvazioni regolatorie variano tra FDA, EMA e AIFA e cambiano nel tempo. Il database ha una data di congelamento (Dicembre 2025) e invecchia.**
+**I cutoff e le approvazioni regolatorie variano tra FDA, EMA e AIFA e cambiano nel tempo. Il database clinico è stato verificato puntualmente sulle fonti regolatorie il 07/09/2026: questa è la data di ultima verifica regolatoria, definita in `engine.js` (`LAST_VERIFIED_ISO` / `LAST_VERIFIED_IT`), e non garantisce aggiornamento continuo.**
 
 ---
 
@@ -75,6 +75,15 @@ const labConfig = {
 > Le note di versione dalla 3.5.0 in poi stanno in [`CHANGELOG.md`](CHANGELOG.md). La sezione changelog piu' in basso in questo file si ferma alla 3.3.
 
 ## Database clinico v3.6.0
+
+### Indicazioni NSCLC aggiornate
+
+- **Pembrolizumab, KEYNOTE-407:** prima linea squamoso con carboplatino + paclitaxel oppure carboplatino + nab-paclitaxel; PD-L1 non richiesto.
+- **Pembrolizumab, KEYNOTE-091 / PEARLS:** monoterapia adiuvante dopo resezione completa e chemioterapia a base di platino, ad alto rischio di recidiva; PD-L1 non richiesto. TPS eventualmente descrittivo/documentale. Distinto dal perioperatorio KEYNOTE-671.
+- **Nivolumab, CheckMate-9LA:** ipilimumab + 2 cicli di chemioterapia; PD-L1 non richiesto.
+- **Cemiplimab:** riferimento 22C3; TPS ≥50% in monoterapia, TPS ≥1% con chemioterapia. SP263 solo con validazione/bridging pertinenti al setting e al cutoff: il bridging clinico disponibile per EMPOWER-Lung 1 (≥50%) non si estende automaticamente alla combinazione (≥1%). Nessuna intercambiabilità universale implicita.
+
+Fonti: [SmPC EMA Keytruda](https://www.ema.europa.eu/en/documents/product-information/keytruda-epar-product-information_en.pdf), [valutazione EMA CheckMate-9LA](https://www.ema.europa.eu/en/documents/variation-report/opdivo-h-c-3985-ws-1783-epar-assessment-report-variation_en.pdf), [SmPC EMA Libtayo](https://www.ema.europa.eu/en/documents/product-information/libtayo-epar-product-information_en.pdf), [studio di bridging 22C3/SP263](https://doi.org/10.1200/PO-25-00177).
 
 ### Tumori e farmaci coperti (16 tumori, 50+ indicazioni)
 
@@ -280,7 +289,7 @@ MIT — uso interno, nessuna garanzia clinica.
 
 ---
 
-*ASST Fatebenefratelli-Sacco — Anatomia Patologica. Ultimo aggiornamento: Dicembre 2025.*
+*ASST Fatebenefratelli-Sacco — Anatomia Patologica. Ultima verifica regolatoria del database: 07/09/2026.*
 
 
 ## Test
