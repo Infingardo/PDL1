@@ -2,6 +2,14 @@
 
 Le note delle versioni precedenti alla 3.5.0 stanno in `CHANGELOG_v3.4.7.md` e `BUGFIX_v2.4.md`.
 
+## Non rilasciato — correzioni NSCLC (3 ottobre 2026)
+
+- Corretto il backbone KEYNOTE-407: carboplatino + paclitaxel/nab-paclitaxel, rimossa gemcitabina/cisplatino.
+- Aggiunto pembrolizumab adiuvante KEYNOTE-091 / PEARLS dopo resezione completa e chemioterapia a base di platino, senza requisito PD-L1; distinto da KEYNOTE-671.
+- Corretto CheckMate-9LA per nivolumab + ipilimumab + 2 cicli di chemioterapia.
+- Precisato il riferimento 22C3 per cemiplimab e l'uso condizionato di SP263: bridging clinico alla soglia ≥50% in monoterapia, non automaticamente estendibile alla combinazione ≥1%.
+- Allineato il README all'ultima verifica regolatoria del database, 07/09/2026; conservate le date storiche e la versione 3.6.0.
+
 ## v3.6.0 (7 settembre 2026) — revisione delle indicazioni su SmPC EMA; nuovo metodo TAP
 
 Verifica puntuale su SmPC/EPAR EMA di **Keytruda, Opdivo, Tecentriq, Imfinzi, Libtayo, Tevimbra, Cejemly, Jemperli, Bavencio**.

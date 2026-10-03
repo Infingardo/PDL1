@@ -174,6 +174,50 @@ section('validazione dei valori di score');
   check('100 è ammesso', isValidScoreValue(100, 100));
 }
 
+section('regressioni NSCLC: backbone, trial, adiuvante e assay');
+{
+  const drugs = clinicalDatabase.nsclc.drugs;
+  const sq = drugs.pembrolizumab.indications['first-combo-chemo-sq'];
+  eq('squamoso pembrolizumab: KEYNOTE-407', sq.trial, 'KEYNOTE-407');
+  check('KEYNOTE-407: carboplatino con entrambi i taxani',
+    sq.notes.includes('carboplatino + paclitaxel') && sq.notes.includes('carboplatino + nab-paclitaxel'));
+  check('KEYNOTE-407: nessuna gemcitabina/cisplatino', !/gemcitabina|cisplatino/i.test(sq.notes));
+  const adj = drugs.pembrolizumab.indications.adjuvant;
+  check('adiuvante pembrolizumab presente', !!adj);
+  eq('adiuvante: KEYNOTE-091 / PEARLS', adj?.trial, 'KEYNOTE-091 / PEARLS');
+  check('adiuvante: resezione completa e successiva chemioterapia al platino',
+    /resecato completamente/.test(adj?.notes || '') && /dopo chemioterapia a base di platino/.test(adj?.notes || ''));
+  check('adiuvante: nota descrittiva distinta dal perioperatorio',
+    /descrittivi\/documentali/.test(adj?.guidelineNote || '') && /KEYNOTE-671/.test(adj?.guidelineNote || ''));
+  eq('perioperatorio pembrolizumab preservato', drugs.pembrolizumab.indications.perioperative.trial, 'KEYNOTE-671');
+  for (const [key, ind] of [['KEYNOTE-407', sq], ['KEYNOTE-091', adj]]) {
+    eq(`${key}: PD-L1 non richiesto`, ind?.method, 'Non richiesto');
+    eq(`${key}: cutoff 0`, ind?.cutoff, 0);
+    eq(`${key}: TPS opzionale`, ind?.optionalScoreMethod, 'TPS');
+  }
+  const nivo = drugs.nivolumab.indications['first-combo-ipi'];
+  eq('nivolumab + ipi + chemio: CheckMate-9LA', nivo.trial, 'CheckMate-9LA');
+  check('CheckMate-9LA: due cicli e nessun riferimento a 227',
+    /2 cicli/.test(nivo.notes) && /CheckMate-9LA/.test(nivo.notes) && !/CheckMate-227/.test(JSON.stringify(nivo)));
+  eq('CheckMate-9LA: PD-L1 non richiesto', nivo.method, 'Non richiesto');
+  eq('CheckMate-9LA: cutoff 0', nivo.cutoff, 0);
+  eq('cemiplimab: riferimento 22C3', drugs.cemiplimab.clone, '22C3 (Dako)');
+  for (const [key, cutoff] of [['first-mono', 50], ['first-combo-chemo', 1]]) {
+    const ind = drugs.cemiplimab.indications[key];
+    eq(`cemiplimab ${key}: TPS`, ind.method, 'TPS');
+    eq(`cemiplimab ${key}: cutoff preservato`, ind.cutoff, cutoff);
+    check(`cemiplimab ${key}: nota su SP263 e bridging`,
+      /SP263/.test(ind.guidelineNote || '') && /bridging/.test(ind.guidelineNote || ''));
+  }
+  check('cemiplimab combinazione: bridging 50% non esteso automaticamente',
+    /non è automaticamente estendibile/.test(drugs.cemiplimab.indications['first-combo-chemo'].guidelineNote));
+  const readme = fs.readFileSync(new URL('../README.md', import.meta.url), 'utf8');
+  check('README: data di ultima verifica coerente con il motore',
+    readme.includes(`Ultima verifica regolatoria del database: ${LAST_VERIFIED_IT}`));
+  check('README: nessun database congelato a dicembre 2025',
+    !/congelamento \(Dicembre 2025\)|Ultimo aggiornamento: Dicembre 2025/i.test(readme));
+}
+
 section('le voci che la v3.6.0 ha cambiato');
 {
   const trova = (t, d, i) => clinicalDatabase[t]?.drugs?.[d]?.indications?.[i];
