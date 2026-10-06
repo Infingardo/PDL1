@@ -8,5 +8,5 @@ Single-file HTML/JS tool for PD-L1 IHC evaluation in pathology (clone selection,
 - After such a change, get an independent review against the agreed spec: `/verify-agent` in Claude Code, or a separate review pass against the cited source.
 - Keep `CHANGELOG.md` and `README.md` (including regulatory documentation) aligned with any change in behavior.
 - Keep logic in `engine.js` separate from the UI. No fake precision: show uncertainty and equivocal results.
-- Offline-first: no external script, stylesheet or fetch URLs. A pre-commit hook blocks external references; never bypass it with `--no-verify`.
+- Offline-first: no external script, stylesheet or fetch URLs. On the Mac a local pre-commit hook enforces this; elsewhere check by hand. Never bypass hooks with `--no-verify`.
 - No patient data in code, tests, fixtures, docs or commit messages.
