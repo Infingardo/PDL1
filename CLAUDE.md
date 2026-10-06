@@ -10,3 +10,4 @@ Single-file HTML/JS tool for PD-L1 IHC evaluation in pathology (clone selection,
 - Keep logic in `engine.js` separate from the UI. No fake precision: show uncertainty and equivocal results.
 - Offline-first: no external script, stylesheet or fetch URLs. On the Mac a local pre-commit hook enforces this; elsewhere check by hand. Never bypass hooks with `--no-verify`.
 - No patient data in code, tests, fixtures, docs or commit messages.
+- `AGENTS.md` is a copy of this file for Codex: keep the two aligned when you edit either.
